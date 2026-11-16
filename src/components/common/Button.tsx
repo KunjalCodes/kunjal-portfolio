@@ -24,7 +24,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   external = false,
 }) => {
-  const base = "inline-flex items-center justify-center font-mono font-medium rounded transition-all duration-200 select-none group";
+  const base = "inline-flex items-center justify-center font-mono font-medium rounded-md transition-colors duration-150 select-none active:scale-[0.98] group";
 
   const sizeClasses = {
     sm: "px-3 py-1.5 text-xs gap-1.5",
@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variants = {
-    primary: "bg-accent text-[#080808] hover:bg-accent-hover font-semibold shadow-[0_0_20px_rgba(240,165,200,0.15)] hover:shadow-[0_0_25px_rgba(240,165,200,0.3)]",
+    primary: "bg-accent text-[#080808] hover:bg-accent-hover font-medium",
     secondary: "bg-[#141414] text-primary hover:bg-[#1C1C1C] border border-border hover:border-accent/40",
     outline: "bg-transparent text-primary hover:text-accent border border-border hover:border-accent/50",
     ghost: "bg-transparent text-muted hover:text-primary hover:bg-white/[0.04]",

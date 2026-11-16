@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
           className="group flex items-center gap-2 select-none"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <div className="w-2.5 h-2.5 rounded-full bg-accent transition-transform duration-300 group-hover:scale-125" />
+          <div className="w-2.5 h-2.5 rounded-full bg-accent" />
           <span className="font-heading font-bold text-lg tracking-tight text-primary group-hover:text-accent transition-colors">
             {profile.brandName}
           </span>
@@ -65,13 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
           {/* Terminal Launcher */}
           <button
             onClick={onOpenTerminal}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#121212] hover:bg-[#1A1A1A] border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-200 font-mono text-xs cursor-pointer group"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#121212] hover:bg-[#1A1A1A] border border-border hover:border-accent/40 text-muted hover:text-accent transition-colors duration-150 font-mono text-xs cursor-pointer group"
             title="Open Interactive Terminal (or press ~)"
             aria-label="Open portfolio terminal"
           >
-            <TerminalIcon className="w-3.5 h-3.5 text-accent group-hover:animate-pulse" />
+            <TerminalIcon className="w-3.5 h-3.5 text-accent" />
             <span className="hidden sm:inline font-mono">Terminal</span>
-            <kbd className="hidden lg:inline text-[10px] text-muted-dark bg-black/40 px-1 rounded border border-border">
+            <kbd className="hidden lg:inline text-[10px] text-muted-dark bg-black/40 px-1 rounded-sm border border-border">
               ~
             </kbd>
           </button>

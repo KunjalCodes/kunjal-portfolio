@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, 
   Terminal, 
   Play, 
   Check, 
@@ -61,7 +60,7 @@ export const PromptEngineeringLab: React.FC = () => {
       {/* Scenario Selector Banner */}
       <div className="bg-[#0D0D0D] border border-border rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <div className="font-mono text-xs text-accent mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
             Prompt Evaluation Scenario
           </div>

@@ -48,7 +48,7 @@ export const CharacterSlot: React.FC<CharacterSlotProps> = ({
         <img
           src={assetUrl}
           alt={`Companion (${pose})`}
-          className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(240,165,200,0.3)]"
+          className="w-full h-full object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
           loading="lazy"
         />
       </div>

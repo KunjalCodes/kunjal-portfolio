@@ -19,7 +19,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
     <div className={`flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pb-6 border-b border-border ${className}`}>
       <div>
         {label && (
-          <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+          <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block" />
             {label}
           </div>

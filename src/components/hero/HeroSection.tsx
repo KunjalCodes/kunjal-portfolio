@@ -22,10 +22,10 @@ export const HeroSection: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-black/60 backdrop-blur-md mb-6"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-border bg-[#0E0E0E] mb-6"
         >
-          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-xs text-muted-light tracking-wide uppercase">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+          <span className="font-mono text-xs text-muted-light">
             {profile.shortIntro}
           </span>
         </motion.div>

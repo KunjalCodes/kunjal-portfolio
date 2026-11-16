@@ -30,9 +30,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
     <div className="pt-28 pb-24 max-w-4xl mx-auto px-6 min-h-screen">
       {/* Header */}
       <div className="mb-12">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Get In Touch
+          Get in touch
         </div>
         <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
           Contact & Collaboration
@@ -61,7 +61,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied to clipboard!</span>
+                  <span className="text-emerald-400">Copied to clipboard</span>
                 </>
               ) : (
                 <>
@@ -74,7 +74,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
 
           {/* Social Profiles */}
           <div className="bg-[#0B0B0B] border border-border rounded-lg p-5 space-y-3">
-            <div className="text-xs font-mono text-accent uppercase tracking-wider">
+            <div className="text-xs font-mono text-accent">
               Network Profiles
             </div>
             <div className="space-y-2 font-mono text-xs">
@@ -172,7 +172,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
                 placeholder="e.g. AI Engineering Opportunity / CV Discussion"
-                className="w-full bg-[#121212] border border-border rounded px-3 py-2 text-xs font-mono text-primary placeholder:text-muted-dark focus:outline-none focus:border-accent"
+                className="w-full bg-[#121212] border border-border rounded-md px-3 py-2 text-xs font-mono text-primary placeholder:text-muted-dark focus:outline-none focus:border-accent"
               />
             </div>
 
@@ -186,7 +186,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Write your note, question, or project inquiry..."
-                className="w-full bg-[#121212] border border-border rounded px-3 py-2 text-xs font-mono text-primary placeholder:text-muted-dark focus:outline-none focus:border-accent resize-none"
+                className="w-full bg-[#121212] border border-border rounded-md px-3 py-2 text-xs font-mono text-primary placeholder:text-muted-dark focus:outline-none focus:border-accent resize-none"
                 required
               />
             </div>

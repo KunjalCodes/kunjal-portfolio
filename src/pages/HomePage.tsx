@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Eye, Code2, Cpu, Sparkles, Terminal, FileText, Sliders, BarChart3, Network, Layers } from 'lucide-react';
+import { ArrowRight, Eye, Code2, Cpu, Terminal, FileText, Sliders, BarChart3, Network, Layers } from 'lucide-react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Badge } from '../components/common/Badge';
@@ -29,7 +29,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
         <section id="intro" className="scroll-mt-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-5">
-              <div className="font-mono text-xs uppercase tracking-widest text-accent mb-3 flex items-center gap-2">
+              <div className="font-mono text-xs text-accent mb-3 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 Engineering Philosophy
               </div>
@@ -81,7 +81,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group relative bg-[#0E0E0E] hover:bg-[#121212] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-all duration-300"
+                className="group relative bg-[#0E0E0E] hover:bg-[#121212] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-[border-color,background-color] duration-200"
               >
                 <div>
                   {/* Card Header */}
@@ -169,10 +169,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             {/* Tool 1 */}
             <Link
               to="/playground?tab=pipeline"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
                   <Layers className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
@@ -191,10 +191,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             {/* Tool 2 */}
             <Link
               to="/playground?tab=eval"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
@@ -213,10 +213,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             {/* Tool 3 */}
             <Link
               to="/playground?tab=prompt"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
                   <Terminal className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
@@ -235,10 +235,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             {/* Tool 4 */}
             <Link
               to="/playground?tab=architecture"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
             >
               <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
                   <Network className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
@@ -359,8 +359,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
         {/* 6. Contact Invitation Banner */}
         <section className="bg-gradient-to-b from-[#0E0E0E] to-[#090909] border border-border rounded-xl p-8 sm:p-12 text-center relative overflow-hidden">
           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent text-xs font-mono">
-              <Sparkles className="w-3 h-3" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.04] border border-border text-muted-light text-xs font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               Collaboration & Engineering Opportunities
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-primary tracking-tight">

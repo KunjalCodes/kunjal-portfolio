@@ -23,14 +23,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
             </p>
             <div className="pt-2 flex items-center justify-between max-w-sm">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
                 <span className="text-xs font-mono text-muted-light">{profile.status}</span>
               </div>
               <div className="hidden sm:flex items-center shrink-0 pl-4" title="Engineering companion...">
                 <img
                   src="/assets/character/chotu-thinking.png"
                   alt="Companion thinking"
-                  className="w-10 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.25)] select-none pointer-events-none"
+                  className="w-10 h-14 object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] select-none pointer-events-none"
                 />
               </div>
             </div>
@@ -38,7 +38,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
 
           {/* Navigation Links */}
           <div className="space-y-3">
-            <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-semibold">
+            <h4 className="font-mono text-xs text-secondary font-medium">
               Navigation
             </h4>
             <ul className="space-y-2 text-sm text-muted font-sans">
@@ -65,7 +65,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
 
           {/* Connect & System */}
           <div className="space-y-3">
-            <h4 className="font-mono text-xs uppercase tracking-widest text-accent font-semibold">
+            <h4 className="font-mono text-xs text-secondary font-medium">
               Connect
             </h4>
             <ul className="space-y-2 text-sm text-muted font-mono">

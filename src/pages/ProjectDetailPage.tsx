@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ArrowLeft, Github, ExternalLink, AlertCircle, CheckCircle2, Layers, Cpu, Code2, Terminal, Sparkles } from 'lucide-react';
+import { ArrowLeft, Github, ExternalLink, AlertCircle, CheckCircle2, Layers, Cpu, Code2, Terminal } from 'lucide-react';
 import { projects } from '../data/projects';
 import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
@@ -104,25 +104,25 @@ export const ProjectDetailPage: React.FC = () => {
         {project.id === 'second-brain' && (
           <div className="mt-8 bg-gradient-to-r from-[#141012] via-[#0E0E0E] to-[#121014] border border-accent/40 rounded-lg p-5 sm:p-6 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="font-mono text-xs uppercase tracking-widest text-accent font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <div className="font-mono text-xs text-accent font-medium flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent" />
                 Empirical Engineering Benchmark: 10,000-Node Dense Knowledge Graph
               </div>
               <span className="text-[11px] font-mono text-muted">eval/graph_scale_benchmark.py</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div className="bg-[#080808] p-4 rounded border border-border">
-                <div className="text-[10px] font-mono text-muted uppercase">Unindexed Latency</div>
-                <div className="text-2xl font-mono font-bold text-red-400 mt-1">~39.5 s</div>
+              <div className="bg-[#080808] p-4 rounded-md border border-border">
+                <div className="text-[10px] font-mono text-muted">Unindexed latency</div>
+                <div className="text-2xl font-mono font-bold text-red-400 mt-1 tabular-nums">~39.5 s</div>
                 <div className="text-[11px] text-muted-dark">Missing index on RELATES_TO.memory_id</div>
               </div>
-              <div className="bg-[#080808] p-4 rounded border border-accent/30">
-                <div className="text-[10px] font-mono text-accent uppercase">Optimized Latency</div>
-                <div className="text-2xl font-mono font-bold text-emerald-400 mt-1">~0.58 s</div>
+              <div className="bg-[#080808] p-4 rounded-md border border-accent/30">
+                <div className="text-[10px] font-mono text-accent">Optimized latency</div>
+                <div className="text-2xl font-mono font-bold text-emerald-400 mt-1 tabular-nums">~0.58 s</div>
                 <div className="text-[11px] text-muted-dark">Composite property index on edge entity</div>
               </div>
-              <div className="bg-[#080808] p-4 rounded border border-border">
-                <div className="text-[10px] font-mono text-muted uppercase">Measured Speedup</div>
+              <div className="bg-[#080808] p-4 rounded-md border border-border">
+                <div className="text-[10px] font-mono text-muted">Measured speedup</div>
                 <div className="text-2xl font-mono font-bold text-accent mt-1">68× Faster</div>
                 <div className="text-[11px] text-muted-dark">Reproducible dense graph evaluation</div>
               </div>
@@ -138,8 +138,8 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-3 bg-[#0D0D0D] p-4 rounded-lg border border-border">
             {project.metrics.map(m => (
               <div key={m.label}>
-                <div className="text-[11px] font-mono text-muted uppercase tracking-wider">{m.label}</div>
-                <div className="text-sm font-mono font-semibold text-primary mt-0.5">{m.value}</div>
+                <div className="text-[11px] font-mono text-muted">{m.label}</div>
+                <div className="text-sm font-mono font-semibold text-primary mt-0.5 tabular-nums">{m.value}</div>
               </div>
             ))}
           </div>
@@ -150,7 +150,7 @@ export const ProjectDetailPage: React.FC = () => {
       <div className="space-y-16">
         {/* 1. Problem Statement */}
         <section className="bg-[#0D0D0D] border border-border rounded-lg p-6 sm:p-8 space-y-4">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             01. Problem Statement
           </div>
@@ -164,7 +164,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 2. Project Overview */}
         <section className="space-y-4">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Cpu className="w-4 h-4" />
             02. Project Overview
           </div>
@@ -188,7 +188,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 3. System Architecture */}
         <section className="space-y-6">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Layers className="w-4 h-4" />
             03. System Architecture
           </div>
@@ -204,7 +204,7 @@ export const ProjectDetailPage: React.FC = () => {
 
           {/* Architecture Layer Breakdown */}
           <div className="space-y-3 pt-2">
-            <h3 className="font-mono text-xs uppercase tracking-wider text-muted font-semibold">
+            <h3 className="font-mono text-xs text-muted font-medium">
               Layer Responsibilities & Tech Stack
             </h3>
             {project.architecture.layers.map((layer, idx) => (
@@ -240,7 +240,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 4. Technical Implementation */}
         <section className="space-y-6">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Code2 className="w-4 h-4" />
             04. Technical Implementation
           </div>
@@ -281,7 +281,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 5. Engineering Challenges & Trade-offs */}
         <section className="space-y-6">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             05. Engineering Challenges
           </div>
@@ -320,7 +320,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 6. Demonstrations & Visual Schematics */}
         <section className="space-y-6">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Layers className="w-4 h-4" />
             06. Demonstrations & Layout Previews
           </div>
@@ -391,7 +391,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 7. Actual Results & Real Limitations */}
         <section className="space-y-6">
-          <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             07. Actual Results & Limitations
           </div>
@@ -402,7 +402,7 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Realized Capabilities */}
             <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-4">
-              <h3 className="font-mono text-xs uppercase tracking-wider text-emerald-400 flex items-center gap-2 font-semibold">
+              <h3 className="font-mono text-xs text-emerald-400 flex items-center gap-2 font-medium">
                 <CheckCircle2 className="w-4 h-4" />
                 Verified Results
               </h3>
@@ -418,7 +418,7 @@ export const ProjectDetailPage: React.FC = () => {
 
             {/* Known Limitations */}
             <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-4">
-              <h3 className="font-mono text-xs uppercase tracking-wider text-amber-400 flex items-center gap-2 font-semibold">
+              <h3 className="font-mono text-xs text-amber-400 flex items-center gap-2 font-medium">
                 <AlertCircle className="w-4 h-4" />
                 Current Limitations
               </h3>
@@ -437,8 +437,8 @@ export const ProjectDetailPage: React.FC = () => {
         {/* 08. Future Improvements & Roadmap */}
         {project.futureImprovements && project.futureImprovements.length > 0 && (
           <section className="space-y-6">
-            <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
+            <div className="font-mono text-xs text-accent flex items-center gap-2">
+              <Layers className="w-4 h-4" />
               08. Future Improvements & Planned Roadmap
             </div>
             <h2 className="font-heading text-xl sm:text-2xl font-semibold text-primary">
@@ -472,7 +472,7 @@ export const ProjectDetailPage: React.FC = () => {
             to={`/work/${nextProject.slug}`}
             className="group flex flex-col sm:items-end text-right"
           >
-            <span className="text-[10px] font-mono text-muted uppercase tracking-wider">Next Case Study →</span>
+            <span className="text-[10px] font-mono text-muted">Next Case Study →</span>
             <span className="font-heading text-base font-semibold text-primary group-hover:text-accent transition-colors">
               {nextProject.title}
             </span>

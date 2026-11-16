@@ -25,7 +25,7 @@ export const WorkPage: React.FC = () => {
     <div className="pt-28 pb-20 max-w-7xl mx-auto px-6 min-h-screen">
       {/* Header */}
       <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           Engineering Portfolio
         </div>
@@ -51,14 +51,14 @@ export const WorkPage: React.FC = () => {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`font-mono text-xs px-3 py-1.5 rounded transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+              className={`font-mono text-xs px-3 py-1.5 rounded-md transition-colors duration-150 flex items-center gap-2 cursor-pointer ${
                 isActive
-                  ? 'bg-accent text-[#080808] font-semibold shadow-sm'
+                  ? 'bg-accent text-[#080808] font-medium shadow-sm'
                   : 'bg-[#121212] text-muted hover:text-primary hover:bg-[#181818] border border-border'
               }`}
             >
               <span>{cat}</span>
-              <span className={`text-[10px] px-1 rounded ${isActive ? 'bg-black/20 text-[#080808]' : 'bg-white/[0.05] text-muted'}`}>
+              <span className={`text-[10px] px-1 rounded tabular-nums ${isActive ? 'bg-black/20 text-[#080808]' : 'bg-white/[0.05] text-muted'}`}>
                 {count}
               </span>
             </button>
@@ -134,11 +134,11 @@ export const WorkPage: React.FC = () => {
 
                   {/* Key Metric Preview if exists */}
                   {project.metrics && project.metrics.length > 0 && (
-                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-black/40 p-3 rounded border border-border/60">
+                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-black/40 p-3 rounded-md border border-border/60">
                       {project.metrics.map(m => (
                         <div key={m.label} className="text-left">
-                          <div className="text-[10px] font-mono text-muted uppercase">{m.label}</div>
-                          <div className="text-xs font-mono font-medium text-primary mt-0.5">{m.value}</div>
+                          <div className="text-[10px] font-mono text-muted">{m.label}</div>
+                          <div className="text-xs font-mono font-medium text-primary mt-0.5 tabular-nums">{m.value}</div>
                         </div>
                       ))}
                     </div>

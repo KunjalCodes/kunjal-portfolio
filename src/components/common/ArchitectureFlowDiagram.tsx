@@ -26,7 +26,7 @@ export const ArchitectureFlowDiagram: React.FC<ArchitectureFlowDiagramProps> = (
     <div className="bg-[#0B0B0B] border border-border rounded-lg p-6 sm:p-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-4">
         <div>
-          <span className="text-[10px] font-mono text-accent uppercase tracking-widest font-semibold flex items-center gap-1.5">
+          <span className="text-xs font-mono text-accent font-medium flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
             Interactive Data-Flow Architecture
           </span>
@@ -53,9 +53,9 @@ export const ArchitectureFlowDiagram: React.FC<ArchitectureFlowDiagramProps> = (
                 <button
                   key={step.stepNumber}
                   onClick={() => setActiveStep(step.stepNumber)}
-                  className={`p-3 rounded-lg border text-left transition-all cursor-pointer select-none flex flex-col justify-between ${
+                  className={`p-3 rounded-lg border text-left transition-colors duration-150 cursor-pointer select-none flex flex-col justify-between ${
                     isActive
-                      ? 'bg-accent/15 border-accent shadow-[0_0_15px_rgba(240,165,200,0.15)]'
+                      ? 'bg-accent/10 border-accent'
                       : 'bg-[#080808] border-border hover:border-accent/40'
                   }`}
                 >
@@ -89,19 +89,19 @@ export const ArchitectureFlowDiagram: React.FC<ArchitectureFlowDiagramProps> = (
                       {current.title}
                     </h4>
                   </div>
-                  <span className="text-[10px] font-mono text-muted uppercase">Contract Transformation</span>
+                  <span className="text-[10px] font-mono text-muted">Contract Transformation</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-[#101010] p-3.5 rounded border border-border space-y-1">
-                    <span className="text-[10px] font-mono text-muted uppercase tracking-wider">Input Contract</span>
+                  <div className="bg-[#101010] p-3.5 rounded-md border border-border space-y-1">
+                    <span className="text-[10px] font-mono text-muted">Input Contract</span>
                     <div className="font-mono text-xs text-primary/90 font-medium">
                       {current.input}
                     </div>
                   </div>
 
-                  <div className="bg-[#101010] p-3.5 rounded border border-accent/25 space-y-1">
-                    <span className="text-[10px] font-mono text-accent uppercase tracking-wider">Output Artifact</span>
+                  <div className="bg-[#101010] p-3.5 rounded-md border border-accent/25 space-y-1">
+                    <span className="text-[10px] font-mono text-accent">Output Artifact</span>
                     <div className="font-mono text-xs text-accent font-medium">
                       {current.output}
                     </div>
@@ -120,8 +120,8 @@ export const ArchitectureFlowDiagram: React.FC<ArchitectureFlowDiagramProps> = (
 
       {/* Fallback or raw flow trace */}
       {diagramDescription && (
-        <div className="bg-[#060606] border border-border/80 rounded p-4 font-mono text-xs text-muted-light overflow-x-auto">
-          <div className="text-[10px] text-muted uppercase tracking-widest mb-1.5">// Linear Topology Trace</div>
+        <div className="bg-[#060606] border border-border/80 rounded-md p-4 font-mono text-xs text-muted-light overflow-x-auto">
+          <div className="text-[10px] text-muted font-mono mb-1.5">// Linear topology trace</div>
           <div className="whitespace-pre-wrap leading-relaxed text-primary/80">
             {diagramDescription}
           </div>

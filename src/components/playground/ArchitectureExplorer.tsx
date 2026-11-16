@@ -41,7 +41,7 @@ export const ArchitectureExplorer: React.FC = () => {
       {/* Top Section Intro */}
       <div className="bg-[#0D0D0D] border border-border rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <div className="font-mono text-xs text-accent mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
             Interactive System Topology
           </div>
@@ -69,13 +69,13 @@ export const ArchitectureExplorer: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Visual Architecture Diagram Flow (6 cols) */}
         <div className="lg:col-span-6 bg-[#0B0B0B] border border-border rounded-lg p-6 space-y-4">
-          <h4 className="font-mono text-xs uppercase tracking-wider text-muted mb-2 font-semibold">
+          <h4 className="font-mono text-xs text-muted mb-2 font-medium">
             System Topology Graph
           </h4>
 
           {/* Tier 1: Client & Ingestion */}
           <div className="space-y-2">
-            <span className="text-[10px] font-mono text-muted-dark uppercase tracking-widest">// Ingestion & Gateway</span>
+            <span className="text-[10px] font-mono text-muted-dark">// Ingestion & Gateway</span>
             <div className="grid grid-cols-2 gap-3">
               {architectureComponents.filter(c => c.tier === 'Client Tier' || c.tier === 'Ingestion & API').map(c => {
                 const Icon = getComponentIcon(c.id);
@@ -85,9 +85,9 @@ export const ArchitectureExplorer: React.FC = () => {
                   <button
                     key={c.id}
                     onClick={() => setSelectedId(c.id)}
-                    className={`p-3.5 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-lg border text-left transition-colors duration-150 cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-accent/15 border-accent shadow-[0_0_15px_rgba(240,165,200,0.15)]'
+                        ? 'bg-accent/10 border-accent'
                         : 'bg-[#080808] border-border hover:border-accent/40'
                     }`}
                   >
@@ -110,7 +110,7 @@ export const ArchitectureExplorer: React.FC = () => {
 
           {/* Tier 2: Processing Core */}
           <div className="space-y-2">
-            <span className="text-[10px] font-mono text-muted-dark uppercase tracking-widest">// Computer Vision & Multimodal Core</span>
+            <span className="text-[10px] font-mono text-muted-dark">// Computer Vision & Multimodal Core</span>
             <div className="grid grid-cols-3 gap-2.5">
               {architectureComponents.filter(c => c.tier === 'Computer Vision Core' || c.tier === 'Multimodal AI').map(c => {
                 const Icon = getComponentIcon(c.id);
@@ -120,9 +120,9 @@ export const ArchitectureExplorer: React.FC = () => {
                   <button
                     key={c.id}
                     onClick={() => setSelectedId(c.id)}
-                    className={`p-3 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[92px] ${
+                    className={`p-3 rounded-lg border text-left transition-colors duration-150 cursor-pointer flex flex-col justify-between min-h-[92px] ${
                       isSelected
-                        ? 'bg-accent/15 border-accent shadow-[0_0_15px_rgba(240,165,200,0.15)]'
+                        ? 'bg-accent/10 border-accent'
                         : 'bg-[#080808] border-border hover:border-accent/40'
                     }`}
                   >
@@ -145,7 +145,7 @@ export const ArchitectureExplorer: React.FC = () => {
 
           {/* Tier 3: Storage & Verification */}
           <div className="space-y-2">
-            <span className="text-[10px] font-mono text-muted-dark uppercase tracking-widest">// Verification, Storage & Export</span>
+            <span className="text-[10px] font-mono text-muted-dark">// Verification, Storage & Export</span>
             <div className="grid grid-cols-3 gap-2.5">
               {architectureComponents.filter(c => c.tier === 'Verification & Storage').map(c => {
                 const Icon = getComponentIcon(c.id);
@@ -155,9 +155,9 @@ export const ArchitectureExplorer: React.FC = () => {
                   <button
                     key={c.id}
                     onClick={() => setSelectedId(c.id)}
-                    className={`p-3 rounded-lg border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[92px] ${
+                    className={`p-3 rounded-lg border text-left transition-colors duration-150 cursor-pointer flex flex-col justify-between min-h-[92px] ${
                       isSelected
-                        ? 'bg-accent/15 border-accent shadow-[0_0_15px_rgba(240,165,200,0.15)]'
+                        ? 'bg-accent/10 border-accent'
                         : 'bg-[#080808] border-border hover:border-accent/40'
                     }`}
                   >

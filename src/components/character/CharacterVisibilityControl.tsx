@@ -15,7 +15,7 @@ export const CharacterVisibilityControl: React.FC<CharacterVisibilityControlProp
   return (
     <button
       onClick={onToggle}
-      className={`font-mono text-[10px] px-2 py-1 rounded bg-[#101010]/90 hover:bg-[#181818] border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-200 flex items-center gap-1.5 shadow-md backdrop-blur-sm cursor-pointer select-none ${className}`}
+      className={`font-mono text-[10px] px-2 py-1 rounded-md bg-[#101010]/90 hover:bg-[#181818] border border-border hover:border-accent/40 text-muted hover:text-accent transition-colors duration-150 flex items-center gap-1.5 backdrop-blur-sm cursor-pointer select-none ${className}`}
       title={isVisible ? 'Hide companion' : 'Show companion'}
       aria-label={isVisible ? 'Hide companion' : 'Show companion'}
     >

@@ -81,9 +81,9 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
               : 'animate-companion-breathe'
           }`}
         >
-          {/* Subtle baby-pink atmospheric bloom behind companion */}
+          {/* Subtle atmospheric ground presence behind companion */}
           <div
-            className="absolute inset-1 rounded-full bg-accent/15 blur-md opacity-40 group-hover:opacity-75 transition-opacity pointer-events-none"
+            className="absolute inset-1 rounded-full bg-accent/10 blur-sm opacity-25 pointer-events-none"
             aria-hidden="true"
           />
 
@@ -91,7 +91,7 @@ export const CharacterRenderer: React.FC<CharacterRendererProps> = ({
           <img
             src={assetUrl}
             alt="Engineering Companion"
-            className="w-full h-full object-contain filter drop-shadow-[0_4px_14px_rgba(240,165,200,0.22)] group-hover:drop-shadow-[0_4px_20px_rgba(240,165,200,0.4)] transition-all duration-300 pointer-events-none select-none"
+            className="w-full h-full object-contain filter drop-shadow-[0_3px_8px_rgba(0,0,0,0.6)] transition-opacity duration-200 pointer-events-none select-none"
             loading="eager"
             draggable={false}
           />

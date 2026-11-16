@@ -38,7 +38,7 @@ export const PlaygroundPage: React.FC = () => {
     <div className="pt-28 pb-24 max-w-7xl mx-auto px-6 min-h-screen">
       {/* Page Header */}
       <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           Interactive AI Engineering
         </div>
@@ -60,9 +60,9 @@ export const PlaygroundPage: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id as any)}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded transition-all cursor-pointer font-mono text-xs select-none ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-md transition-colors duration-150 cursor-pointer font-mono text-xs select-none ${
                 isActive
-                  ? 'bg-accent text-[#080808] font-semibold shadow-md'
+                  ? 'bg-accent text-[#080808] font-medium shadow-sm'
                   : 'bg-[#121212] text-muted hover:text-primary hover:bg-[#181818] border border-border'
               }`}
             >

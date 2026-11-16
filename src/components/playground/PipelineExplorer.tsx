@@ -46,7 +46,7 @@ export const PipelineExplorer: React.FC = () => {
       {/* Top Controls: Drawing Selector & Status Badge */}
       <div className="bg-[#0D0D0D] border border-border rounded-lg p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <div className="font-mono text-xs text-accent mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
             Active Test Drawing Sample
           </div>
@@ -68,9 +68,9 @@ export const PipelineExplorer: React.FC = () => {
                 setSelectedDrawingIndex(idx);
                 setHoveredBox(null);
               }}
-              className={`font-mono text-xs px-3 py-1.5 rounded transition-all cursor-pointer ${
+              className={`font-mono text-xs px-3 py-1.5 rounded-md transition-colors duration-150 cursor-pointer ${
                 selectedDrawingIndex === idx
-                  ? 'bg-accent text-[#080808] font-semibold'
+                  ? 'bg-accent text-[#080808] font-medium'
                   : 'bg-[#141414] text-muted hover:text-primary border border-border'
               }`}
             >
@@ -92,7 +92,7 @@ export const PipelineExplorer: React.FC = () => {
               <button
                 key={s.number}
                 onClick={() => setActiveStage(s.number)}
-                className={`flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded transition-all cursor-pointer select-none text-center relative ${
+                className={`flex-1 flex flex-col items-center justify-center py-2.5 px-2 rounded-md transition-colors duration-150 cursor-pointer select-none text-center relative ${
                   isActive
                     ? 'bg-[#181818] border border-accent/40 shadow-sm'
                     : isCompleted
@@ -134,7 +134,7 @@ export const PipelineExplorer: React.FC = () => {
         {/* Stage Header Info */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-4">
           <div>
-            <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1">
+            <div className="font-mono text-xs text-accent mb-1">
               Stage 0{activeStage} of 06 · {stages[activeStage - 1].category}
             </div>
             <h4 className="font-heading text-xl sm:text-2xl font-bold text-primary">
@@ -177,7 +177,7 @@ export const PipelineExplorer: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* File Metadata Inspector */}
                 <div className="bg-[#080808] border border-border p-5 rounded-lg space-y-3 font-mono text-xs">
-                  <div className="text-accent uppercase tracking-wider font-semibold">// Ingestion Specifications</div>
+                  <div className="text-accent font-medium">// Ingestion specifications</div>
                   <div className="space-y-2 text-muted">
                     <div className="flex justify-between border-b border-border/50 pb-1">
                       <span>Source File:</span>
@@ -271,7 +271,7 @@ export const PipelineExplorer: React.FC = () => {
 
               {/* Visual Preprocessing Decomposition Diagram */}
               <div className="bg-[#080808] border border-border p-5 rounded-lg space-y-3 font-mono text-xs">
-                <div className="text-accent uppercase tracking-wider font-semibold">// OpenCV Morphological Kernel Flow</div>
+                <div className="text-accent font-medium">// OpenCV morphological kernel flow</div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
                   <div className="bg-[#121212] p-3 rounded border border-border">
                     <div className="text-[11px] text-muted mb-1">1. Bilateral Denoise</div>
@@ -320,10 +320,10 @@ export const PipelineExplorer: React.FC = () => {
                 />
 
                 {/* Center Blueprint Plan Line Graphic */}
-                <div className="absolute inset-8 border border-white/10 rounded flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-8 border border-white/10 rounded-md flex items-center justify-center pointer-events-none">
                   <div className="w-3/4 h-3/4 border-2 border-dashed border-white/15 flex items-center justify-center">
-                    <span className="font-mono text-xs text-muted-dark tracking-widest uppercase">
-                      {drawing.drawingNumber} PLAN VIEWPORT GRID
+                    <span className="font-mono text-xs text-muted-dark">
+                      {drawing.drawingNumber} Plan viewport grid
                     </span>
                   </div>
                 </div>
@@ -344,9 +344,9 @@ export const PipelineExplorer: React.FC = () => {
                         width: `${box.width}%`,
                         height: `${box.height}%`,
                       }}
-                      className={`absolute rounded cursor-pointer transition-all duration-150 flex items-center justify-center select-none text-[10px] font-mono ${
+                      className={`absolute rounded cursor-pointer transition-[border-color,background-color] duration-150 flex items-center justify-center select-none text-[10px] font-mono ${
                         isHovered
-                          ? 'bg-accent/30 border-2 border-accent text-primary shadow-[0_0_15px_rgba(240,165,200,0.3)] z-30'
+                          ? 'bg-accent/25 border-2 border-accent text-primary z-30'
                           : isWarning
                           ? 'bg-amber-500/15 border border-amber-500/80 text-amber-300 z-10'
                           : 'bg-accent/10 border border-accent/40 text-primary/80 hover:border-accent z-20'
@@ -469,7 +469,7 @@ export const PipelineExplorer: React.FC = () => {
 
               {/* Issues Feed */}
               <div className="space-y-3">
-                <h5 className="font-mono text-xs uppercase tracking-wider text-accent font-semibold">
+                <h5 className="font-mono text-xs text-accent font-medium">
                   Rule Evaluation Audit Log
                 </h5>
                 {drawing.stages.validation.issues.map((issue) => (
@@ -514,7 +514,7 @@ export const PipelineExplorer: React.FC = () => {
                   {copiedJson ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Copied!</span>
+                      <span className="text-emerald-400">Copied</span>
                     </>
                   ) : (
                     <>

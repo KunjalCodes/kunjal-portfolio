@@ -9,7 +9,7 @@ export const AboutPage: React.FC = () => {
     <div className="pt-28 pb-24 max-w-5xl mx-auto px-6 min-h-screen">
       {/* Header */}
       <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           Background & Profile
         </div>
@@ -53,7 +53,7 @@ export const AboutPage: React.FC = () => {
 
       {/* Technical Skills Section */}
       <section className="space-y-6 mb-16">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+        <div className="font-mono text-xs text-accent flex items-center gap-2">
           <Code className="w-4 h-4" />
           Technical Stack & Competencies
         </div>
@@ -75,7 +75,7 @@ export const AboutPage: React.FC = () => {
                 {cat.skills.map(skill => (
                   <div
                     key={skill.name}
-                    className="flex items-center justify-between text-xs font-mono bg-white/[0.02] border border-border/60 px-3 py-1.5 rounded"
+                    className="flex items-center justify-between text-xs font-mono bg-white/[0.02] border border-border/60 px-3 py-1.5 rounded-md"
                   >
                     <span className="text-primary/90">{skill.name}</span>
                     {skill.level && (
@@ -95,7 +95,7 @@ export const AboutPage: React.FC = () => {
 
       {/* Professional Experience */}
       <section className="space-y-6 mb-16">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+        <div className="font-mono text-xs text-accent flex items-center gap-2">
           <Briefcase className="w-4 h-4" />
           Career Trajectory
         </div>
@@ -150,7 +150,7 @@ export const AboutPage: React.FC = () => {
       {/* Key Engineering Achievements */}
       {profile.achievements && profile.achievements.length > 0 && (
         <section className="bg-[#0B0B0B] border border-border rounded-lg p-6 sm:p-8 space-y-4 mb-16">
-          <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Award className="w-4 h-4" />
             Key Technical Achievements & Milestones
           </div>
@@ -159,7 +159,7 @@ export const AboutPage: React.FC = () => {
           </h2>
           <ul className="space-y-3 text-xs sm:text-sm text-muted">
             {profile.achievements.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-3 bg-[#080808] p-3.5 rounded border border-border/70">
+              <li key={idx} className="flex items-start gap-3 bg-[#080808] p-3.5 rounded-md border border-border/70">
                 <span className="text-accent font-mono font-bold">0{idx + 1}.</span>
                 <span className="leading-relaxed text-muted-light">{item}</span>
               </li>
@@ -172,7 +172,7 @@ export const AboutPage: React.FC = () => {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {/* Education */}
         <div className="space-y-4">
-          <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <GraduationCap className="w-4 h-4" />
             Education
           </div>
@@ -205,7 +205,7 @@ export const AboutPage: React.FC = () => {
 
         {/* Certifications */}
         <div className="space-y-4">
-          <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+          <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Award className="w-4 h-4" />
             Certifications
           </div>

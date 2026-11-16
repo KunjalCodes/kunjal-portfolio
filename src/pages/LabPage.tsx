@@ -18,7 +18,7 @@ export const LabPage: React.FC = () => {
     <div className="pt-28 pb-24 max-w-5xl mx-auto px-6 min-h-screen">
       {/* Header */}
       <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs uppercase tracking-widest text-accent mb-2.5 flex items-center gap-2">
+        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
           Technical Journal
         </div>
@@ -42,9 +42,9 @@ export const LabPage: React.FC = () => {
             <button
               key={tag}
               onClick={() => setSelectedTag(tag)}
-              className={`font-mono text-xs px-2.5 py-1 rounded transition-colors cursor-pointer ${
+              className={`font-mono text-xs px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
                 isActive
-                  ? 'bg-accent text-[#080808] font-semibold'
+                  ? 'bg-accent text-[#080808] font-medium'
                   : 'bg-[#121212] text-muted hover:text-primary hover:bg-[#181818] border border-border'
               }`}
             >
@@ -112,18 +112,18 @@ export const LabPage: React.FC = () => {
               </div>
 
               {/* Hypothesis Box */}
-              <div className="bg-[#0E0E0E] border-l-2 border-accent p-4 rounded-r text-xs sm:text-sm font-sans space-y-1">
-                <div className="font-mono text-[11px] text-accent uppercase tracking-wider font-semibold">
+              <div className="bg-[#0E0E0E] border-l-2 border-accent p-4 rounded-r-md text-xs sm:text-sm font-sans space-y-1">
+                <div className="font-mono text-[11px] text-accent font-medium">
                   Core Hypothesis
                 </div>
-                <p className="text-muted-light italic">
+                <p className="text-muted-light">
                   "{note.hypothesis}"
                 </p>
               </div>
 
               {/* Key Findings */}
               <div className="space-y-2">
-                <div className="font-mono text-xs uppercase tracking-wider text-primary font-semibold flex items-center gap-2">
+                <div className="font-mono text-xs text-primary font-medium flex items-center gap-2">
                   <BookOpen className="w-3.5 h-3.5 text-accent" />
                   Empirical Findings
                 </div>

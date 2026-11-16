@@ -29,7 +29,7 @@ export const CharacterDialogue: React.FC<CharacterDialogueProps> = ({
         >
           {/* Header row: subtle indicator + dismiss button */}
           <div className="flex items-center justify-between gap-2 mb-1 border-b border-border/50 pb-1">
-            <span className="flex items-center gap-1.5 text-[9px] font-mono text-accent uppercase tracking-widest font-semibold">
+            <span className="flex items-center gap-1.5 text-[10px] font-mono text-accent font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               Note
             </span>

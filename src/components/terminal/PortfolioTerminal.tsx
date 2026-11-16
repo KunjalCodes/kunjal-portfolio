@@ -342,11 +342,11 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
       case 'kj':
       case 'chotu':
         output = (
-          <div className="flex items-center gap-3 p-2.5 bg-[#121212] border border-accent/30 rounded text-xs font-mono">
+          <div className="flex items-center gap-3 p-2.5 bg-[#121212] border border-accent/30 rounded-md text-xs font-mono">
             <img
               src="/assets/character/chotu-coding.png"
               alt="Companion coding"
-              className="w-12 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.3)] shrink-0"
+              className="w-12 h-14 object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] shrink-0"
             />
             <div className="space-y-1">
               <p className="text-accent font-semibold">KJ — Engineering Companion</p>
@@ -518,7 +518,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
                   <img
                     src="/assets/character/chotu-coding.png"
                     alt="Companion coding on laptop"
-                    className="w-11 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.3)] select-none pointer-events-none"
+                    className="w-11 h-14 object-contain filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] select-none pointer-events-none"
                   />
                 </div>
               </div>

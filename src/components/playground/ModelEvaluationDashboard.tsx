@@ -56,12 +56,12 @@ export const ModelEvaluationDashboard: React.FC = () => {
       <div className="bg-[#0D0D0D] border border-border rounded-lg p-6 sm:p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/80 pb-6">
           <div>
-            <div className="font-mono text-xs text-accent uppercase tracking-wider mb-1 flex items-center gap-2">
+            <div className="font-mono text-xs text-accent mb-1 flex items-center gap-2">
               <Sliders className="w-4 h-4 text-accent" />
               Dynamic Binary Classification Threshold Controller
             </div>
             <h3 className="font-heading text-xl sm:text-2xl font-bold text-primary">
-              Decision Boundary: <span className="text-accent font-mono">{threshold.toFixed(2)}</span>
+              Decision Boundary: <span className="text-accent font-mono tabular-nums">{threshold.toFixed(2)}</span>
             </h3>
             <p className="text-xs text-muted mt-1 max-w-xl">
               Adjusting the threshold recalculates every metric in real time from the 100-instance evaluation dataset.
@@ -71,19 +71,19 @@ export const ModelEvaluationDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setThreshold(0.35)}
-              className="px-2.5 py-1 rounded bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
+              className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
             >
               High Recall (0.35)
             </button>
             <button
               onClick={() => setThreshold(0.50)}
-              className="px-2.5 py-1 rounded bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
+              className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
             >
               Balanced (0.50)
             </button>
             <button
               onClick={() => setThreshold(0.75)}
-              className="px-2.5 py-1 rounded bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
+              className="px-2.5 py-1 rounded-md bg-[#161616] hover:bg-[#202020] border border-border text-[11px] font-mono text-muted hover:text-accent transition-colors"
             >
               High Precision (0.75)
             </button>
@@ -94,7 +94,7 @@ export const ModelEvaluationDashboard: React.FC = () => {
         <div className="space-y-3">
           <div className="flex justify-between text-xs font-mono text-muted">
             <span>Low Threshold (0.05) → Maximize Recall (Fewer Misses)</span>
-            <span className="text-accent font-bold">Current: {threshold.toFixed(2)}</span>
+            <span className="text-accent font-bold tabular-nums">Current: {threshold.toFixed(2)}</span>
             <span>High Threshold (0.95) → Maximize Precision (Fewer False Alarms)</span>
           </div>
 
@@ -118,10 +118,10 @@ export const ModelEvaluationDashboard: React.FC = () => {
             <span>Accuracy</span>
             <Target className="w-4 h-4 text-muted" />
           </div>
-          <div className="text-3xl font-heading font-bold text-primary">
+          <div className="text-3xl font-heading font-bold text-primary tabular-nums">
             {(metrics.accuracy * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] font-mono text-muted-dark">
+          <p className="text-[11px] font-mono text-muted-dark tabular-nums">
             (TP + TN) / Total ({metrics.tp + metrics.tn}/{metrics.total})
           </p>
         </div>
@@ -132,10 +132,10 @@ export const ModelEvaluationDashboard: React.FC = () => {
             <span>Precision</span>
             <Activity className="w-4 h-4 text-accent" />
           </div>
-          <div className="text-3xl font-heading font-bold text-accent">
+          <div className="text-3xl font-heading font-bold text-accent tabular-nums">
             {(metrics.precision * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] font-mono text-muted-dark">
+          <p className="text-[11px] font-mono text-muted-dark tabular-nums">
             TP / (TP + FP) ({metrics.tp}/{metrics.tp + metrics.fp})
           </p>
         </div>
@@ -146,10 +146,10 @@ export const ModelEvaluationDashboard: React.FC = () => {
             <span>Recall</span>
             <ShieldAlert className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-heading font-bold text-emerald-400">
+          <div className="text-3xl font-heading font-bold text-emerald-400 tabular-nums">
             {(metrics.recall * 100).toFixed(1)}%
           </div>
-          <p className="text-[11px] font-mono text-muted-dark">
+          <p className="text-[11px] font-mono text-muted-dark tabular-nums">
             TP / (TP + FN) ({metrics.tp}/{metrics.tp + metrics.fn})
           </p>
         </div>
@@ -160,7 +160,7 @@ export const ModelEvaluationDashboard: React.FC = () => {
             <span>F1 Score</span>
             <BarChart3 className="w-4 h-4 text-primary" />
           </div>
-          <div className="text-3xl font-heading font-bold text-primary">
+          <div className="text-3xl font-heading font-bold text-primary tabular-nums">
             {(metrics.f1 * 100).toFixed(1)}%
           </div>
           <p className="text-[11px] font-mono text-muted-dark">

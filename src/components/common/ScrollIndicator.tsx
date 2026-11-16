@@ -15,7 +15,7 @@ export const ScrollIndicator: React.FC<{ targetId?: string }> = ({ targetId = 'f
       aria-label="Scroll to content"
       className="group flex flex-col items-center gap-2 text-muted hover:text-accent transition-colors duration-300 focus:outline-none cursor-pointer"
     >
-      <span className="font-mono text-[10px] uppercase tracking-widest text-muted/80 group-hover:text-accent transition-colors">
+      <span className="font-mono text-[11px] text-muted group-hover:text-accent transition-colors">
         Scroll
       </span>
       <div className="w-[18px] h-[30px] rounded-full border border-border group-hover:border-accent/40 flex justify-center p-1 transition-colors">

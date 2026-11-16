@@ -39,6 +39,7 @@ async function runAudit() {
     '/lab',
     '/about',
     '/contact',
+    '/flame-experiment',
     '/resume-kunjal-joshi.pdf',
     '/assets/pink-flame.mp4',
     '/assets/flame-poster.jpg',

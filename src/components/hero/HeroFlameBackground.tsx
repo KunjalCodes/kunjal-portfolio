@@ -1,114 +1,97 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Flame, Sparkles } from 'lucide-react';
-import { InteractiveFlameCanvas } from '../flame/InteractiveFlameCanvas';
 
 export const HeroFlameBackground: React.FC = () => {
-  const [useInteractive, setUseInteractive] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    // Respect reduced-motion preferences
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mediaQuery.matches);
-    if (mediaQuery.matches) {
-      setUseInteractive(false);
-    }
 
     const handleChange = (e: MediaQueryListEvent) => {
       setReducedMotion(e.matches);
-      if (e.matches) setUseInteractive(false);
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      if (reducedMotion) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(() => {
+          // Muted autoplay policy fallback
+        });
+      }
+    }
+  }, [reducedMotion]);
+
   return (
-    <div className="absolute inset-0 overflow-hidden select-none z-0">
-      {/* Black backdrop layer */}
+    <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
+      {/* 
+        Hero Background: Pure #080808 across the entire screen
+        Ensures the underlying destination layer for screen blending is uniform black.
+      */}
       <div className="absolute inset-0 bg-[#080808]" />
 
-      {useInteractive && !reducedMotion ? (
-        /* Full-Scale WebGL Interactive Fluid Fire with Clean Alpha & Luminance Masking */
-        <InteractiveFlameCanvas
-          className="absolute inset-0 pointer-events-none"
-          expandStrength={0.24}
-          leanStrength={0.22}
-          intensityBoost={1.0}
-          lumThreshold={0.035}
+      {/* Centered Video Viewport */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Soft, non-intrusive atmospheric baby-pink ambient glow behind the flame core */}
+        <div
+          className="absolute w-[320px] md:w-[500px] h-[320px] md:h-[500px] rounded-full bg-accent/[0.04] blur-[120px] -translate-y-6 pointer-events-none"
+          aria-hidden="true"
         />
-      ) : (
-        /* Fallback Static Video */
-        <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
-          <div
-            className="absolute w-[320px] md:w-[500px] h-[320px] md:h-[500px] rounded-full bg-accent/5 blur-[120px] -translate-y-6"
-            aria-hidden="true"
-          />
-          <video
-            ref={videoRef}
-            src="/assets/pink-flame.mp4"
-            poster="/assets/flame-poster.jpg"
-            autoPlay={!reducedMotion}
-            loop
-            muted
-            playsInline
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className={`h-[75vh] md:h-[88vh] max-w-[90vw] object-contain mix-blend-screen opacity-70 md:opacity-75 transition-opacity duration-1000 ${
-              isVideoLoaded ? 'opacity-70 md:opacity-75' : 'opacity-40'
-            }`}
-            style={{
-              filter: 'contrast(1.08) brightness(0.98)',
-            }}
-            aria-hidden="true"
-          />
-          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/70 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent" />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(8, 8, 8, 0.5) 60%, #080808 90%)',
-            }}
-          />
-        </div>
-      )}
 
-      {/* Discrete Mode Switcher & Prototype Tour Link */}
-      <div className="absolute bottom-6 left-6 z-20 hidden sm:flex items-center gap-2 bg-[#0D0D0D]/90 backdrop-blur-md border border-border/80 px-3 py-1.5 rounded-lg text-[11px] font-mono pointer-events-auto select-none shadow-lg">
-        <span className="flex items-center gap-1.5 text-muted">
-          <Flame className="w-3.5 h-3.5 text-accent" />
-          Flame:
-        </span>
-        <button
-          onClick={() => setUseInteractive(true)}
-          className={`px-2 py-0.5 rounded text-[10px] transition-colors cursor-pointer ${
-            useInteractive
-              ? 'bg-accent/20 text-accent font-medium border border-accent/40'
-              : 'text-muted-dark hover:text-muted'
-          }`}
+        {/* 
+          Multi-Tier Soft Edge Masking Pipeline:
+          Eliminates all rectangular video boundaries, edge compression noise, and bottom cutoffs
+          by applying progressive Hermite falloff directly to the video layer.
+          No dark overlay patches or visible oval masks are cast onto the screen.
+        */}
+        {/* Tier 1: Horizontal Linear Feather (dissolves left & right vertical cuts to 0 alpha) */}
+        <div
+          className="inline-flex items-center justify-center"
+          style={{
+            WebkitMaskImage:
+              'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
+            maskImage:
+              'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
+          }}
         >
-          Interactive
-        </button>
-        <button
-          onClick={() => setUseInteractive(false)}
-          className={`px-2 py-0.5 rounded text-[10px] transition-colors cursor-pointer ${
-            !useInteractive
-              ? 'bg-white/10 text-white font-medium border border-white/20'
-              : 'text-muted-dark hover:text-muted'
-          }`}
-        >
-          Static
-        </button>
-        <span className="text-border">|</span>
-        <Link
-          to="/flame-prototype"
-          className="text-muted hover:text-accent flex items-center gap-1 transition-colors text-[10px]"
-        >
-          <Sparkles className="w-3 h-3" />
-          Prototype Lab →
-        </Link>
+          {/* Tier 2: Vertical Linear Feather (dissolves top edge & bottom cutoff row to 0 alpha) */}
+          <div
+            className="inline-flex items-center justify-center"
+            style={{
+              WebkitMaskImage:
+                'linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)',
+              maskImage:
+                'linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)',
+            }}
+          >
+            {/* Tier 3: Elliptical Softness on the video (rounds rectangular corners seamlessly) */}
+            <video
+              ref={videoRef}
+              src="/assets/pink-flame.mp4"
+              poster="/assets/flame-poster.jpg"
+              autoPlay={!reducedMotion}
+              loop
+              muted
+              playsInline
+              className="h-[75vh] md:h-[88vh] max-w-[90vw] object-contain block select-none pointer-events-none"
+              style={{
+                mixBlendMode: 'screen',
+                WebkitMaskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 60%, rgba(0, 0, 0, 0.7) 80%, transparent 98%)',
+                maskImage:
+                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 60%, rgba(0, 0, 0, 0.7) 80%, transparent 98%)',
+              }}
+              aria-hidden="true"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

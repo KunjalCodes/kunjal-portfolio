@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Mail, FileText, Terminal as TerminalIcon } from 'lucide-react';
+import { Github, Linkedin, Mail, FileText, Terminal as TerminalIcon, Code2 } from 'lucide-react';
 import { profile } from '../../data/profile';
 
 interface FooterProps {
@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
               <span className="font-heading font-bold text-lg text-primary">{profile.brandName}</span>
             </div>
             <p className="text-muted text-sm max-w-sm leading-relaxed">
-              {profile.headline} Dedicated to computer vision, document intelligence, and dependable software systems.
+              {profile.headline} Building persistent memory systems, multi-agent architectures, and intelligent software systems.
             </p>
             <div className="pt-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -80,6 +80,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
                 >
                   <Linkedin className="w-3.5 h-3.5" />
                   LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href={profile.socialLinks.leetcode}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 hover:text-accent transition-colors"
+                >
+                  <Code2 className="w-3.5 h-3.5" />
+                  LeetCode
                 </a>
               </li>
               <li>

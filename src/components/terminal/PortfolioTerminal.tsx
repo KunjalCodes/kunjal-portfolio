@@ -30,11 +30,15 @@ const COMMAND_LIST = [
   'lab',
   'contact',
   'resume',
+  'leetcode',
+  'github',
   'clear',
-  'open drawing-extractor',
-  'open floor-layout-tool',
-  'open document-segmenter',
-  'open local-agent-pipeline',
+  'open second-brain',
+  'open food-lens',
+  'open multi-agent-builder',
+  'open mcp-ai-copilot',
+  'open rag-ml-textbook-chatbot',
+  'open furniture-drawing-extractor',
   'open playground',
   'theme',
   'whoami',
@@ -294,12 +298,31 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
       case 'contact':
         output = (
           <div className="space-y-1.5 text-xs font-mono">
-            <p className="text-accent">// Communication Endpoints</p>
+            <p className="text-accent">// Communication & Engineering Endpoints</p>
             <p className="text-muted">Email: <a href={`mailto:${profile.socialLinks.email}`} className="text-primary hover:text-accent underline">{profile.socialLinks.email}</a></p>
             <p className="text-muted">GitHub: <a href={profile.socialLinks.github} target="_blank" rel="noreferrer" className="text-primary hover:text-accent underline">{profile.socialLinks.github}</a></p>
             <p className="text-muted">LinkedIn: <a href={profile.socialLinks.linkedin} target="_blank" rel="noreferrer" className="text-primary hover:text-accent underline">{profile.socialLinks.linkedin}</a></p>
+            <p className="text-muted">LeetCode: <a href={profile.socialLinks.leetcode} target="_blank" rel="noreferrer" className="text-primary hover:text-accent underline">{profile.socialLinks.leetcode}</a></p>
           </div>
         );
+        break;
+
+      case 'github':
+        output = (
+          <p className="text-xs font-mono text-accent">
+            Opening GitHub profile: <a href={profile.socialLinks.github} target="_blank" rel="noreferrer" className="underline">{profile.socialLinks.github}</a>
+          </p>
+        );
+        window.open(profile.socialLinks.github, '_blank');
+        break;
+
+      case 'leetcode':
+        output = (
+          <p className="text-xs font-mono text-accent">
+            Opening LeetCode profile (100+ solved): <a href={profile.socialLinks.leetcode} target="_blank" rel="noreferrer" className="underline">{profile.socialLinks.leetcode}</a>
+          </p>
+        );
+        window.open(profile.socialLinks.leetcode, '_blank');
         break;
 
       case 'resume':

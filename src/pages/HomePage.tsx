@@ -65,7 +65,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           <SectionHeading
             label="Selected Works"
             title="Featured Engineering Systems"
-            description="Deep architectural case studies spanning computer vision, document parsing, and interactive CAD engines."
+            description="Architectural case studies across persistent memory engines, agent orchestration, Chrome extensions, and computer vision systems."
             action={
               <Button to="/work" variant="outline" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
                 View All Projects
@@ -267,25 +267,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
               <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                <Eye className="w-5 h-5" />
+                <Network className="w-5 h-5" />
               </div>
               <h3 className="font-heading font-semibold text-lg text-primary">
-                Computer Vision & Document AI
+                Persistent Memory & Graph RAG
               </h3>
               <p className="text-xs text-muted leading-relaxed">
-                Classical morphological filtering, line/contour extraction via OpenCV, and deep OCR architectures (EasyOCR) fine-tuned for high-resolution schematics and blueprints.
-              </p>
-            </div>
-
-            <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
-              <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-semibold text-lg text-primary">
-                Systems & Canvas Engineering
-              </h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Performant 2D vector graphic manipulation using HTML5 Canvas, Konva.js, and Fabric.js with sub-millimeter coordinate transformations and parametric state trees.
+                Neo4j temporal knowledge graphs with explicit validity windows, dense vector retrieval via pgvector, and hybrid semantic + graph traversals with conflict-aware memory updates.
               </p>
             </div>
 
@@ -294,10 +282,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
                 <Cpu className="w-5 h-5" />
               </div>
               <h3 className="font-heading font-semibold text-lg text-primary">
-                Multimodal AI & Tool Orchestration
+                Agent Orchestration & MCP
               </h3>
               <p className="text-xs text-muted leading-relaxed">
-                Grounding multimodal models (Gemini Flash/Pro) with localized bounding box context and enforcing GBNF grammar-constrained decoding on local small language models.
+                Autonomous multi-agent role decomposition (Planner, Architect, Coder), Model Context Protocol (MCP) tool integration, and browser extensions automating real-world consumer actions.
+              </p>
+            </div>
+
+            <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
+              <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                <Eye className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg text-primary">
+                Computer Vision & Systems
+              </h3>
+              <p className="text-xs text-muted leading-relaxed">
+                Classical morphological filtering and line extraction via OpenCV, deep OCR (EasyOCR) on technical schematics at Igniters Hub, and low-latency asynchronous Python/FastAPI backends.
               </p>
             </div>
           </div>
@@ -367,7 +367,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
               Let's build something technically exceptional.
             </h2>
             <p className="text-sm sm:text-base text-muted leading-relaxed">
-              Interested in computer vision pipelines, document intelligence, or systems development? Reach out directly or inspect contact endpoints in the terminal.
+              Interested in AI agent systems, persistent memory architectures, or computer vision engineering? Reach out directly or inspect contact endpoints in the terminal.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <Button to="/contact" variant="primary" size="md">

@@ -50,7 +50,7 @@ export const HeroSection: React.FC = () => {
           <span className="text-primary font-medium">{profile.headline}</span>
           <br className="hidden sm:inline" />
           <span className="text-sm sm:text-base text-muted block mt-1">
-            Bridging deterministic computer vision and multimodal intelligence.
+            Bridging persistent agent memory, intelligent orchestration, and computer vision.
           </span>
         </motion.p>
 

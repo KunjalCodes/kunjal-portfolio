@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Github, Linkedin, FileText, Copy, Check, Send, Terminal } from 'lucide-react';
+import { Mail, Github, Linkedin, FileText, Copy, Check, Send, Terminal, Code2 } from 'lucide-react';
 import { profile } from '../data/profile';
 import { Button } from '../components/common/Button';
 
@@ -38,7 +38,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
           Contact & Collaboration
         </h1>
         <p className="mt-4 text-base text-muted leading-relaxed max-w-2xl">
-          Whether discussing computer vision architectures, document parsing pipelines, or engineering opportunities, feel free to reach out directly through any of the channels below.
+          Whether discussing AI agent architectures, persistent memory graphs, computer vision pipelines, or engineering opportunities, feel free to reach out directly through any of the channels below.
         </p>
       </div>
 
@@ -102,6 +102,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
                   GitHub
                 </span>
                 <span className="text-[10px] text-muted-dark">Explore Code ↗</span>
+              </a>
+
+              <a
+                href={profile.socialLinks.leetcode}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/[0.05] border border-border text-muted hover:text-primary transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Code2 className="w-4 h-4 text-accent" />
+                  LeetCode
+                </span>
+                <span className="text-[10px] text-muted-dark">100+ Solved ↗</span>
               </a>
 
               <a

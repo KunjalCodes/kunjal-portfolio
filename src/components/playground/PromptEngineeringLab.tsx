@@ -144,7 +144,10 @@ export const PromptEngineeringLab: React.FC = () => {
             {/* Demonstration Output A */}
             <div className="space-y-2 pt-2">
               <div className="text-[11px] font-mono text-muted flex items-center justify-between">
-                <span>Model Output Response</span>
+                <span className="flex items-center gap-1.5">
+                  <span>Output Response</span>
+                  <span className="text-[10px] text-muted-dark bg-white/5 px-1.5 py-0.5 rounded border border-border">Deterministic Sample</span>
+                </span>
                 <span className="text-amber-400 font-semibold">0% Schema Compliance</span>
               </div>
               <div className="bg-[#060606] border border-border rounded p-3 font-mono text-xs text-muted leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
@@ -226,7 +229,10 @@ export const PromptEngineeringLab: React.FC = () => {
             {/* Demonstration Output B */}
             <div className="space-y-2 pt-2">
               <div className="text-[11px] font-mono text-muted flex items-center justify-between">
-                <span>Structured JSON Output</span>
+                <span className="flex items-center gap-1.5">
+                  <span>Structured JSON Output</span>
+                  <span className="text-[10px] text-accent/80 bg-accent/10 px-1.5 py-0.5 rounded border border-accent/30 font-semibold">Deterministic Sample</span>
+                </span>
                 <button
                   onClick={handleCopyJson}
                   className="text-accent hover:underline flex items-center gap-1"
@@ -263,11 +269,11 @@ export const PromptEngineeringLab: React.FC = () => {
         </div>
       </div>
 
-      {/* Architecture Extensibility Callout */}
+      {/* Architecture Extensibility Callout & Transparency Note */}
       <div className="bg-[#090909] border border-border/80 rounded-lg p-4 flex items-start gap-3 text-xs font-mono text-muted">
         <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
         <p>
-          <strong className="text-primary">API Hook Architecture:</strong> This client is engineered with decoupled state dispatchers. When an API backend or local LLM server endpoint is connected, these controls can directly pipe tokens into streaming inference without restructuring the UI layer.
+          <strong className="text-primary">Demonstration & Extensibility Note:</strong> Output responses shown above are prepared deterministic samples illustrating the failure modes of naive prompts versus strict JSON schema constraints. No live LLM inference API is called in this demonstration client. The component's state dispatchers are decoupled and ready for drop-in local model inference integration.
         </p>
       </div>
     </div>

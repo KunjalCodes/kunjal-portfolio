@@ -8,6 +8,7 @@ import { ArchitectureFlowDiagram } from '../components/common/ArchitectureFlowDi
 
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [failedImages, setFailedImages] = React.useState<Record<string, boolean>>({});
   const project = projects.find(p => p.slug === slug);
 
   if (!project) {
@@ -329,7 +330,8 @@ export const ProjectDetailPage: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {project.demonstrations.map((demo, idx) => {
-              const isImageUrl = demo.placeholderText?.startsWith('http');
+              const placeholder = demo.placeholderText || '';
+              const isImageUrl = placeholder.startsWith('http') && !failedImages[placeholder];
 
               return (
                 <div
@@ -340,10 +342,13 @@ export const ProjectDetailPage: React.FC = () => {
                   <div className="h-56 sm:h-64 bg-[#080808] border-b border-border flex flex-col items-center justify-center relative overflow-hidden group">
                     {isImageUrl ? (
                       <img
-                        src={demo.placeholderText}
+                        src={placeholder}
                         alt={demo.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        onError={() => {
+                          setFailedImages(prev => ({ ...prev, [placeholder]: true }));
+                        }}
                       />
                     ) : (
                       <>

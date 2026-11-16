@@ -404,6 +404,14 @@ export const ModelEvaluationDashboard: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Transparent Disclaimer Box */}
+      <div className="bg-[#090909] border border-border/80 rounded-lg p-4 flex items-start gap-3 text-xs font-mono text-muted">
+        <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+        <p>
+          <strong className="text-primary">Evaluation Methodology Note:</strong> Metrics, trade-off curves, and the confusion matrix are calculated dynamically in real-time against the 100-sample blueprint entity dataset across user-adjusted decision boundaries. Demonstrates mathematical ML evaluation and threshold tuning without fabricated benchmarks.
+        </p>
+      </div>
     </div>
   );
 };

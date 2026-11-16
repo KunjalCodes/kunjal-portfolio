@@ -198,7 +198,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
 
       case 'open':
         if (!arg) {
-          output = <p className="text-amber-400 text-xs font-mono">Usage: open &lt;project-slug&gt; (e.g. open drawing-extractor, open floor-layout-tool)</p>;
+          output = <p className="text-amber-400 text-xs font-mono">Usage: open &lt;project-slug&gt; (e.g. open second-brain, open food-lens, open multi-agent-builder)</p>;
         } else {
           const target = projects.find(p => p.slug.toLowerCase() === arg || p.id.toLowerCase() === arg);
           if (target) {
@@ -425,9 +425,8 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ duration: 0.2 }}
-            className={`w-full max-w-3xl bg-[#0B0B0B] border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${
-              isExpanded ? 'h-[92vh] max-w-5xl' : 'h-[520px] max-h-[85vh]'
-            }`}
+            className={`w-full max-w-3xl bg-[#0B0B0B] border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${isExpanded ? 'h-[92vh] max-w-5xl' : 'h-[520px] max-h-[85vh]'
+              }`}
           >
             {/* Terminal Title Bar */}
             <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#111111] border-b border-border select-none">

@@ -136,7 +136,7 @@ export function computeEvaluation(dataset: EvalInstance[], threshold: number): M
 
   const total = dataset.length;
   const accuracy = total > 0 ? (tp + tn) / total : 0;
-  const precision = (tp + fp) > 0 ? tp / (tp + fp) : 1;
+  const precision = (tp + fp) > 0 ? tp / (tp + fp) : 0;
   const recall = (tp + fn) > 0 ? tp / (tp + fn) : 0;
   const specificity = (tn + fp) > 0 ? tn / (tn + fp) : 0;
   const f1 = (precision + recall) > 0 ? (2 * precision * recall) / (precision + recall) : 0;
@@ -167,5 +167,5 @@ export function computePrecisionRecallCurve(dataset: EvalInstance[], steps = 20)
       f1: m.f1
     });
   }
-  return points;
+  return points.sort((a, b) => a.recall - b.recall);
 }

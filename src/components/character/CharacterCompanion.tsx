@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { CharacterPose, CharacterPosition, CharacterCompanionConfig } from '../../types';
 
@@ -34,6 +34,7 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
   onCharacterClick,
 }) => {
   const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
   const [bubbleText, setBubbleText] = useState<string>('');
   const [activePose, setActivePose] = useState<CharacterPose>('idle');
   const [activePosition, setActivePosition] = useState<CharacterPosition>('bottom-right');
@@ -61,15 +62,31 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
     if (path === '/') {
       setActivePose('wave');
       setActivePosition('bottom-right');
-      setBubbleText('Welcome to KUNJAL.J! Explore the AI Drawing Engine.');
-    } else if (path.startsWith('/work/drawing-extractor')) {
+      setBubbleText('Welcome to KUNJAL.J! Explore the AI Second Brain and Engineering Lab.');
+    } else if (path.startsWith('/work/second-brain')) {
+      setActivePose('point');
+      setActivePosition('bottom-right');
+      setBubbleText('Dual-engine temporal graph + pgvector memory architecture!');
+    } else if (path.startsWith('/work/food-lens')) {
+      setActivePose('working');
+      setActivePosition('bottom-right');
+      setBubbleText('Automating YouTube recipes into Swiggy Instamart carts via MCP!');
+    } else if (path.startsWith('/work/multi-agent-builder')) {
+      setActivePose('working');
+      setActivePosition('bottom-right');
+      setBubbleText('Sequential 7-agent pipeline from architecture to execution!');
+    } else if (path.startsWith('/work/mcp-ai-copilot')) {
+      setActivePose('think');
+      setActivePosition('bottom-right');
+      setBubbleText('Local Ollama agent with custom Model Context Protocol tools!');
+    } else if (path.startsWith('/work/rag-ml-textbook-chatbot')) {
+      setActivePose('think');
+      setActivePosition('bottom-right');
+      setBubbleText('Grounding local LLM inference on verified ML textbook embeddings.');
+    } else if (path.startsWith('/work/furniture-drawing-extractor')) {
       setActivePose('point');
       setActivePosition('bottom-right');
       setBubbleText('Classical OpenCV morphological filters separate lines before OCR!');
-    } else if (path.startsWith('/work/floor-layout-tool')) {
-      setActivePose('working');
-      setActivePosition('bottom-right');
-      setBubbleText('Sub-millimeter canvas transformations in action!');
     } else if (path === '/playground') {
       setActivePose('think');
       setActivePosition('bottom-right');
@@ -78,6 +95,10 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
       setActivePose('working');
       setActivePosition('bottom-right');
       setBubbleText('Empirical research notes and algorithmic benchmarks.');
+    } else if (path === '/about') {
+      setActivePose('idle');
+      setActivePosition('bottom-right');
+      setBubbleText('Explore education, Igniters Hub experience, and verified skills.');
     } else if (path === '/contact') {
       setActivePose('idle');
       setActivePosition('bottom-left');
@@ -131,7 +152,9 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
         {/* Character Visual / Placeholder Container */}
         <motion.div
           animate={
-            effectivePose === 'idle'
+            shouldReduceMotion
+              ? {}
+              : effectivePose === 'idle'
               ? { y: [0, -4, 0] }
               : effectivePose === 'wave'
               ? { rotate: [0, 8, -8, 8, 0] }
@@ -141,7 +164,7 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
           }
           transition={{
             duration: 2.5,
-            repeat: Infinity,
+            repeat: shouldReduceMotion ? 0 : Infinity,
             ease: 'easeInOut',
           }}
           className="w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center"

@@ -65,6 +65,12 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
+  // Check query parameter to enable character companion preview: ?companion=true
+  const isCompanionPreview = typeof window !== 'undefined' && (
+    new URLSearchParams(window.location.search).get('companion') === 'true' ||
+    new URLSearchParams(window.location.search).get('companion') === '1'
+  );
+
   return (
     <Router>
       <RouteHandler />
@@ -88,7 +94,7 @@ export const App: React.FC = () => {
         </main>
 
         {/* Modular architectural companion ready for future chibi character assets */}
-        <CharacterCompanion enabled={false} />
+        <CharacterCompanion enabled={isCompanionPreview} />
 
         {/* Engineering Footer */}
         <Footer onOpenTerminal={() => setIsTerminalOpen(true)} />

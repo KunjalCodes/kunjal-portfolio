@@ -1,7 +1,10 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 
-// Vertex Shader: full-screen quad passing UV coordinates
+// ---------------------------------------------------------------------------
+// Hero Flame 2.0: Full-Scale Fluid Fire Shaders
+// ---------------------------------------------------------------------------
+
 const vertexShader = `
 varying vec2 vUv;
 
@@ -11,85 +14,124 @@ void main() {
 }
 `;
 
-// Fragment Shader: Localized UV distortion based on cursor position and velocity
 const fragmentShader = `
 varying vec2 vUv;
 
 uniform sampler2D u_texture;
-uniform vec2 u_mouse;
-uniform vec2 u_velocity;
-uniform vec2 u_resolution;
-uniform float u_videoAspect;
-uniform float u_time;
-uniform float u_radius;
-uniform float u_pullStrength;
-uniform float u_velocityStrength;
-uniform float u_turbulenceStrength;
-uniform float u_intensity;
+uniform vec2 u_mouse;        // Normalized cursor coordinates in flame box [0..1]
+uniform vec2 u_velocity;     // Smoothed cursor velocity vector
+uniform vec2 u_resolution;   // Canvas resolution in pixels
+uniform float u_videoAspect; // Native video aspect ratio (720 / 1280 = 0.5625)
+uniform float u_time;        // Elapsed time in seconds
+uniform float u_expandStrength; // Outward parting / expansion factor
+uniform float u_leanStrength;   // Whole-flame directional lean factor
+uniform float u_forceStrength;  // Spatial attraction force field factor
+uniform float u_turbulence;     // Multi-octave convective wave factor
+uniform float u_proximity;      // Continuous distance factor (0: far, 1: near)
 
 void main() {
-    // Current fragment coordinate in canvas pixels (bottom-left origin)
     vec2 fragCoord = vUv * u_resolution;
 
-    // Centered 'contain' box for the flame video preserving its native 720:1280 aspect ratio
+    // Calculate aspect-ratio-preserving 'contain' box for the flame video
     float targetHeight = min(u_resolution.y * 0.86, (u_resolution.x * 0.90) / u_videoAspect);
     float targetWidth = targetHeight * u_videoAspect;
     vec2 boxOrigin = (u_resolution - vec2(targetWidth, targetHeight)) * 0.5;
 
-    // Distance in screen pixels to smoothed cursor position
-    float distToMouse = distance(fragCoord, u_mouse);
+    vec2 boxCoord = fragCoord - boxOrigin;
 
-    // Smooth localized falloff: 1.0 at cursor, 0.0 at u_radius (completely 0 outside radius)
-    float rawInfluence = smoothstep(u_radius, 0.0, distToMouse);
-    float influence = rawInfluence * rawInfluence * (3.0 - 2.0 * rawInfluence) * u_intensity;
-
-    vec2 displacedCoord = fragCoord;
-
-    // Localized distortion ONLY applies within interaction radius
-    if (influence > 0.0001) {
-        // 1. Localized directional stretch toward pointer
-        vec2 toMouse = u_mouse - fragCoord;
-        float len = length(toMouse);
-        vec2 toMouseDir = len > 0.001 ? toMouse / len : vec2(0.0);
-        vec2 pull = toMouseDir * influence * u_pullStrength;
-
-        // 2. Velocity-driven directional flow (fluid drag)
-        vec2 clampedVel = clamp(u_velocity, vec2(-28.0), vec2(28.0));
-        vec2 velDisplacement = clampedVel * influence * u_velocityStrength;
-
-        // 3. Subtle convective heat turbulence
-        float noise = sin(fragCoord.y * 0.035 + u_time * 3.0) * cos(fragCoord.x * 0.035 - u_time * 2.2);
-        vec2 turbulence = vec2(noise * 0.6, -abs(noise) * 0.8) * influence * u_turbulenceStrength;
-
-        // Total pixel displacement
-        displacedCoord = fragCoord - (pull + velDisplacement + turbulence);
-    }
-
-    // Map displaced pixel back to video box space
-    vec2 boxCoord = displacedCoord - boxOrigin;
-
-    // Outside the video box: output transparent black
+    // Output transparent black outside the flame box (blends to identity under mix-blend-screen)
     if (boxCoord.x < 0.0 || boxCoord.x > targetWidth || 
         boxCoord.y < 0.0 || boxCoord.y > targetHeight) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        gl_FragColor = vec4(0.0);
         return;
     }
 
-    // Normalized video UV coordinates [0.0, 1.0]
-    vec2 videoUv = boxCoord / vec2(targetWidth, targetHeight);
+    // Normalized UV within the flame box [0.0, 1.0]
+    vec2 uv = boxCoord / vec2(targetWidth, targetHeight);
 
-    // Sample real flame video texture
-    vec4 color = texture2D(u_texture, videoUv);
+    // 1. Height-dependent flexibility:
+    // Base of flame (v=0) is rooted to the ground; top tendrils (v=1) whip and bend with maximum fluidity
+    float heightFactor = pow(clamp(uv.y, 0.0, 1.0), 1.25);
 
-    // Subtle localized luminosity flare when cursor approaches fire
-    if (influence > 0.0001) {
-        float flare = influence * 0.16;
-        color.rgb += color.rgb * flare;
-    }
+    // 2. Broad continuous spatial influence field across the visible flame:
+    // Uses a broad Gaussian distribution (sigma = 0.44) so the entire flame structure reacts without circular clipping
+    vec2 toMouse = u_mouse - uv;
+    vec2 aspectVec = vec2(targetWidth / targetHeight, 1.0);
+    float d = length(toMouse * aspectVec);
+    float localInfluence = exp(-(d * d) / (2.0 * 0.44 * 0.44));
+
+    // 3. Flame 'Opening Up' (Outward Expansion / Parting):
+    // As cursor approaches, horizontal coordinates push outward from the central axis (u = 0.5),
+    // widening the flame silhouette and revealing the incandescent core
+    float centerDistX = uv.x - 0.5;
+    float partingDir = sign(centerDistX);
+    float partingProfile = pow(clamp(abs(centerDistX) * 2.0, 0.0, 1.0), 0.75);
+    vec2 partingOffset = vec2(
+        partingDir * partingProfile * u_expandStrength * u_proximity * (0.25 + 0.75 * heightFactor),
+        0.0
+    );
+
+    // 4. Full-flame Leaning & Directional Drag:
+    // When cursor sweeps across, the entire flame column leans in velocity direction with progressive height lag
+    vec2 leanOffset = vec2(
+        -u_velocity.x * u_leanStrength * heightFactor * 1.8,
+        -u_velocity.y * u_leanStrength * heightFactor * 0.8
+    );
+
+    // 5. Continuous Gravitational Force Field:
+    // Gently pulls nearby and surrounding flame tendrils toward cursor
+    vec2 forceDir = d > 0.001 ? normalize(toMouse) : vec2(0.0);
+    vec2 fieldOffset = forceDir * localInfluence * heightFactor * u_forceStrength * u_proximity;
+
+    // 6. Multi-Frequency Fluid Convective Turbulence (Licking Fire Harmonics):
+    float wave1 = sin(uv.y * 16.0 + uv.x * 8.0 - u_time * 3.2);
+    float wave2 = cos(uv.y * 28.0 - uv.x * 14.0 + u_time * 4.0);
+    float wave3 = sin((uv.x + uv.y) * 22.0 + u_time * 5.2);
+    float totalWave = (wave1 * 0.5 + wave2 * 0.3 + wave3 * 0.2);
+    vec2 turbulenceOffset = vec2(
+        totalWave * u_turbulence * heightFactor,
+        -abs(totalWave) * u_turbulence * heightFactor * 0.8
+    );
+
+    // Compute final displaced UV for video sampling
+    vec2 totalDisplacement = partingOffset + leanOffset + fieldOffset + turbulenceOffset;
+    vec2 displacedUv = uv - totalDisplacement;
+
+    // Clamp coordinates safely within the black borders of the video texture
+    displacedUv = clamp(displacedUv, vec2(0.001), vec2(0.999));
+    vec4 color = texture2D(u_texture, displacedUv);
+
+    // Photometric luminosity enhancement as the flame opens toward the cursor
+    float brightFactor = (u_proximity * 0.18 + localInfluence * 0.14 + length(u_velocity) * 0.06);
+    color.rgb += color.rgb * brightFactor;
 
     gl_FragColor = color;
 }
 `;
+
+// Three Interaction Strength Presets
+export type InteractionStrength = 'subtle' | 'medium' | 'expressive';
+
+const STRENGTH_CONFIGS = {
+  subtle: {
+    expandStrength: 0.10,
+    leanStrength: 0.09,
+    forceStrength: 0.10,
+    turbulence: 0.015,
+  },
+  medium: { // DEFAULT PRESET
+    expandStrength: 0.22,
+    leanStrength: 0.18,
+    forceStrength: 0.20,
+    turbulence: 0.028,
+  },
+  expressive: {
+    expandStrength: 0.38,
+    leanStrength: 0.30,
+    forceStrength: 0.34,
+    turbulence: 0.045,
+  },
+};
 
 export const HeroFlameBackground: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,8 +141,9 @@ export const HeroFlameBackground: React.FC = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
+  const [strength, setStrength] = useState<InteractionStrength>('medium');
 
-  // References for Three.js instance objects
+  // References for Three.js engine objects
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -108,23 +151,23 @@ export const HeroFlameBackground: React.FC = () => {
   const textureRef = useRef<THREE.VideoTexture | null>(null);
   const meshRef = useRef<THREE.Mesh | null>(null);
 
-  // Mouse physics tracking state (No React re-renders during 60fps loop)
+  // Physics state ref (Zero React re-renders during high-frequency animation)
   const physicsRef = useRef({
-    currentMouseX: 0,
-    currentMouseY: 0,
-    targetMouseX: 0,
-    targetMouseY: 0,
+    currentMouseUvX: 0.5,
+    currentMouseUvY: 0.5,
+    targetMouseUvX: 0.5,
+    targetMouseUvY: 0.5,
 
     currentVelX: 0,
     currentVelY: 0,
     targetVelX: 0,
     targetVelY: 0,
 
-    currentIntensity: 0,
-    targetIntensity: 0,
+    currentProximity: 0,
+    targetProximity: 0,
 
-    lastClientX: 0,
-    lastClientY: 0,
+    lastUvX: 0.5,
+    lastUvY: 0.5,
     lastTime: 0,
 
     isVisible: true,
@@ -144,7 +187,7 @@ export const HeroFlameBackground: React.FC = () => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Check WebGL availability helper
+  // Check WebGL availability
   const checkWebGL = useCallback(() => {
     try {
       const testCanvas = document.createElement('canvas');
@@ -157,7 +200,19 @@ export const HeroFlameBackground: React.FC = () => {
     }
   }, []);
 
-  // Initialize Three.js scene, video texture, and shader material
+  // Update shader uniforms whenever interaction strength preset changes
+  useEffect(() => {
+    if (materialRef.current) {
+      const config = STRENGTH_CONFIGS[strength];
+      const u = materialRef.current.uniforms;
+      u.u_expandStrength.value = config.expandStrength;
+      u.u_leanStrength.value = config.leanStrength;
+      u.u_forceStrength.value = config.forceStrength;
+      u.u_turbulence.value = config.turbulence;
+    }
+  }, [strength]);
+
+  // Initialize Three.js scene, video texture, and ShaderMaterial
   useEffect(() => {
     if (!checkWebGL()) {
       setWebglSupported(false);
@@ -174,14 +229,14 @@ export const HeroFlameBackground: React.FC = () => {
     const height = rect.height || window.innerHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    // 1. Setup Three.js Scene and Orthographic Camera
+    // 1. Scene & Orthographic Camera
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     cameraRef.current = camera;
 
-    // 2. Setup WebGL Renderer
+    // 2. WebGL Renderer
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({
@@ -194,12 +249,12 @@ export const HeroFlameBackground: React.FC = () => {
       renderer.setSize(width, height, false);
       rendererRef.current = renderer;
     } catch (err) {
-      console.warn('WebGL initialization failed, falling back to standard video element:', err);
+      console.warn('WebGL init failed, falling back to native video:', err);
       setWebglSupported(false);
       return;
     }
 
-    // 3. Create VideoTexture from existing HTML5 video element
+    // 3. VideoTexture from native HTML5 video element
     const texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
@@ -207,39 +262,37 @@ export const HeroFlameBackground: React.FC = () => {
     texture.generateMipmaps = false;
     textureRef.current = texture;
 
-    // 4. Create Custom ShaderMaterial with Uniforms
+    // 4. Custom ShaderMaterial with Broad Force-Field Uniforms
+    const config = STRENGTH_CONFIGS[strength];
     const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
       transparent: true,
       uniforms: {
         u_texture: { value: texture },
-        u_mouse: { value: new THREE.Vector2(width * 0.5, height * 0.5) },
+        u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
         u_velocity: { value: new THREE.Vector2(0, 0) },
         u_resolution: { value: new THREE.Vector2(width, height) },
-        u_videoAspect: { value: 720.0 / 1280.0 }, // Native video aspect ratio (0.5625)
+        u_videoAspect: { value: 720.0 / 1280.0 }, // Native video ratio
         u_time: { value: 0 },
-        u_radius: { value: Math.max(150.0, Math.min(220.0, width * 0.16)) },
-        u_pullStrength: { value: 24.0 }, // Restrained local stretch toward pointer
-        u_velocityStrength: { value: 0.42 }, // Directional displacement with velocity
-        u_turbulenceStrength: { value: 7.0 }, // Subtle convective heat turbulence
-        u_intensity: { value: 0.0 }, // Smooth entry and recovery
+        u_expandStrength: { value: config.expandStrength },
+        u_leanStrength: { value: config.leanStrength },
+        u_forceStrength: { value: config.forceStrength },
+        u_turbulence: { value: config.turbulence },
+        u_proximity: { value: 0.0 },
       },
     });
     materialRef.current = material;
 
-    // 5. Plane geometry covering entire viewport quad
+    // 5. Full viewport quad
     const geometry = new THREE.PlaneGeometry(2, 2);
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
     meshRef.current = mesh;
 
-    // 6. Handle Video Autoplay
-    video.play().catch(() => {
-      // Autoplay silently handled for muted playsInline video
-    });
+    // 6. Autoplay Video safely
+    video.play().catch(() => {});
 
-    // Cleanup WebGL resources on unmount
     return () => {
       if (rendererRef.current) {
         rendererRef.current.dispose();
@@ -255,9 +308,9 @@ export const HeroFlameBackground: React.FC = () => {
       }
       geometry.dispose();
     };
-  }, [checkWebGL]);
+  }, [checkWebGL, strength]);
 
-  // Main 60fps Animation Loop: GPU Uniform updates and Three.js Render
+  // Main 60fps Animation Loop: Physics Damping + Three.js Render
   useEffect(() => {
     const p = physicsRef.current;
 
@@ -267,31 +320,30 @@ export const HeroFlameBackground: React.FC = () => {
         return;
       }
 
-      // Smooth interpolation for mouse coordinates and velocity
-      const lerpFactor = 0.12;
-      p.currentMouseX += (p.targetMouseX - p.currentMouseX) * lerpFactor;
-      p.currentMouseY += (p.targetMouseY - p.currentMouseY) * lerpFactor;
+      // 1. Smooth interpolation of normalized cursor coordinates (lag-free fluid trail)
+      const lerp = 0.10;
+      p.currentMouseUvX += (p.targetMouseUvX - p.currentMouseUvX) * lerp;
+      p.currentMouseUvY += (p.targetMouseUvY - p.currentMouseUvY) * lerp;
 
-      p.currentVelX += (p.targetVelX - p.currentVelX) * 0.16;
-      p.currentVelY += (p.targetVelY - p.currentVelY) * 0.16;
+      // 2. Smooth velocity with inertia and aerodynamic decay
+      p.currentVelX += (p.targetVelX - p.currentVelX) * 0.14;
+      p.currentVelY += (p.targetVelY - p.currentVelY) * 0.14;
+      p.targetVelX *= 0.90;
+      p.targetVelY *= 0.90;
 
-      // Natural decay of velocity momentum
-      p.targetVelX *= 0.88;
-      p.targetVelY *= 0.88;
+      // 3. Smooth global proximity decay when cursor leaves or pauses
+      p.currentProximity += (p.targetProximity - p.currentProximity) * 0.08;
 
-      // Smooth recovery of distortion intensity
-      p.currentIntensity += (p.targetIntensity - p.currentIntensity) * 0.08;
-
-      // Update shader uniforms
+      // 4. Update GLSL shader uniforms
       if (materialRef.current) {
         const u = materialRef.current.uniforms;
-        u.u_mouse.value.set(p.currentMouseX, p.currentMouseY);
+        u.u_mouse.value.set(p.currentMouseUvX, p.currentMouseUvY);
         u.u_velocity.value.set(p.currentVelX, p.currentVelY);
-        u.u_intensity.value = p.currentIntensity;
+        u.u_proximity.value = p.currentProximity;
         u.u_time.value = performance.now() * 0.001;
       }
 
-      // Render the scene
+      // 5. Render Scene to WebGL Canvas
       if (rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
@@ -312,7 +364,7 @@ export const HeroFlameBackground: React.FC = () => {
       }
     };
 
-    // Pause rendering when hero is scrolled out of view
+    // Pause WebGL rendering when hero is off-screen
     const heroEl = document.getElementById('hero-section') || containerRef.current;
     let observer: IntersectionObserver | null = null;
 
@@ -337,7 +389,7 @@ export const HeroFlameBackground: React.FC = () => {
       observer.observe(heroEl);
     }
 
-    // Pause on tab visibility change
+    // Pause on background tab visibility change
     const handleVisibility = () => {
       if (document.hidden) {
         p.isVisible = false;
@@ -360,7 +412,7 @@ export const HeroFlameBackground: React.FC = () => {
     };
   }, [reducedMotion]);
 
-  // Window Resize & Resolution Uniform Sync
+  // Window Resize & Canvas Resolution Sync
   useEffect(() => {
     const handleResize = () => {
       const container = containerRef.current;
@@ -377,14 +429,13 @@ export const HeroFlameBackground: React.FC = () => {
       renderer.setPixelRatio(dpr);
 
       material.uniforms.u_resolution.value.set(width, height);
-      material.uniforms.u_radius.value = Math.max(150.0, Math.min(220.0, width * 0.16));
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Localized Pointer Tracking (Disabled on touch-only devices)
+  // Broad Spatial Pointer Tracking (Disabled on touch-only devices)
   useEffect(() => {
     if (reducedMotion) return;
 
@@ -398,45 +449,55 @@ export const HeroFlameBackground: React.FC = () => {
       if (!container || !p.isVisible) return;
 
       const rect = container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
 
-      // Check if cursor is roughly within hero section
-      if (e.clientY < -100 || e.clientY > rect.bottom + 100) {
-        p.targetIntensity = 0.0;
+      // Ignore if cursor is far outside hero section
+      if (e.clientY < -150 || e.clientY > rect.bottom + 150) {
+        p.targetProximity = 0.0;
         return;
       }
 
-      // Convert to canvas pixel space with bottom-left origin for WebGL
+      // Compute geometry of centered flame box
+      const videoAspect = 720.0 / 1280.0;
+      const targetHeight = Math.min(height * 0.86, (width * 0.90) / videoAspect);
+      const targetWidth = targetHeight * videoAspect;
+      const boxOriginX = (width - targetWidth) * 0.5;
+      const boxOriginY = (height - targetHeight) * 0.5;
+
       const canvasX = e.clientX - rect.left;
-      const canvasY = rect.height - (e.clientY - rect.top);
+      const canvasY = height - (e.clientY - rect.top); // WebGL inverted Y
 
-      p.targetMouseX = canvasX;
-      p.targetMouseY = canvasY;
+      // Normalized cursor coordinates inside the flame box space
+      const flameUvX = (canvasX - boxOriginX) / targetWidth;
+      const flameUvY = (canvasY - boxOriginY) / targetHeight;
 
-      // Compute instantaneous mouse velocity
+      p.targetMouseUvX = flameUvX;
+      p.targetMouseUvY = flameUvY;
+
+      // Compute cursor velocity in normalized UV space
       const now = performance.now();
       const dt = Math.max(1, now - p.lastTime);
-      const vx = ((canvasX - p.lastClientX) / dt) * 16.6;
-      const vy = ((canvasY - p.lastClientY) / dt) * 16.6;
+      const rawVx = ((flameUvX - p.lastUvX) / dt) * 16.6;
+      const rawVy = ((flameUvY - p.lastUvY) / dt) * 16.6;
 
-      p.lastClientX = canvasX;
-      p.lastClientY = canvasY;
+      p.lastUvX = flameUvX;
+      p.lastUvY = flameUvY;
       p.lastTime = now;
 
-      p.targetVelX = vx;
-      p.targetVelY = vy;
+      // Velocity clamping to prevent excessive distortion on fast flicks
+      p.targetVelX = Math.max(-2.5, Math.min(2.5, rawVx));
+      p.targetVelY = Math.max(-2.5, Math.min(2.5, rawVy));
 
-      // Check if cursor is within interaction distance of the flame
-      const flameCenterX = rect.width * 0.5;
-      const flameCenterY = rect.height * 0.5;
-      const distToCenter = Math.hypot(canvasX - flameCenterX, canvasY - flameCenterY);
-      const maxActiveRadius = Math.max(rect.width, rect.height) * 0.55;
-
-      p.targetIntensity = distToCenter < maxActiveRadius ? 1.0 : 0.0;
+      // Continuous broad proximity factor to the flame center (u=0.5, v=0.5)
+      const distToCenter = Math.hypot(flameUvX - 0.5, flameUvY - 0.5);
+      // Continuous falloff across the hero: 1.0 when near, smoothly reaches 0.0 when far away
+      p.targetProximity = Math.max(0.0, Math.min(1.0, 1.0 - (distToCenter - 0.2) / 0.95));
     };
 
     const onPointerLeave = () => {
       const p = physicsRef.current;
-      p.targetIntensity = 0.0;
+      p.targetProximity = 0.0;
       p.targetVelX = 0.0;
       p.targetVelY = 0.0;
     };
@@ -464,7 +525,7 @@ export const HeroFlameBackground: React.FC = () => {
         aria-hidden="true" 
       />
 
-      {/* HTML5 Video Element used as WebGL VideoTexture Source */}
+      {/* HTML5 Video Source for WebGL VideoTexture */}
       <video
         ref={videoRef}
         src="/assets/pink-flame.mp4"
@@ -481,7 +542,7 @@ export const HeroFlameBackground: React.FC = () => {
         aria-hidden="true"
       />
 
-      {/* WebGL Canvas: Localized UV Pixel Distortion Shader */}
+      {/* Hero Flame 2.0 WebGL Canvas (Full-Scale Fluid Deformation) */}
       {webglSupported && (
         <canvas
           ref={canvasRef}
@@ -492,7 +553,7 @@ export const HeroFlameBackground: React.FC = () => {
         />
       )}
 
-      {/* Seamless edge blending vignettes into pure black #080808 */}
+      {/* Edge blending vignettes into pure black #080808 */}
       <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/70 to-transparent pointer-events-none" />
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent pointer-events-none" />
       <div 
@@ -501,6 +562,27 @@ export const HeroFlameBackground: React.FC = () => {
           background: 'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(8, 8, 8, 0.5) 60%, #080808 90%)',
         }}
       />
+
+      {/* Interaction Strength Presets Control (Subtle / Medium / Expressive) */}
+      <div className="absolute bottom-6 left-6 z-20 hidden sm:flex items-center gap-1.5 bg-[#0D0D0D]/90 backdrop-blur-md border border-border/80 px-2.5 py-1.5 rounded-md text-[11px] font-mono pointer-events-auto select-none">
+        <span className="text-muted mr-0.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+          Flame Physics:
+        </span>
+        {(['subtle', 'medium', 'expressive'] as const).map(mode => (
+          <button
+            key={mode}
+            onClick={() => setStrength(mode)}
+            className={`px-2 py-0.5 rounded text-[10px] capitalize transition-colors cursor-pointer ${
+              strength === mode
+                ? 'bg-accent/20 text-accent font-medium border border-accent/40 shadow-sm'
+                : 'text-muted-dark hover:text-muted hover:bg-white/[0.03]'
+            }`}
+          >
+            {mode}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

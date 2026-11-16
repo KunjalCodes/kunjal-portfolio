@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface CharacterVisibilityControlProps {
   isVisible: boolean;
@@ -15,12 +15,12 @@ export const CharacterVisibilityControl: React.FC<CharacterVisibilityControlProp
   return (
     <button
       onClick={onToggle}
-      className={`font-mono text-[10px] px-2 py-1 rounded-md bg-[#121212]/90 hover:bg-[#1A1A1A] border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-200 flex items-center gap-1.5 shadow-md backdrop-blur-sm cursor-pointer select-none ${className}`}
-      title={isVisible ? 'Hide companion Chotu' : 'Show companion Chotu'}
-      aria-label={isVisible ? 'Hide companion Chotu' : 'Show companion Chotu'}
+      className={`font-mono text-[10px] px-2 py-1 rounded bg-[#101010]/90 hover:bg-[#181818] border border-border hover:border-accent/40 text-muted hover:text-accent transition-all duration-200 flex items-center gap-1.5 shadow-md backdrop-blur-sm cursor-pointer select-none ${className}`}
+      title={isVisible ? 'Hide companion' : 'Show companion'}
+      aria-label={isVisible ? 'Hide companion' : 'Show companion'}
     >
-      <Sparkles className="w-2.5 h-2.5 text-accent" />
-      <span>Chotu:</span>
+      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+      <span>Companion:</span>
       <span className={isVisible ? 'text-accent font-semibold' : 'text-muted-dark'}>
         {isVisible ? 'ON' : 'OFF'}
       </span>

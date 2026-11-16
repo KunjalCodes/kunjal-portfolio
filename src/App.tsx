@@ -87,7 +87,7 @@ export const App: React.FC = () => {
           </Routes>
         </main>
 
-        {/* Chotu Kunjal - Interactive Character Companion */}
+        {/* Interactive Engineering Companion (KJ) */}
         <CharacterCompanion isTerminalOpen={isTerminalOpen} />
 
         {/* Engineering Footer */}

@@ -66,3 +66,45 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Companion Organic Motion Keyframes */
+@keyframes companion-breathe {
+  0%, 100% {
+    transform: translateY(0px) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-2.5px) scale(1.008, 1.012);
+  }
+}
+
+@keyframes companion-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes companion-laptop-glow {
+  0%, 100% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 10px rgba(240, 165, 200, 0.25));
+  }
+  50% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 16px rgba(240, 165, 200, 0.45));
+  }
+}
+
+.animate-companion-breathe {
+  animation: companion-breathe 4s ease-in-out infinite;
+}
+
+.animate-companion-float {
+  animation: companion-float 3.5s ease-in-out infinite;
+}
+
+.animate-companion-laptop {
+  animation: companion-laptop-glow 2.5s ease-in-out infinite;
+}

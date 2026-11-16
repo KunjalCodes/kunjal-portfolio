@@ -20,7 +20,7 @@ const POSE_ASSETS: Record<string, string> = {
 
 /**
  * CharacterSlot:
- * Anchor slot for Chotu Kunjal character illustrations.
+ * Anchor slot for companion character illustrations.
  */
 export const CharacterSlot: React.FC<CharacterSlotProps> = ({
   pose = 'wave',
@@ -47,7 +47,7 @@ export const CharacterSlot: React.FC<CharacterSlotProps> = ({
       <div className="w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center">
         <img
           src={assetUrl}
-          alt={`Chotu Kunjal (${pose})`}
+          alt={`Companion (${pose})`}
           className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(240,165,200,0.3)]"
           loading="lazy"
         />

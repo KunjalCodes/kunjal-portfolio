@@ -32,7 +32,7 @@ const COMMAND_LIST = [
   'resume',
   'leetcode',
   'github',
-  'chotu',
+  'companion',
   'clear',
   'open second-brain',
   'open food-lens',
@@ -132,7 +132,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
               <div><span className="text-primary font-bold">lab</span> - View technical journal notes</div>
               <div><span className="text-primary font-bold">contact</span> - Communication endpoints</div>
               <div><span className="text-primary font-bold">resume</span> - Download/preview CV</div>
-              <div><span className="text-primary font-bold">chotu</span> - Meet companion Chotu</div>
+              <div><span className="text-primary font-bold">companion</span> - Companion status & quote</div>
               <div><span className="text-primary font-bold">open &lt;slug&gt;</span> - Jump to project case study</div>
               <div><span className="text-primary font-bold">theme</span> - Design system specs</div>
               <div><span className="text-primary font-bold">whoami</span> - Current terminal session</div>
@@ -338,18 +338,20 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
         window.open(profile.socialLinks.resumeUrl, '_blank');
         break;
 
+      case 'companion':
+      case 'kj':
       case 'chotu':
         output = (
-          <div className="flex items-center gap-3 p-2 bg-[#121212] border border-accent/30 rounded text-xs font-mono">
+          <div className="flex items-center gap-3 p-2.5 bg-[#121212] border border-accent/30 rounded text-xs font-mono">
             <img
               src="/assets/character/chotu-coding.png"
-              alt="Chotu coding"
+              alt="Companion coding"
               className="w-12 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.3)] shrink-0"
             />
             <div className="space-y-1">
-              <p className="text-accent font-semibold">Chotu Kunjal — Companion AI Agent</p>
-              <p className="text-muted-light">"Currently negotiating with a bug on my machine."</p>
-              <p className="text-[10px] text-muted">Status: Active · Pose: Coding · Laptop flame: Online</p>
+              <p className="text-accent font-semibold">KJ — Engineering Companion</p>
+              <p className="text-muted-light">"Currently negotiating with a bug."</p>
+              <p className="text-[10px] text-muted">Status: Active · Pose: Coding · System: Online</p>
             </div>
           </div>
         );
@@ -509,13 +511,13 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
                     KUNJAL.J — AI Engineering Shell [Version 1.0.0-PROD]
                   </p>
                   <p className="text-[11px] text-muted">
-                    Type <span className="text-accent font-semibold">help</span> to inspect valid operations, <span className="text-accent font-semibold">projects</span> for case studies, or <span className="text-accent font-semibold">chotu</span> to talk to Chotu.
+                    Type <span className="text-accent font-semibold">help</span> to inspect valid operations, or <span className="text-accent font-semibold">projects</span> for case studies.
                   </p>
                 </div>
                 <div className="hidden sm:flex items-center shrink-0 pr-1">
                   <img
                     src="/assets/character/chotu-coding.png"
-                    alt="Chotu coding on laptop"
+                    alt="Companion coding on laptop"
                     className="w-11 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.3)] select-none pointer-events-none"
                   />
                 </div>

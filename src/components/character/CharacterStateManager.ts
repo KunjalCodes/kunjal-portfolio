@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CharacterPose, CharacterPosition } from '../../types';
+import { CharacterPose } from '../../types';
 
-export const CHOTU_ASSETS: Record<CharacterPose, string> = {
+export type CompanionBehavior = 'idle' | 'walking' | 'thinking' | 'working' | 'reacting';
+
+export const COMPANION_ASSETS: Record<CharacterPose, string> = {
   wave: '/assets/character/chotu-waving.png',
   walk: '/assets/character/chotu-walking.png',
   think: '/assets/character/chotu-thinking.png',
@@ -11,49 +13,49 @@ export const CHOTU_ASSETS: Record<CharacterPose, string> = {
   working: '/assets/character/chotu-coding.png',
 };
 
-// Curated contextual quotes per specification
+// Witty, restrained dialogue quotes per specification
 const CONTEXTUAL_DIALOGUES: Record<string, string[]> = {
   '/': [
+    "Oh, you're exploring?",
     'Building things that think. Literally.',
-    "Hey there! I'm Chotu.",
-    'Another AI project? Of course.',
+    'Deterministic rigor meets adaptive AI.',
   ],
   '/work': [
-    'Another AI project? Of course.',
-    'Exploring the engineering archives...',
-    '10,000 nodes traversed in 0.58s!',
+    'This one took some debugging.',
+    '10,000 nodes traversed in 0.58s.',
+    'I think the architecture is getting interesting.',
   ],
   '/playground': [
-    'Adjust the slider to balance Precision & Recall!',
+    'I think the architecture is getting interesting.',
     'Currently negotiating with a bug.',
-    'No GPUs were harmed in this demonstration.',
+    'Adjusting decision boundaries in real time.',
   ],
   '/about': [
-    'UTU Bhimtal graduate in June 2026!',
-    'Building computer vision at Igniters Hub.',
+    'UTU Bhimtal graduate in June 2026.',
+    'Software engineering at Igniters Hub.',
     '100+ LeetCode problems and counting.',
   ],
   '/lab': [
     'Empirical benchmarks > assumptions.',
-    'Currently testing morphological kernels.',
     'It worked on my machine.',
+    'Testing morphological line separation.',
   ],
   '/contact': [
-    'Feel free to reach out directly!',
-    'Or press ~ to open the terminal shell.',
+    'Reach out directly or launch the shell with ~.',
+    "Don't touch that. Just kidding.",
   ],
 };
 
-const RANDOM_CLICK_QUOTES = [
-  'You found me!',
-  'Currently negotiating with a bug.',
+const CLICK_REACTIONS = [
+  "Don't touch that. Just kidding.",
+  "Oh, you're exploring?",
+  'This one took some debugging.',
   'It worked on my machine.',
-  'Another AI project? Of course.',
-  'Building things that think. Literally.',
-  'Deterministic rigor meets adaptive AI.',
+  'Currently negotiating with a bug.',
+  'I think the architecture is getting interesting.',
 ];
 
-const LOCAL_STORAGE_KEY = 'kunjal_chotu_visible';
+const LOCAL_STORAGE_KEY = 'portfolio_companion_visible';
 
 export interface UseCharacterStateOptions {
   isTerminalOpen?: boolean;
@@ -73,10 +75,18 @@ export function useCharacterState({ isTerminalOpen = false }: UseCharacterStateO
     }
   });
 
+  // State machine values
+  const [behavior, setBehavior] = useState<CompanionBehavior>('idle');
   const [activePose, setActivePose] = useState<CharacterPose>('wave');
-  const [activePosition, setActivePosition] = useState<CharacterPosition>('bottom-right');
+  const [walkX, setWalkX] = useState<number>(0);
+  const [facingDirection, setFacingDirection] = useState<1 | -1>(1); // 1 = normal, -1 = flipped
   const [dialogue, setDialogue] = useState<string | null>(null);
-  const [dialogueDismissed, setDialogueDismissed] = useState<boolean>(false);
+  const [isReacting, setIsReacting] = useState<boolean>(false);
+
+  // Position anchors based on route
+  const isBottomLeft = location.pathname === '/contact';
+
+  const pacingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Toggle visibility and persist
   const toggleVisibility = useCallback(() => {
@@ -85,67 +95,76 @@ export function useCharacterState({ isTerminalOpen = false }: UseCharacterStateO
       try {
         localStorage.setItem(LOCAL_STORAGE_KEY, String(next));
       } catch {
-        // Ignore localStorage restrictions
+        // Safe fallback
       }
       return next;
     });
   }, []);
 
-  // Update pose and positioning based on route and terminal state
+  // Update base behavior based on route & terminal state
   useEffect(() => {
     const path = location.pathname;
 
-    // Terminal active overrides to coding pose
+    // Reset reaction
+    setIsReacting(false);
+
     if (isTerminalOpen) {
+      setBehavior('working');
       setActivePose('coding');
-      setActivePosition('docked-terminal');
+      setWalkX(0);
+      setFacingDirection(1);
       return;
     }
 
-    // Route-specific pose and position assignment per specification:
-    // - Homepage: waving pose
-    // - About: walking or thinking pose
-    // - Projects: walking pose
-    // - AI Playground: thinking pose
-    // - Terminal: coding pose
-    // - Footer: thinking pose
     if (path === '/') {
+      setBehavior('idle');
       setActivePose('wave');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(1);
     } else if (path.startsWith('/work')) {
+      // In project section, initiate gentle pacing behavior
+      setBehavior('walking');
       setActivePose('walk');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(-1); // Start walking inward toward content edge
     } else if (path === '/playground') {
+      setBehavior('thinking');
       setActivePose('think');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(1);
     } else if (path === '/about') {
+      setBehavior('idle');
       setActivePose('walk');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(1);
     } else if (path === '/lab') {
+      setBehavior('thinking');
       setActivePose('think');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(1);
     } else if (path === '/contact') {
+      setBehavior('idle');
       setActivePose('wave');
-      setActivePosition('bottom-left');
+      setWalkX(0);
+      setFacingDirection(1);
     } else {
+      setBehavior('idle');
       setActivePose('think');
-      setActivePosition('bottom-right');
+      setWalkX(0);
+      setFacingDirection(1);
     }
 
-    // Set contextual dialogue occasionally on route change
-    setDialogueDismissed(false);
+    // Occasional, rare dialogue display on navigation
     const pathQuotes = CONTEXTUAL_DIALOGUES[path] || CONTEXTUAL_DIALOGUES['/'];
-    const chosenQuote = pathQuotes[Math.floor(Math.random() * pathQuotes.length)];
+    const selectedQuote = pathQuotes[Math.floor(Math.random() * pathQuotes.length)];
 
-    // Show dialogue after gentle 1.2s delay
     const showTimer = setTimeout(() => {
-      setDialogue(chosenQuote);
-    }, 1200);
+      setDialogue(selectedQuote);
+    }, 1400);
 
-    // Auto-dismiss dialogue after 6 seconds so it never annoys visitors
     const hideTimer = setTimeout(() => {
       setDialogue(null);
-    }, 7200);
+    }, 6500);
 
     return () => {
       clearTimeout(showTimer);
@@ -153,30 +172,69 @@ export function useCharacterState({ isTerminalOpen = false }: UseCharacterStateO
     };
   }, [location.pathname, isTerminalOpen]);
 
-  // Click on Chotu cycles a playful dialogue
-  const handleCharacterClick = useCallback(() => {
-    const quote = RANDOM_CLICK_QUOTES[Math.floor(Math.random() * RANDOM_CLICK_QUOTES.length)];
-    setDialogue(quote);
-    setDialogueDismissed(false);
+  // Autonomous pacing simulation when in walking behavior
+  useEffect(() => {
+    if (behavior !== 'walking' || isTerminalOpen) {
+      if (pacingTimerRef.current) clearInterval(pacingTimerRef.current);
+      return;
+    }
 
-    // Auto-dismiss after 5s
+    // Simulate intentional short walk across an 80px runway
+    let step = 0;
+    const interval = setInterval(() => {
+      step = (step + 1) % 4;
+      if (step === 0) {
+        // Walk left
+        setFacingDirection(-1);
+        setWalkX(-60);
+      } else if (step === 1) {
+        // Pause in thinking/standing pose
+        setActivePose('think');
+      } else if (step === 2) {
+        // Walk back right
+        setActivePose('walk');
+        setFacingDirection(1);
+        setWalkX(0);
+      } else if (step === 3) {
+        // Pause in idle
+        setActivePose('walk');
+      }
+    }, 7000);
+
+    pacingTimerRef.current = interval;
+    return () => clearInterval(interval);
+  }, [behavior, isTerminalOpen]);
+
+  // Click reaction: hop, pose change, and dialogue
+  const handleCharacterClick = useCallback(() => {
+    setIsReacting(true);
+    const quote = CLICK_REACTIONS[Math.floor(Math.random() * CLICK_REACTIONS.length)];
+    setDialogue(quote);
+
+    setTimeout(() => {
+      setIsReacting(false);
+    }, 800);
+
     setTimeout(() => {
       setDialogue(null);
-    }, 5000);
+    }, 5500);
   }, []);
 
   const dismissDialogue = useCallback(() => {
     setDialogue(null);
-    setDialogueDismissed(true);
   }, []);
 
   return {
     isVisible,
     toggleVisibility,
+    behavior,
     activePose,
-    activePosition,
-    currentAsset: CHOTU_ASSETS[activePose] || CHOTU_ASSETS.wave,
-    dialogue: dialogueDismissed ? null : dialogue,
+    walkX,
+    facingDirection,
+    isBottomLeft,
+    currentAsset: COMPANION_ASSETS[activePose] || COMPANION_ASSETS.wave,
+    dialogue,
+    isReacting,
     handleCharacterClick,
     dismissDialogue,
   };

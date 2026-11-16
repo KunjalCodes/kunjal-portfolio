@@ -15,25 +15,21 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
   const {
     isVisible,
     toggleVisibility,
+    behavior,
     activePose,
-    activePosition,
+    walkX,
+    facingDirection,
+    isBottomLeft,
     currentAsset,
     dialogue,
+    isReacting,
     handleCharacterClick,
     dismissDialogue,
   } = useCharacterState({ isTerminalOpen });
 
-  const positionClasses = {
-    'bottom-right': 'bottom-5 right-5 sm:bottom-8 sm:right-8',
-    'bottom-left': 'bottom-5 left-5 sm:bottom-8 sm:left-8',
-    'floating': 'bottom-20 right-6',
-    'docked-terminal': 'bottom-6 right-8',
-    'section-anchor': 'bottom-8 right-8',
-  };
-
   return (
     <>
-      {/* 1. When Hidden: Subtle restore trigger pill in the corner */}
+      {/* 1. When Hidden: Minimal restore toggle button in the corner */}
       {!isVisible && (
         <div className="fixed bottom-5 right-5 z-40 pointer-events-auto select-none">
           <CharacterVisibilityControl
@@ -43,35 +39,47 @@ export const CharacterCompanion: React.FC<CharacterCompanionProps> = ({
         </div>
       )}
 
-      {/* 2. When Visible: Full Character Companion & Dialogue */}
+      {/* 2. When Visible: Animated Companion with Intentional Movement */}
       <AnimatePresence>
         {isVisible && !isTerminalOpen && (
           <motion.aside
-            key="chotu-companion"
+            key="kj-companion-container"
             initial={{ opacity: 0, y: 15, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+            }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className={`fixed ${positionClasses[activePosition]} z-40 pointer-events-none select-none flex flex-col items-center group`}
-            aria-label="Portfolio companion character"
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className={`fixed ${
+              isBottomLeft
+                ? 'bottom-5 left-5 sm:bottom-7 sm:left-7'
+                : 'bottom-5 right-5 sm:bottom-7 sm:right-7'
+            } z-40 pointer-events-none select-none flex flex-col items-center group`}
+            aria-label="Interactive portfolio companion"
           >
             <div className="relative pointer-events-auto flex flex-col items-center">
               {/* Contextual Dialogue Speech Bubble */}
               <CharacterDialogue
                 message={dialogue}
                 onDismiss={dismissDialogue}
-                position={activePosition}
+                isBottomLeft={isBottomLeft}
               />
 
-              {/* Character Illustration Renderer */}
+              {/* Character Illustration Renderer with Kinematic Movement & Directional Turning */}
               <CharacterRenderer
                 pose={activePose}
+                behavior={behavior}
                 assetUrl={currentAsset}
+                walkX={walkX}
+                facingDirection={facingDirection}
+                isReacting={isReacting}
                 onClick={handleCharacterClick}
               />
 
-              {/* Subtle Visibility Toggle Switcher below Chotu */}
-              <div className="mt-1 opacity-70 group-hover:opacity-100 transition-opacity duration-200">
+              {/* Subtle Visibility Toggle Switcher below Companion */}
+              <div className="mt-1 opacity-0 group-hover:opacity-85 focus-within:opacity-100 transition-opacity duration-200">
                 <CharacterVisibilityControl
                   isVisible={true}
                   onToggle={toggleVisibility}

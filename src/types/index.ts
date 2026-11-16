@@ -132,11 +132,11 @@ export interface CertificationItem {
 }
 
 export type CharacterPose = 
-  | 'idle' 
   | 'wave' 
   | 'walk' 
-  | 'point' 
   | 'think' 
+  | 'coding'
+  | 'idle' 
   | 'working';
 
 export type CharacterPosition = 

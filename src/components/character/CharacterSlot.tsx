@@ -1,11 +1,5 @@
 import React from 'react';
-
-export type CharacterPose = 
-  | 'wave' 
-  | 'idle' 
-  | 'point-projects' 
-  | 'sitting-laptop' 
-  | 'thinking';
+import { CharacterPose } from '../../types';
 
 interface CharacterSlotProps {
   pose?: CharacterPose;
@@ -15,29 +9,27 @@ interface CharacterSlotProps {
   onClick?: () => void;
 }
 
+const POSE_ASSETS: Record<string, string> = {
+  wave: '/assets/character/chotu-waving.png',
+  walk: '/assets/character/chotu-walking.png',
+  think: '/assets/character/chotu-thinking.png',
+  coding: '/assets/character/chotu-coding.png',
+  idle: '/assets/character/chotu-waving.png',
+  working: '/assets/character/chotu-coding.png',
+};
+
 /**
  * CharacterSlot:
- * Architectural anchor for the planned custom chibi-style companion character.
- * 
- * Per project specifications:
- * - Kept dormant until personal reference photo and character design assets are provided.
- * - Engineered to mount seamlessly into layout anchors without disrupting content flow or navigation.
+ * Anchor slot for Chotu Kunjal character illustrations.
  */
 export const CharacterSlot: React.FC<CharacterSlotProps> = ({
-  pose = 'idle',
+  pose = 'wave',
   location = 'floating',
   bubbleMessage,
   className = '',
   onClick,
 }) => {
-  // Flag indicating if custom illustration assets are configured
-  // Set to false until user uploads reference assets per specification
-  const isCharacterActive = false;
-
-  if (!isCharacterActive) {
-    // Renders zero markup so layout remains pristine and completely unobstructed
-    return null;
-  }
+  const assetUrl = POSE_ASSETS[pose] || POSE_ASSETS.wave;
 
   return (
     <div
@@ -48,12 +40,17 @@ export const CharacterSlot: React.FC<CharacterSlotProps> = ({
       aria-hidden="true"
     >
       {bubbleMessage && (
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-background-card border border-accent/30 text-primary text-xs px-2.5 py-1 rounded shadow-lg font-mono">
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#121212] border border-accent/40 text-primary text-xs px-2.5 py-1 rounded shadow-lg font-mono">
           {bubbleMessage}
         </div>
       )}
-      <div className="w-16 h-16 rounded-full border border-dashed border-accent/30 flex items-center justify-center text-accent text-xs">
-        [Companion Slot]
+      <div className="w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center">
+        <img
+          src={assetUrl}
+          alt={`Chotu Kunjal (${pose})`}
+          className="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(240,165,200,0.3)]"
+          loading="lazy"
+        />
       </div>
     </div>
   );

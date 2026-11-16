@@ -21,9 +21,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
             <p className="text-muted text-sm max-w-sm leading-relaxed">
               {profile.headline} Building persistent memory systems, multi-agent architectures, and intelligent software systems.
             </p>
-            <div className="pt-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-mono text-muted-light">{profile.status}</span>
+            <div className="pt-2 flex items-center justify-between max-w-sm">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-mono text-muted-light">{profile.status}</span>
+              </div>
+              <div className="hidden sm:flex items-center shrink-0 pl-4" title="Chotu contemplating system architecture...">
+                <img
+                  src="/assets/character/chotu-thinking.png"
+                  alt="Chotu thinking"
+                  className="w-10 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(240,165,200,0.25)] select-none pointer-events-none"
+                />
+              </div>
             </div>
           </div>
 

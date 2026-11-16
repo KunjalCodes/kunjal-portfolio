@@ -42,6 +42,10 @@ async function runAudit() {
     '/resume-kunjal-joshi.pdf',
     '/assets/pink-flame.mp4',
     '/assets/flame-poster.jpg',
+    '/assets/character/chotu-walking.png',
+    '/assets/character/chotu-thinking.png',
+    '/assets/character/chotu-coding.png',
+    '/assets/character/chotu-waving.png',
     '/favicon.svg'
   ];
 
@@ -60,6 +64,10 @@ async function runAudit() {
     'public/resume-kunjal-joshi.pdf',
     'public/assets/pink-flame.mp4',
     'public/assets/flame-poster.jpg',
+    'public/assets/character/chotu-walking.png',
+    'public/assets/character/chotu-thinking.png',
+    'public/assets/character/chotu-coding.png',
+    'public/assets/character/chotu-waving.png',
     'public/favicon.svg',
     'public/_redirects',
     'vercel.json',

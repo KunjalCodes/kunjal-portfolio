@@ -147,6 +147,27 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Key Engineering Achievements */}
+      {profile.achievements && profile.achievements.length > 0 && (
+        <section className="bg-[#0B0B0B] border border-border rounded-lg p-6 sm:p-8 space-y-4 mb-16">
+          <div className="font-mono text-xs uppercase tracking-widest text-accent flex items-center gap-2">
+            <Award className="w-4 h-4" />
+            Key Technical Achievements & Milestones
+          </div>
+          <h2 className="font-heading text-xl font-bold text-primary">
+            Engineering Milestones
+          </h2>
+          <ul className="space-y-3 text-xs sm:text-sm text-muted">
+            {profile.achievements.map((item, idx) => (
+              <li key={idx} className="flex items-start gap-3 bg-[#080808] p-3.5 rounded border border-border/70">
+                <span className="text-accent font-mono font-bold">0{idx + 1}.</span>
+                <span className="leading-relaxed text-muted-light">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Education & Certifications */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {/* Education */}

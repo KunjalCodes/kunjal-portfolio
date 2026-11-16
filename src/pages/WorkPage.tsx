@@ -66,121 +66,141 @@ export const WorkPage: React.FC = () => {
         })}
       </div>
 
-      {/* Projects Grid */}
-      <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <AnimatePresence>
-          {filteredProjects.map((project, idx) => (
-            <motion.article
-              layout
-              key={project.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="bg-[#0D0D0D] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-colors group"
-            >
-              <div>
-                {/* Meta Bar */}
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-accent">
-                      {project.category}
-                    </span>
-                    <span className="text-muted-dark text-xs">·</span>
-                    <span className="font-mono text-[11px] text-muted">
-                      {project.timeframe}
-                    </span>
+      {/* Projects Grid / Empty State */}
+      {filteredProjects.length === 0 ? (
+        <div className="bg-[#0B0B0B] border border-border rounded-lg p-12 text-center space-y-4">
+          <div className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mx-auto">
+            <Filter className="w-5 h-5" />
+          </div>
+          <h3 className="font-heading text-lg font-semibold text-primary">
+            No projects found in category "{selectedCategory}"
+          </h3>
+          <p className="text-xs text-muted max-w-sm mx-auto">
+            Try selecting a different filter category or view all curated engineering systems.
+          </p>
+          <button
+            onClick={() => setSelectedCategory('All')}
+            className="px-4 py-2 rounded bg-accent text-black font-semibold text-xs font-mono transition-colors cursor-pointer"
+          >
+            Reset to All Projects
+          </button>
+        </div>
+      ) : (
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <AnimatePresence>
+            {filteredProjects.map((project, idx) => (
+              <motion.article
+                layout
+                key={project.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
+                className="bg-[#0D0D0D] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-colors group"
+              >
+                <div>
+                  {/* Meta Bar */}
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-accent">
+                        {project.category}
+                      </span>
+                      <span className="text-muted-dark text-xs">·</span>
+                      <span className="font-mono text-[11px] text-muted">
+                        {project.timeframe}
+                      </span>
+                    </div>
+                    <Badge variant={project.status === 'Active Development' ? 'accent' : 'status'}>
+                      {project.status}
+                    </Badge>
                   </div>
-                  <Badge variant={project.status === 'Active Development' ? 'accent' : 'status'}>
-                    {project.status}
-                  </Badge>
+
+                  {/* Title */}
+                  <h2 className="font-heading text-xl sm:text-2xl font-semibold text-primary group-hover:text-accent transition-colors">
+                    <Link to={`/work/${project.slug}`}>
+                      {project.title}
+                    </Link>
+                  </h2>
+
+                  {/* Subtitle */}
+                  <p className="mt-2 text-sm text-muted-light line-clamp-2 leading-relaxed">
+                    {project.subtitle}
+                  </p>
+
+                  {/* Short Description */}
+                  <p className="mt-4 text-xs sm:text-sm text-muted leading-relaxed line-clamp-3">
+                    {project.shortDescription}
+                  </p>
+
+                  {/* Key Metric Preview if exists */}
+                  {project.metrics && project.metrics.length > 0 && (
+                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-black/40 p-3 rounded border border-border/60">
+                      {project.metrics.map(m => (
+                        <div key={m.label} className="text-left">
+                          <div className="text-[10px] font-mono text-muted uppercase">{m.label}</div>
+                          <div className="text-xs font-mono font-medium text-primary mt-0.5">{m.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Title */}
-                <h2 className="font-heading text-xl sm:text-2xl font-semibold text-primary group-hover:text-accent transition-colors">
-                  <Link to={`/work/${project.slug}`}>
-                    {project.title}
-                  </Link>
-                </h2>
-
-                {/* Subtitle */}
-                <p className="mt-2 text-sm text-muted-light line-clamp-2 leading-relaxed">
-                  {project.subtitle}
-                </p>
-
-                {/* Short Description */}
-                <p className="mt-4 text-xs sm:text-sm text-muted leading-relaxed line-clamp-3">
-                  {project.shortDescription}
-                </p>
-
-                {/* Key Metric Preview if exists */}
-                {project.metrics && project.metrics.length > 0 && (
-                  <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 bg-black/40 p-3 rounded border border-border/60">
-                    {project.metrics.map(m => (
-                      <div key={m.label} className="text-left">
-                        <div className="text-[10px] font-mono text-muted uppercase">{m.label}</div>
-                        <div className="text-xs font-mono font-medium text-primary mt-0.5">{m.value}</div>
-                      </div>
+                {/* Bottom Card Footer */}
+                <div className="mt-8 pt-6 border-t border-border">
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-6">
+                    {project.tags.map(t => (
+                      <span
+                        key={t}
+                        className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/[0.03] text-muted border border-border"
+                      >
+                        {t}
+                      </span>
                     ))}
                   </div>
-                )}
-              </div>
 
-              {/* Bottom Card Footer */}
-              <div className="mt-8 pt-6 border-t border-border">
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {project.tags.map(t => (
-                    <span
-                      key={t}
-                      className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/[0.03] text-muted border border-border"
+                  {/* Actions */}
+                  <div className="flex items-center justify-between">
+                    <Link
+                      to={`/work/${project.slug}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary group-hover:text-accent transition-colors"
                     >
-                      {t}
-                    </span>
-                  ))}
-                </div>
+                      Dedicated Case Study
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    </Link>
 
-                {/* Actions */}
-                <div className="flex items-center justify-between">
-                  <Link
-                    to={`/work/${project.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary group-hover:text-accent transition-colors"
-                  >
-                    Dedicated Case Study
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-
-                  <div className="flex items-center gap-3">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-mono text-muted hover:text-primary transition-colors"
-                        title="GitHub Repository"
-                      >
-                        <Github className="w-3.5 h-3.5" />
-                        Code
-                      </a>
-                    )}
-                    {project.demoUrl && (
-                      <a
-                        href={project.demoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-mono text-accent hover:underline transition-colors"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Demo
-                      </a>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {project.githubUrl && (
+                        <a
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-mono text-muted hover:text-primary transition-colors"
+                          title="GitHub Repository"
+                        >
+                          <Github className="w-3.5 h-3.5" />
+                          Code
+                        </a>
+                      )}
+                      {project.demoUrl && (
+                        <a
+                          href={project.demoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-mono text-accent hover:underline transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Demo
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.article>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   );
 };

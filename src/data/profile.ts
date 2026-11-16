@@ -71,14 +71,21 @@ export const profile = {
     {
       degree: 'Bachelor of Technology (B.Tech)',
       field: 'Computer Science and Engineering',
-      institution: 'Gujarat Technological University / [University Name]',
+      institution: 'Gujarat Technological University / [University Name Placeholder]',
       period: '2021 — 2025',
       details: [
-        'Core coursework: Algorithms, Data Structures, Computer Vision, Artificial Intelligence, Database Management Systems, Operating Systems.',
-        'Focused capstone research on automated document parsing and architectural blueprint understanding.'
+        'Core coursework: Advanced Algorithms, Data Structures, Computer Vision, Deep Learning, Operating Systems, Computer Architecture, Distributed Systems.',
+        'Senior Capstone Research: Automated Architectural Blueprint Takeoff using Morphological Computer Vision & Multimodal LLMs.',
+        'Academic Focus: Mathematical foundations of machine vision, spatial geometric data structures, and edge model inference optimization.'
       ]
     }
   ] as EducationItem[],
+
+  achievements: [
+    'Designed & implemented a hybrid classical CV + multimodal OCR pipeline capable of parsing 300 DPI blueprint schedules into structured JSON.',
+    'Authored empirical technical benchmarks evaluating morphological line filtering vs connected component labeling for technical schematics.',
+    'Developed high-precision canvas-based 2D floor planning engine with sub-millimeter coordinate snapping math.'
+  ],
 
   experience: [
     {

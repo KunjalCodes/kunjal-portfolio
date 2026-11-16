@@ -23,6 +23,12 @@
     overflow-x: hidden;
   }
 
+  /* Accessible keyboard navigation focus indicator */
+  :focus-visible {
+    outline: 2px solid #F0A5C8;
+    outline-offset: 2px;
+  }
+
   /* Custom subtle scrollbar */
   ::-webkit-scrollbar {
     width: 6px;

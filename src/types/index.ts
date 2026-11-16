@@ -65,6 +65,14 @@ export interface Project {
   demonstrations: ProjectScreenshot[];
   actualResults: string[];
   limitations: string[];
+  futureImprovements?: string[];
+  dataFlowSteps?: {
+    stepNumber: number;
+    title: string;
+    input: string;
+    output: string;
+    detail: string;
+  }[];
   githubUrl?: string;
   demoUrl?: string;
   metrics?: ProjectMetric[];
@@ -121,4 +129,28 @@ export interface CertificationItem {
   date: string;
   credentialId?: string;
   url?: string;
+}
+
+export type CharacterPose = 
+  | 'idle' 
+  | 'wave' 
+  | 'walk' 
+  | 'point' 
+  | 'think' 
+  | 'working';
+
+export type CharacterPosition = 
+  | 'bottom-right' 
+  | 'bottom-left' 
+  | 'floating' 
+  | 'docked-terminal' 
+  | 'section-anchor';
+
+export interface CharacterCompanionConfig {
+  enabled: boolean;
+  activePose: CharacterPose;
+  position: CharacterPosition;
+  currentSpeechBubble?: string;
+  autoContextMessages: boolean;
+  assetUrls: Partial<Record<CharacterPose, string>>;
 }

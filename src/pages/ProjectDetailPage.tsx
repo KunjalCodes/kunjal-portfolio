@@ -1,9 +1,10 @@
 import React from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ArrowLeft, Github, ExternalLink, AlertCircle, CheckCircle2, Layers, Cpu, Code2, Terminal } from 'lucide-react';
+import { ArrowLeft, Github, ExternalLink, AlertCircle, CheckCircle2, Layers, Cpu, Code2, Terminal, Sparkles } from 'lucide-react';
 import { projects } from '../data/projects';
 import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
+import { ArchitectureFlowDiagram } from '../components/common/ArchitectureFlowDiagram';
 
 export const ProjectDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -152,24 +153,20 @@ export const ProjectDetailPage: React.FC = () => {
             03. System Architecture
           </div>
           <h2 className="font-heading text-xl sm:text-2xl font-semibold text-primary">
-            Staged Processing Pipeline
+            Staged Processing Pipeline & Data Flow
           </h2>
-          <p className="text-sm text-muted leading-relaxed">
-            {project.architecture.summary}
-          </p>
 
-          {/* Architecture Pipeline Flow Diagram */}
-          {project.architecture.diagramDescription && (
-            <div className="bg-[#080808] border border-border p-5 rounded-lg font-mono text-xs text-muted-light overflow-x-auto">
-              <div className="text-[11px] text-accent mb-2 uppercase tracking-widest">// Pipeline Data Flow</div>
-              <div className="whitespace-pre-wrap leading-relaxed text-primary/90 bg-[#101010] p-4 rounded border border-border/80">
-                {project.architecture.diagramDescription}
-              </div>
-            </div>
-          )}
+          <ArchitectureFlowDiagram
+            summary={project.architecture.summary}
+            diagramDescription={project.architecture.diagramDescription}
+            dataFlowSteps={project.dataFlowSteps}
+          />
 
           {/* Architecture Layer Breakdown */}
-          <div className="space-y-3">
+          <div className="space-y-3 pt-2">
+            <h3 className="font-mono text-xs uppercase tracking-wider text-muted font-semibold">
+              Layer Responsibilities & Tech Stack
+            </h3>
             {project.architecture.layers.map((layer, idx) => (
               <div
                 key={layer.name}
@@ -178,9 +175,9 @@ export const ProjectDetailPage: React.FC = () => {
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs text-accent">{idx + 1}.</span>
-                    <h3 className="font-heading font-medium text-base text-primary">
+                    <h4 className="font-heading font-medium text-base text-primary">
                       {layer.name}
-                    </h3>
+                    </h4>
                   </div>
                   <p className="text-xs sm:text-sm text-muted leading-relaxed">
                     {layer.description}
@@ -377,6 +374,30 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* 08. Future Improvements & Roadmap */}
+        {project.futureImprovements && project.futureImprovements.length > 0 && (
+          <section className="space-y-6">
+            <div className="font-mono text-xs text-accent uppercase tracking-wider flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              08. Future Improvements & Planned Roadmap
+            </div>
+            <h2 className="font-heading text-xl sm:text-2xl font-semibold text-primary">
+              Next Technical Milestones
+            </h2>
+
+            <div className="bg-[#0B0B0B] border border-border rounded-lg p-6 space-y-3">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-muted">
+                {project.futureImprovements.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 bg-[#080808] p-3.5 rounded border border-border/70">
+                    <span className="text-accent font-mono font-bold">0{idx + 1}.</span>
+                    <span className="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
 
         {/* Next Project Footer Bar */}
         <div className="pt-12 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-6">

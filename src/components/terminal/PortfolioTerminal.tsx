@@ -33,6 +33,8 @@ const COMMAND_LIST = [
   'clear',
   'open drawing-extractor',
   'open floor-layout-tool',
+  'open document-segmenter',
+  'open local-agent-pipeline',
   'open playground',
   'theme',
   'whoami',

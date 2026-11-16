@@ -126,6 +126,56 @@ Return verified dimension value, unit (mm/ft/in), and target element."""
       'Severely skewed or perspective-warped mobile phone scans require manual corner rectification prior to ingestion.',
       'Active development: Full end-to-end DXF export is currently experimental.'
     ],
+    futureImprovements: [
+      'Implement an ONNX C++ runtime inference pipeline to reduce OCR batch latency by an estimated 50%.',
+      'Train a lightweight LoRA adapter on synthetic CAD typography to handle non-standard architectural callout fonts.',
+      'Add bi-directional DXF synchronization allowing edits in the browser viewport to update CAD layer blocks natively.',
+      'Incorporate automated scale detection by reading fractional graphic scale bars with sub-pixel template matching.'
+    ],
+    dataFlowSteps: [
+      {
+        stepNumber: 1,
+        title: 'High-DPI Ingestion',
+        input: 'Vector PDF / Scanned TIFF (300 DPI)',
+        output: 'Normalized Grayscale NumPy Buffer',
+        detail: 'Renders vector paths to high-resolution raster layers and applies bilateral filtering to remove paper grain.'
+      },
+      {
+        stepNumber: 2,
+        title: 'Morphological Decomposition',
+        input: 'Grayscale Buffer',
+        output: 'Structural Grid Mask & Candidate Text Masks',
+        detail: 'Directional 40x1 and 1x40 rectangular kernels isolate rectilinear wall geometry from isolated text characters.'
+      },
+      {
+        stepNumber: 3,
+        title: 'Localized Text Detection',
+        input: 'Text Candidate Patches',
+        output: 'Bounding Proposals [X, Y, W, H, Conf]',
+        detail: 'EasyOCR runs directional text detection and character recognition on non-structural bounding crops.'
+      },
+      {
+        stepNumber: 4,
+        title: 'Multimodal Semantic Grounding',
+        input: 'Ambiguous Crops + Nearby Context',
+        output: 'Normalized Structural Tokens & Units',
+        detail: 'Low-confidence tokens and cryptic symbol marks are grounded against domain schemas using Gemini Vision.'
+      },
+      {
+        stepNumber: 5,
+        title: 'Deterministic Rule Validation',
+        input: 'Draft Entity Graph',
+        output: 'Verified Takeoff Graph + Warning Telemetry',
+        detail: 'Pydantic validation layer cross-references schedule instance counts against plan callouts to catch omissions.'
+      },
+      {
+        stepNumber: 6,
+        title: 'CAD / JSON Export',
+        input: 'Verified Graph',
+        output: 'Structured Takeoff JSON / DXF Vectors',
+        detail: 'Emits machine-readable quantities for ERP and BIM takeoff software.'
+      }
+    ],
     githubUrl: 'https://github.com/kunjaljoshi/ai-drawing-extraction-engine',
     demoUrl: undefined,
     metrics: [
@@ -236,6 +286,49 @@ export function snapToOrthogonal(start: Point2D, current: Point2D, snapTolerance
       'Multi-story floor plan stacking and 3D extrusion remain out of scope for the current 2D prototype.',
       'Standalone web tool; direct desktop BIM software file format integration (.rvt, .ifc) is planned for future phases.'
     ],
+    futureImprovements: [
+      'Integrate WebAssembly-compiled ClipperLib for sub-millisecond polygon boolean clipping and wall offsetting.',
+      'Add automated room classification using simple graph neural networks based on spatial adjacency.',
+      'Implement WebGL-accelerated 3D wall extrusion preview using Three.js directly from 2D coordinates.',
+      'Build DXF import parser allowing existing architectural floor plans to be loaded and edited directly.'
+    ],
+    dataFlowSteps: [
+      {
+        stepNumber: 1,
+        title: 'User Input & Pointer Events',
+        input: 'Mouse / Touch Events in Screen Pixels',
+        output: 'Normalized World Coordinate Points (mm)',
+        detail: 'Inverts stage transformation matrix to map client viewport coordinates to CAD world space.'
+      },
+      {
+        stepNumber: 2,
+        title: 'Constraint & Snapping Math',
+        input: 'Continuous Coordinates',
+        output: 'Orthogonal Clamped Vertices (0°, 45°, 90°)',
+        detail: 'Calculates vector projections and snaps within an adjustable spatial tolerance radius.'
+      },
+      {
+        stepNumber: 3,
+        title: 'Planar Graph Reconstruction',
+        input: 'Wall Segment Edges',
+        output: 'Doubly-Connected Edge List (DCEL)',
+        detail: 'Traverses half-edges to discover closed boundary cycles and compute interior room polygon areas.'
+      },
+      {
+        stepNumber: 4,
+        title: 'Multi-layer Canvas Rendering',
+        input: 'DCEL State Store',
+        output: 'Layer-isolated 60 FPS Canvas Passes',
+        detail: 'Renders static orthographic grid, walls, dimension calipers, and active selection handles in isolated layers.'
+      },
+      {
+        stepNumber: 5,
+        title: 'Vision Dataset Export',
+        input: 'Geometric Polygons',
+        output: 'Binary Masks & GeoJSON Coordinate Lists',
+        detail: 'Exports rasterized ground truth paired with vector coordinates to train CV segmentation models.'
+      }
+    ],
     githubUrl: 'https://github.com/kunjaljoshi/mini-floor-layout-tool',
     demoUrl: undefined,
     metrics: [
@@ -316,6 +409,34 @@ export function snapToOrthogonal(start: Point2D, current: Point2D, snapTolerance
       'Fails on heavily crumpled pages or documents with extreme curvature.',
       'Currently requires clear quad boundary visibility on at least 3 edges.'
     ],
+    futureImprovements: [
+      'Implement a thin plate spline (TPS) mesh to correct severe page curvature and perspective warping.',
+      'Deploy an ONNX-quantized YOLOv8-DocLayNet model for zero-shot reading order graph extraction.',
+      'Add WebAssembly client runtime to rectify camera captures entirely in the browser before transmission.'
+    ],
+    dataFlowSteps: [
+      {
+        stepNumber: 1,
+        title: 'Color Space & Edge Extraction',
+        input: 'Uncalibrated Mobile Snapshot',
+        output: 'Luminance Edge Gradients',
+        detail: 'Transforms image into LAB color space to extract luminance channel edges independent of lighting tint.'
+      },
+      {
+        stepNumber: 2,
+        title: 'Convex Hull & Quad Fitting',
+        input: 'Canny Edge Contours',
+        output: '4 Verified Document Corner Vertices',
+        detail: 'Approximates closed polygon bounding edges to isolate sheet perimeter from background table texture.'
+      },
+      {
+        stepNumber: 3,
+        title: 'Perspective Warp Transformation',
+        input: 'Corner Vertices + Source Image',
+        output: 'Orthogonal Rectified Flat Document',
+        detail: 'Calculates 3x3 homography matrix to project perspective photograph onto flat A4 Cartesian plane.'
+      }
+    ],
     githubUrl: 'https://github.com/kunjaljoshi/document-segmenter',
     metrics: [
       { label: 'Inference Latency', value: '< 15ms' },
@@ -391,6 +512,34 @@ export function snapToOrthogonal(start: Point2D, current: Point2D, snapTolerance
     limitations: [
       'Complex multi-step reasoning depth remains bounded by small model parameter capacity compared to frontier models.',
       'Grammar construction introduces minor pre-computation overhead per new tool signature.'
+    ],
+    futureImprovements: [
+      'Add speculative grammar decoding to accelerate constrained token emission latency.',
+      'Implement hierarchical vector memory search over long episodic agent sessions.',
+      'Support dynamic tool schema registration during continuous multi-agent tool handoffs.'
+    ],
+    dataFlowSteps: [
+      {
+        stepNumber: 1,
+        title: 'Tool Signature Compilation',
+        input: 'Pydantic Model Definitions',
+        output: 'Compiled GBNF Context-Free Grammar',
+        detail: 'Translates Python type annotations and field constraints into low-level token mask grammars.'
+      },
+      {
+        stepNumber: 2,
+        title: 'Logits Masking & Constrained Sampling',
+        input: 'LLM Next-Token Logits',
+        output: 'Syntactically Compliant Token Streams',
+        detail: 'Evaluates active parser state and masks out all tokens that would violate the JSON grammar.'
+      },
+      {
+        stepNumber: 3,
+        title: 'Async Dispatch & State Compaction',
+        input: 'Validated JSON Payload',
+        output: 'Tool Result + Compacted Context Summary',
+        detail: 'Executes verified function call and condenses historical conversational state when token budgets are reached.'
+      }
     ],
     githubUrl: 'https://github.com/kunjaljoshi/local-agent-pipeline',
     metrics: [

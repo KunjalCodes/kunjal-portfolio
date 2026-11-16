@@ -10,14 +10,36 @@ import { PlaygroundPage } from './pages/PlaygroundPage';
 import { LabPage } from './pages/LabPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
-import { CharacterSlot } from './components/character/CharacterSlot';
+import { CharacterCompanion } from './components/character/CharacterCompanion';
+import { projects } from './data/projects';
 
-// Scroll to top upon navigating to new path
-const ScrollToTop: React.FC = () => {
+// Route handler for scroll reset and dynamic SEO title management
+const RouteHandler: React.FC = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    // Dynamic SEO title
+    if (pathname === '/') {
+      document.title = 'Kunjal Joshi — AI Engineering & Software Development';
+    } else if (pathname === '/work') {
+      document.title = 'Engineering Work & Case Studies — Kunjal Joshi';
+    } else if (pathname.startsWith('/work/')) {
+      const slug = pathname.replace('/work/', '');
+      const proj = projects.find(p => p.slug === slug);
+      document.title = proj ? `${proj.title} — Case Study | Kunjal Joshi` : 'Project Case Study — Kunjal Joshi';
+    } else if (pathname === '/playground') {
+      document.title = 'AI Engineering Playground — Kunjal Joshi';
+    } else if (pathname === '/lab') {
+      document.title = 'Technical Lab Notes & Research — Kunjal Joshi';
+    } else if (pathname === '/about') {
+      document.title = 'About Kunjal Joshi — Education, Skills & Experience';
+    } else if (pathname === '/contact') {
+      document.title = 'Contact & Collaboration — Kunjal Joshi';
+    } else {
+      document.title = 'Kunjal Joshi — AI Engineering & Software Development';
+    }
   }, [pathname]);
 
   return null;
@@ -45,7 +67,7 @@ export const App: React.FC = () => {
 
   return (
     <Router>
-      <ScrollToTop />
+      <RouteHandler />
       <div className="min-h-screen bg-background text-primary selection:bg-accent/20 selection:text-accent flex flex-col justify-between relative font-sans">
         {/* Navigation Bar */}
         <Navbar onOpenTerminal={() => setIsTerminalOpen(true)} />
@@ -65,8 +87,8 @@ export const App: React.FC = () => {
           </Routes>
         </main>
 
-        {/* Modular architectural slot for future companion character */}
-        <CharacterSlot location="floating" />
+        {/* Modular architectural companion ready for future chibi character assets */}
+        <CharacterCompanion enabled={false} />
 
         {/* Engineering Footer */}
         <Footer onOpenTerminal={() => setIsTerminalOpen(true)} />

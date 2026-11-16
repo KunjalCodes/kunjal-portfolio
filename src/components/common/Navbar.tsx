@@ -14,6 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Work', path: '/work' },
+    { label: 'Playground', path: '/playground' },
     { label: 'Lab', path: '/lab' },
     { label: 'About', path: '/about' },
     { label: 'Contact', path: '/contact' },

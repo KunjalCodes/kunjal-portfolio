@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Eye, Code2, Cpu, Sparkles, Terminal, FileText } from 'lucide-react';
+import { ArrowRight, Eye, Code2, Cpu, Sparkles, Terminal, FileText, Sliders, BarChart3, Network, Layers } from 'lucide-react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Badge } from '../components/common/Badge';
@@ -152,7 +152,111 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           </div>
         </section>
 
-        {/* 4. Expertise & Technical Disciplines Overview */}
+        {/* 4. AI Engineering Playground Feature Preview */}
+        <section className="scroll-mt-24">
+          <SectionHeading
+            label="Interactive Lab"
+            title="AI Engineering Playground"
+            description="Hands-on explorations of multimodal blueprint parsing, live classification threshold recalculations, prompt engineering, and system topologies."
+            action={
+              <Button to="/playground" variant="primary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
+                Launch Playground
+              </Button>
+            }
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Tool 1 */}
+            <Link
+              to="/playground?tab=pipeline"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
+                  Pipeline Explorer
+                </h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  Interactive 6-stage walkthrough from high-DPI raster ingestion to OpenCV morphology, OCR boxes, and structured JSON.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
+                <span>Explore Pipeline</span>
+                <span>→</span>
+              </div>
+            </Link>
+
+            {/* Tool 2 */}
+            <Link
+              to="/playground?tab=eval"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
+                  Model Evaluation
+                </h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  Adjustable classification threshold slider dynamically recalculating Confusion Matrix, Precision, Recall, and F1 curve.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
+                <span>Evaluate Metrics</span>
+                <span>→</span>
+              </div>
+            </Link>
+
+            {/* Tool 3 */}
+            <Link
+              to="/playground?tab=prompt"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                  <Terminal className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
+                  Prompt Lab
+                </h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  Side-by-side comparison of naive natural language prompts vs. schema-constrained, deterministic few-shot instructions.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
+                <span>Test Prompts</span>
+                <span>→</span>
+              </div>
+            </Link>
+
+            {/* Tool 4 */}
+            <Link
+              to="/playground?tab=architecture"
+              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-all duration-200 group flex flex-col justify-between"
+            >
+              <div className="space-y-3">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:scale-105 transition-transform">
+                  <Network className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
+                  Architecture Explorer
+                </h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  Interactive node graph breaking down contracts, engineering trade-offs, and failure fallbacks across every system tier.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
+                <span>Inspect System</span>
+                <span>→</span>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* 5. Expertise & Technical Disciplines Overview */}
         <section>
           <SectionHeading
             label="Capabilities"

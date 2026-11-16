@@ -22,6 +22,9 @@ const COMMAND_LIST = [
   'help',
   'about',
   'projects',
+  'playground',
+  'pipeline',
+  'eval',
   'skills',
   'experience',
   'lab',
@@ -30,6 +33,7 @@ const COMMAND_LIST = [
   'clear',
   'open drawing-extractor',
   'open floor-layout-tool',
+  'open playground',
   'theme',
   'whoami',
   'exit'
@@ -115,6 +119,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
               <div><span className="text-primary font-bold">help</span> - Display this reference</div>
               <div><span className="text-primary font-bold">about</span> - Background & engineering focus</div>
               <div><span className="text-primary font-bold">projects</span> - Index of featured systems</div>
+              <div><span className="text-primary font-bold">playground</span> - Interactive AI Engineering Lab</div>
               <div><span className="text-primary font-bold">skills</span> - Categorized technical stack</div>
               <div><span className="text-primary font-bold">experience</span> - Career trajectory & roles</div>
               <div><span className="text-primary font-bold">lab</span> - View technical journal notes</div>
@@ -170,6 +175,21 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
         );
         break;
 
+      case 'playground':
+      case 'pipeline':
+      case 'eval':
+        output = (
+          <div className="space-y-1 text-xs font-mono text-accent">
+            <p>Launching Interactive AI Engineering Playground...</p>
+            <p className="text-muted text-[11px]">Direct tools: Pipeline Explorer, Model Evaluation, Prompt Lab, Architecture Topology.</p>
+          </div>
+        );
+        setTimeout(() => {
+          navigate('/playground');
+          onClose();
+        }, 300);
+        break;
+
       case 'open':
         if (!arg) {
           output = <p className="text-amber-400 text-xs font-mono">Usage: open &lt;project-slug&gt; (e.g. open drawing-extractor, open floor-layout-tool)</p>;
@@ -187,6 +207,15 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
             }, 300);
           } else if (arg === 'work' || arg === 'projects') {
             navigate('/work');
+            onClose();
+          } else if (arg === 'playground') {
+            navigate('/playground');
+            onClose();
+          } else if (arg === 'pipeline') {
+            navigate('/playground?tab=pipeline');
+            onClose();
+          } else if (arg === 'eval') {
+            navigate('/playground?tab=eval');
             onClose();
           } else if (arg === 'lab') {
             navigate('/lab');

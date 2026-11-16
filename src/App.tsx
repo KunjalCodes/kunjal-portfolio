@@ -6,6 +6,7 @@ import { PortfolioTerminal } from './components/terminal/PortfolioTerminal';
 import { HomePage } from './pages/HomePage';
 import { WorkPage } from './pages/WorkPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { PlaygroundPage } from './pages/PlaygroundPage';
 import { LabPage } from './pages/LabPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
             <Route path="/" element={<HomePage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
             <Route path="/work" element={<WorkPage />} />
             <Route path="/work/:slug" element={<ProjectDetailPage />} />
+            <Route path="/playground" element={<PlaygroundPage />} />
             <Route path="/lab" element={<LabPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage onOpenTerminal={() => setIsTerminalOpen(true)} />} />

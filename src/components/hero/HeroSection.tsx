@@ -8,7 +8,7 @@ import { profile } from '../../data/profile';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section id="hero-section" className="relative w-full min-h-screen flex flex-col justify-between items-center px-6 pt-24 pb-10 overflow-hidden bg-background">
+    <section className="relative w-full min-h-screen flex flex-col justify-between items-center px-6 pt-24 pb-10 overflow-hidden bg-background">
       {/* Dynamic Pink Flame Background */}
       <HeroFlameBackground />
 

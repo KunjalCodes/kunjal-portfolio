@@ -1,57 +1,134 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import * as THREE from 'three';
 
-interface Spark {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  age: number;
-  maxLife: number;
-  maxAlpha: number;
+// Vertex Shader: full-screen quad passing UV coordinates
+const vertexShader = `
+varying vec2 vUv;
+
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position, 1.0);
 }
+`;
+
+// Fragment Shader: Localized UV distortion based on cursor position and velocity
+const fragmentShader = `
+varying vec2 vUv;
+
+uniform sampler2D u_texture;
+uniform vec2 u_mouse;
+uniform vec2 u_velocity;
+uniform vec2 u_resolution;
+uniform float u_videoAspect;
+uniform float u_time;
+uniform float u_radius;
+uniform float u_pullStrength;
+uniform float u_velocityStrength;
+uniform float u_turbulenceStrength;
+uniform float u_intensity;
+
+void main() {
+    // Current fragment coordinate in canvas pixels (bottom-left origin)
+    vec2 fragCoord = vUv * u_resolution;
+
+    // Centered 'contain' box for the flame video preserving its native 720:1280 aspect ratio
+    float targetHeight = min(u_resolution.y * 0.86, (u_resolution.x * 0.90) / u_videoAspect);
+    float targetWidth = targetHeight * u_videoAspect;
+    vec2 boxOrigin = (u_resolution - vec2(targetWidth, targetHeight)) * 0.5;
+
+    // Distance in screen pixels to smoothed cursor position
+    float distToMouse = distance(fragCoord, u_mouse);
+
+    // Smooth localized falloff: 1.0 at cursor, 0.0 at u_radius (completely 0 outside radius)
+    float rawInfluence = smoothstep(u_radius, 0.0, distToMouse);
+    float influence = rawInfluence * rawInfluence * (3.0 - 2.0 * rawInfluence) * u_intensity;
+
+    vec2 displacedCoord = fragCoord;
+
+    // Localized distortion ONLY applies within interaction radius
+    if (influence > 0.0001) {
+        // 1. Localized directional stretch toward pointer
+        vec2 toMouse = u_mouse - fragCoord;
+        float len = length(toMouse);
+        vec2 toMouseDir = len > 0.001 ? toMouse / len : vec2(0.0);
+        vec2 pull = toMouseDir * influence * u_pullStrength;
+
+        // 2. Velocity-driven directional flow (fluid drag)
+        vec2 clampedVel = clamp(u_velocity, vec2(-28.0), vec2(28.0));
+        vec2 velDisplacement = clampedVel * influence * u_velocityStrength;
+
+        // 3. Subtle convective heat turbulence
+        float noise = sin(fragCoord.y * 0.035 + u_time * 3.0) * cos(fragCoord.x * 0.035 - u_time * 2.2);
+        vec2 turbulence = vec2(noise * 0.6, -abs(noise) * 0.8) * influence * u_turbulenceStrength;
+
+        // Total pixel displacement
+        displacedCoord = fragCoord - (pull + velDisplacement + turbulence);
+    }
+
+    // Map displaced pixel back to video box space
+    vec2 boxCoord = displacedCoord - boxOrigin;
+
+    // Outside the video box: output transparent black
+    if (boxCoord.x < 0.0 || boxCoord.x > targetWidth || 
+        boxCoord.y < 0.0 || boxCoord.y > targetHeight) {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        return;
+    }
+
+    // Normalized video UV coordinates [0.0, 1.0]
+    vec2 videoUv = boxCoord / vec2(targetWidth, targetHeight);
+
+    // Sample real flame video texture
+    vec4 color = texture2D(u_texture, videoUv);
+
+    // Subtle localized luminosity flare when cursor approaches fire
+    if (influence > 0.0001) {
+        float flare = influence * 0.16;
+        color.rgb += color.rgb * flare;
+    }
+
+    gl_FragColor = color;
+}
+`;
 
 export const HeroFlameBackground: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const flameWrapperRef = useRef<HTMLDivElement>(null);
-  const ambientGlowRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [webglSupported, setWebglSupported] = useState(true);
 
-  // Animation & Physics Tracking Ref (Zero React re-renders during 60fps loop)
-  const stateRef = useRef({
-    // Interactive mouse targets and smoothed current values
-    currentLeanX: 0,
-    targetLeanX: 0,
-    currentStretchY: 0,
-    targetStretchY: 0,
-    currentSpreadX: 0,
-    targetSpreadX: 0,
-    currentWindX: 0,
-    targetWindX: 0,
-    currentProximity: 0,
-    targetProximity: 0,
+  // References for Three.js instance objects
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const materialRef = useRef<THREE.ShaderMaterial | null>(null);
+  const textureRef = useRef<THREE.VideoTexture | null>(null);
+  const meshRef = useRef<THREE.Mesh | null>(null);
 
-    // Coordinates in canvas space
-    canvasMouseX: 0,
-    canvasMouseY: 0,
-    targetCanvasMouseX: 0,
-    targetCanvasMouseY: 0,
+  // Mouse physics tracking state (No React re-renders during 60fps loop)
+  const physicsRef = useRef({
+    currentMouseX: 0,
+    currentMouseY: 0,
+    targetMouseX: 0,
+    targetMouseY: 0,
 
-    // Velocity computation
+    currentVelX: 0,
+    currentVelY: 0,
+    targetVelX: 0,
+    targetVelY: 0,
+
+    currentIntensity: 0,
+    targetIntensity: 0,
+
     lastClientX: 0,
     lastClientY: 0,
     lastTime: 0,
 
-    // Animation status
-    isHovered: false,
     isVisible: true,
     rafId: null as number | null,
-    sparks: [] as Spark[],
-    frameCounter: 0,
   });
 
   // Respect prefers-reduced-motion
@@ -67,364 +144,182 @@ export const HeroFlameBackground: React.FC = () => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Sync canvas size with display dimensions
-  const updateCanvasDimensions = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    canvas.width = Math.floor(rect.width * dpr);
-    canvas.height = Math.floor(rect.height * dpr);
-
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.scale(dpr, dpr);
+  // Check WebGL availability helper
+  const checkWebGL = useCallback(() => {
+    try {
+      const testCanvas = document.createElement('canvas');
+      return !!(
+        window.WebGLRenderingContext &&
+        (testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl'))
+      );
+    } catch {
+      return false;
     }
   }, []);
 
-  // Main RAF Animation Loop: Organic Idle Motion + Damped Cursor Reaction + Particle Sparks
-  const animate = useCallback(() => {
-    const s = stateRef.current;
-    if (!s.isVisible || reducedMotion) {
-      s.rafId = null;
+  // Initialize Three.js scene, video texture, and shader material
+  useEffect(() => {
+    if (!checkWebGL()) {
+      setWebglSupported(false);
       return;
     }
 
-    s.frameCounter++;
-    const time = performance.now() * 0.001;
-
-    // 1. Natural Organic Idle Flickering (Multi-frequency harmonic oscillation)
-    // Fire naturally wavers, breathes, and flickers even with no mouse interaction
-    const idleSway = Math.sin(time * 1.35) * 0.85 + Math.sin(time * 2.7 + 0.6) * 0.4;
-    const idleBreathe = 1 + Math.sin(time * 2.1) * 0.014 + Math.cos(time * 4.2) * 0.007;
-    const idleFlicker = Math.sin(time * 8.5) * 0.012 + Math.cos(time * 14.0) * 0.008;
-
-    // 2. Smooth Damped Interpolation (Easing back to equilibrium)
-    const lerp = 0.075;
-    s.currentLeanX += (s.targetLeanX - s.currentLeanX) * lerp;
-    s.currentStretchY += (s.targetStretchY - s.currentStretchY) * lerp;
-    s.currentSpreadX += (s.targetSpreadX - s.currentSpreadX) * lerp;
-    s.currentWindX += (s.targetWindX - s.currentWindX) * 0.12;
-    // Aerodynamic wind drag decays rapidly
-    s.targetWindX *= 0.88;
-    s.currentProximity += (s.targetProximity - s.currentProximity) * lerp;
-
-    s.canvasMouseX += (s.targetCanvasMouseX - s.canvasMouseX) * 0.15;
-    s.canvasMouseY += (s.targetCanvasMouseY - s.canvasMouseY) * 0.15;
-
-    // 3. Hardware-Accelerated 3D Transform on Flame Wrapper
-    if (flameWrapperRef.current) {
-      const totalRotateZ = idleSway + s.currentLeanX * 6.0 + s.currentWindX * 3.6;
-      const totalRotateY = s.currentLeanX * 3.8;
-      const totalSkewX = s.currentLeanX * 2.8 + s.currentWindX * 1.6;
-      const totalScaleX = (1 + s.currentSpreadX * 0.08) * (1 - Math.abs(s.currentLeanX) * 0.02);
-      const totalScaleY = (1 + s.currentStretchY * 0.075) * idleBreathe;
-      const totalTranslateX = s.currentLeanX * 18 + s.currentWindX * 12;
-      const totalTranslateY = -s.currentStretchY * 10;
-
-      flameWrapperRef.current.style.transform = `perspective(1000px) translate3d(${totalTranslateX.toFixed(2)}px, ${totalTranslateY.toFixed(2)}px, 0) rotateZ(${totalRotateZ.toFixed(2)}deg) rotateY(${totalRotateY.toFixed(2)}deg) skewX(${totalSkewX.toFixed(2)}deg) scale3d(${totalScaleX.toFixed(3)}, ${totalScaleY.toFixed(3)}, 1)`;
-    }
-
-    // 4. Photometric Reaction: Increased Fire Luminescence near Pointer
-    if (videoRef.current) {
-      const brightness = (0.98 + s.currentProximity * 0.16 + idleFlicker).toFixed(3);
-      const contrast = (1.08 + s.currentProximity * 0.05).toFixed(3);
-      videoRef.current.style.filter = `contrast(${contrast}) brightness(${brightness})`;
-    }
-
-    // 5. Subdued Atmospheric Ambient Glow Displacement
-    if (ambientGlowRef.current) {
-      const glowX = s.currentLeanX * 32;
-      const glowY = -24 + s.currentStretchY * 14;
-      const glowScale = (1 + s.currentProximity * 0.28).toFixed(3);
-      const glowOpacity = (0.05 + s.currentProximity * 0.06).toFixed(3);
-      ambientGlowRef.current.style.transform = `translate3d(${glowX.toFixed(1)}px, ${glowY.toFixed(1)}px, 0) scale(${glowScale})`;
-      ambientGlowRef.current.style.opacity = glowOpacity;
-    }
-
-    // 6. Canvas Rendering: Subtle Pink Light Diffusion & Organic Micro-Embers
+    const container = containerRef.current;
     const canvas = canvasRef.current;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const ctx = canvas.getContext('2d');
+    const video = videoRef.current;
+    if (!container || !canvas || !video) return;
 
-      if (ctx) {
-        ctx.clearRect(0, 0, rect.width, rect.height);
+    const rect = container.getBoundingClientRect();
+    const width = rect.width || window.innerWidth;
+    const height = rect.height || window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        // A. Subtle Pink Light Diffusion Aura around pointer
-        if (s.currentProximity > 0.04) {
-          ctx.save();
-          ctx.globalCompositeOperation = 'screen';
-          const auraRadius = 110 + s.currentProximity * 90;
-          const auraGrad = ctx.createRadialGradient(
-            s.canvasMouseX, s.canvasMouseY, 0,
-            s.canvasMouseX, s.canvasMouseY, auraRadius
-          );
-          const alpha = 0.08 * s.currentProximity;
-          auraGrad.addColorStop(0, `rgba(240, 165, 200, ${alpha.toFixed(3)})`);
-          auraGrad.addColorStop(0.45, `rgba(240, 165, 200, ${(alpha * 0.4).toFixed(3)})`);
-          auraGrad.addColorStop(1, 'rgba(240, 165, 200, 0)');
+    // 1. Setup Three.js Scene and Orthographic Camera
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
-          ctx.fillStyle = auraGrad;
-          ctx.beginPath();
-          ctx.arc(s.canvasMouseX, s.canvasMouseY, auraRadius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    cameraRef.current = camera;
 
-        // B. Micro-Ember Sparks Physics & Rendering
-        if (s.sparks.length > 0) {
-          ctx.save();
-          ctx.globalCompositeOperation = 'screen';
-
-          for (let i = s.sparks.length - 1; i >= 0; i--) {
-            const sp = s.sparks[i];
-            sp.age++;
-
-            if (sp.age >= sp.maxLife) {
-              s.sparks.splice(i, 1);
-              continue;
-            }
-
-            // Upward buoyant thermal draft + gentle lateral drift
-            sp.x += sp.vx;
-            sp.y += sp.vy;
-            sp.vx *= 0.95;
-            sp.vy *= 0.98;
-            sp.vx += Math.sin(sp.age * 0.12) * 0.05;
-
-            const progress = sp.age / sp.maxLife;
-            const alpha = Math.pow(1 - progress, 1.4) * sp.maxAlpha;
-            const radius = sp.size * (1 - progress * 0.35);
-
-            // Tiny incandescent core with delicate baby-pink dispersion
-            const sparkGrad = ctx.createRadialGradient(sp.x, sp.y, 0, sp.x, sp.y, radius * 2.5);
-            sparkGrad.addColorStop(0, `rgba(255, 255, 255, ${alpha.toFixed(2)})`);
-            sparkGrad.addColorStop(0.35, `rgba(240, 165, 200, ${(alpha * 0.85).toFixed(2)})`);
-            sparkGrad.addColorStop(1, 'rgba(240, 165, 200, 0)');
-
-            ctx.fillStyle = sparkGrad;
-            ctx.beginPath();
-            ctx.arc(sp.x, sp.y, radius * 2.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          ctx.restore();
-        }
-      }
+    // 2. Setup WebGL Renderer
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: false,
+        powerPreference: 'high-performance',
+      });
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(width, height, false);
+      rendererRef.current = renderer;
+    } catch (err) {
+      console.warn('WebGL initialization failed, falling back to standard video element:', err);
+      setWebglSupported(false);
+      return;
     }
 
-    s.rafId = requestAnimationFrame(animate);
-  }, [reducedMotion]);
+    // 3. Create VideoTexture from existing HTML5 video element
+    const texture = new THREE.VideoTexture(video);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBAFormat;
+    texture.generateMipmaps = false;
+    textureRef.current = texture;
 
-  // Pointer Movement Tracking with Distance-Based Dynamics
+    // 4. Create Custom ShaderMaterial with Uniforms
+    const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      uniforms: {
+        u_texture: { value: texture },
+        u_mouse: { value: new THREE.Vector2(width * 0.5, height * 0.5) },
+        u_velocity: { value: new THREE.Vector2(0, 0) },
+        u_resolution: { value: new THREE.Vector2(width, height) },
+        u_videoAspect: { value: 720.0 / 1280.0 }, // Native video aspect ratio (0.5625)
+        u_time: { value: 0 },
+        u_radius: { value: Math.max(150.0, Math.min(220.0, width * 0.16)) },
+        u_pullStrength: { value: 24.0 }, // Restrained local stretch toward pointer
+        u_velocityStrength: { value: 0.42 }, // Directional displacement with velocity
+        u_turbulenceStrength: { value: 7.0 }, // Subtle convective heat turbulence
+        u_intensity: { value: 0.0 }, // Smooth entry and recovery
+      },
+    });
+    materialRef.current = material;
+
+    // 5. Plane geometry covering entire viewport quad
+    const geometry = new THREE.PlaneGeometry(2, 2);
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+    meshRef.current = mesh;
+
+    // 6. Handle Video Autoplay
+    video.play().catch(() => {
+      // Autoplay silently handled for muted playsInline video
+    });
+
+    // Cleanup WebGL resources on unmount
+    return () => {
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+        rendererRef.current = null;
+      }
+      if (textureRef.current) {
+        textureRef.current.dispose();
+        textureRef.current = null;
+      }
+      if (materialRef.current) {
+        materialRef.current.dispose();
+        materialRef.current = null;
+      }
+      geometry.dispose();
+    };
+  }, [checkWebGL]);
+
+  // Main 60fps Animation Loop: GPU Uniform updates and Three.js Render
   useEffect(() => {
-    if (reducedMotion) return;
+    const p = physicsRef.current;
 
-    const onPointerMove = (e: PointerEvent) => {
-      const s = stateRef.current;
-      const container = containerRef.current;
-      if (!container || !s.isVisible) return;
-
-      const rect = container.getBoundingClientRect();
-
-      // Only track if pointer is roughly within the hero viewport area
-      if (e.clientY < -100 || e.clientY > rect.bottom + 150) {
-        if (s.isHovered) {
-          s.isHovered = false;
-          s.targetProximity = 0;
-          s.targetLeanX = 0;
-          s.targetStretchY = 0;
-          s.targetSpreadX = 0;
-          s.targetWindX = 0;
-        }
+    const renderLoop = () => {
+      if (!p.isVisible || reducedMotion) {
+        p.rafId = null;
         return;
       }
 
-      s.isHovered = true;
+      // Smooth interpolation for mouse coordinates and velocity
+      const lerpFactor = 0.12;
+      p.currentMouseX += (p.targetMouseX - p.currentMouseX) * lerpFactor;
+      p.currentMouseY += (p.targetMouseY - p.currentMouseY) * lerpFactor;
 
-      // Coordinates relative to canvas
-      s.targetCanvasMouseX = e.clientX - rect.left;
-      s.targetCanvasMouseY = e.clientY - rect.top;
+      p.currentVelX += (p.targetVelX - p.currentVelX) * 0.16;
+      p.currentVelY += (p.targetVelY - p.currentVelY) * 0.16;
 
-      // Core flame center coordinates in viewport space
-      const flameCenterX = rect.left + rect.width / 2;
-      const flameCenterY = rect.top + rect.height * 0.48; // Heart of the rising fire
+      // Natural decay of velocity momentum
+      p.targetVelX *= 0.88;
+      p.targetVelY *= 0.88;
 
-      const dx = e.clientX - flameCenterX;
-      const dy = e.clientY - flameCenterY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      // Smooth recovery of distortion intensity
+      p.currentIntensity += (p.targetIntensity - p.currentIntensity) * 0.08;
 
-      // Max interaction influence zone: 440px to 600px based on screen size
-      const maxRadius = Math.max(380, Math.min(600, rect.width * 0.45));
-
-      // Calculate instantaneous mouse velocity for dynamic aerodynamic drag
-      const now = performance.now();
-      const dt = Math.max(1, now - s.lastTime);
-      const vx = ((e.clientX - s.lastClientX) / dt) * 16.6;
-      const vy = ((e.clientY - s.lastClientY) / dt) * 16.6;
-      s.lastClientX = e.clientX;
-      s.lastClientY = e.clientY;
-      s.lastTime = now;
-
-      const speed = Math.hypot(vx, vy);
-      const clampedVx = Math.max(-16, Math.min(16, vx));
-
-      if (dist < maxRadius) {
-        const normDist = dist / maxRadius; // 0 (dead center) to 1 (outer edge)
-        const rawInfluence = 1 - normDist;
-        const influence = Math.pow(rawInfluence, 1.35); // Smooth non-linear curve
-        s.targetProximity = influence;
-
-        // Aerodynamic wind pushes flame in swipe direction
-        s.targetWindX = clampedVx * 0.08 * influence;
-
-        // Dual-zone organic physical reaction:
-        // A. Outer zone (normDist >= 0.28): Flame is pulled gently TOWARDS the cursor
-        if (normDist >= 0.28) {
-          const dirX = dx / (dist || 1);
-          s.targetLeanX = dirX * influence;
-          s.targetStretchY = Math.max(0, -dy / (dist || 1)) * influence * 0.75;
-          s.targetSpreadX = 0;
-        } 
-        // B. Core zone (normDist < 0.28): Flame PARTS and FLOWS AWAY from pointer
-        else {
-          const coreFactor = (0.28 - normDist) / 0.28; // 0 to 1 as it reaches heart
-          const dirX = dx / (dist || 1);
-          s.targetLeanX = -dirX * coreFactor * 0.55; // Pushed aside
-          s.targetSpreadX = coreFactor * 0.85; // Flame body expands outwards
-          s.targetStretchY = coreFactor * 0.45;
-        }
-
-        // Spawn delicate micro-ember sparks when moving through the flame field
-        if (speed > 2.2 && normDist < 0.65 && s.sparks.length < 22 && s.frameCounter % 2 === 0) {
-          const angle = Math.random() * Math.PI * 2;
-          const offset = Math.random() * 10;
-          s.sparks.push({
-            x: s.targetCanvasMouseX + Math.cos(angle) * offset,
-            y: s.targetCanvasMouseY + Math.sin(angle) * offset,
-            vx: clampedVx * 0.12 + (Math.random() - 0.5) * 1.5,
-            vy: -1.8 - Math.random() * 2.2, // Rising thermal draft
-            size: 1.2 + Math.random() * 1.3,
-            age: 0,
-            maxLife: 35 + Math.floor(Math.random() * 30), // ~0.6s to 1.1s
-            maxAlpha: 0.75 + Math.random() * 0.25,
-          });
-        }
-      } else {
-        // Outside interaction zone: smoothly decay to resting idle
-        s.targetProximity = 0;
-        s.targetLeanX = 0;
-        s.targetStretchY = 0;
-        s.targetSpreadX = 0;
-        s.targetWindX = 0;
+      // Update shader uniforms
+      if (materialRef.current) {
+        const u = materialRef.current.uniforms;
+        u.u_mouse.value.set(p.currentMouseX, p.currentMouseY);
+        u.u_velocity.value.set(p.currentVelX, p.currentVelY);
+        u.u_intensity.value = p.currentIntensity;
+        u.u_time.value = performance.now() * 0.001;
       }
-    };
 
-    const onPointerLeave = () => {
-      const s = stateRef.current;
-      s.isHovered = false;
-      s.targetProximity = 0;
-      s.targetLeanX = 0;
-      s.targetStretchY = 0;
-      s.targetSpreadX = 0;
-      s.targetWindX = 0;
-    };
-
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('pointerleave', onPointerLeave, { passive: true });
-
-    return () => {
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerleave', onPointerLeave);
-    };
-  }, [reducedMotion]);
-
-  // Touch Support: subtle touch interaction without blocking scrolling
-  useEffect(() => {
-    if (reducedMotion) return;
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        const s = stateRef.current;
-        const container = containerRef.current;
-        if (!container || !s.isVisible) return;
-
-        const rect = container.getBoundingClientRect();
-        s.targetCanvasMouseX = touch.clientX - rect.left;
-        s.targetCanvasMouseY = touch.clientY - rect.top;
-
-        const flameCenterX = rect.left + rect.width / 2;
-        const flameCenterY = rect.top + rect.height * 0.48;
-
-        const dx = touch.clientX - flameCenterX;
-        const dy = touch.clientY - flameCenterY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const maxRadius = Math.max(340, rect.width * 0.42);
-
-        if (dist < maxRadius) {
-          const normDist = dist / maxRadius;
-          const influence = Math.pow(1 - normDist, 1.4);
-          s.targetProximity = influence * 0.75;
-          s.targetLeanX = (dx / (dist || 1)) * influence * 0.6;
-          s.targetStretchY = Math.max(0, -dy / (dist || 1)) * influence * 0.5;
-        }
+      // Render the scene
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
+
+      p.rafId = requestAnimationFrame(renderLoop);
     };
-
-    const onTouchEnd = () => {
-      const s = stateRef.current;
-      s.targetProximity = 0;
-      s.targetLeanX = 0;
-      s.targetStretchY = 0;
-      s.targetSpreadX = 0;
-      s.targetWindX = 0;
-    };
-
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-
-    return () => {
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-    };
-  }, [reducedMotion]);
-
-  // Resize Listener & Canvas DPR Sync
-  useEffect(() => {
-    updateCanvasDimensions();
-    window.addEventListener('resize', updateCanvasDimensions);
-    return () => window.removeEventListener('resize', updateCanvasDimensions);
-  }, [updateCanvasDimensions]);
-
-  // Viewport Intersection & Tab Visibility Management (Zero CPU when off-screen)
-  useEffect(() => {
-    const s = stateRef.current;
 
     const startLoop = () => {
-      if (!s.rafId && !reducedMotion && s.isVisible) {
-        s.rafId = requestAnimationFrame(animate);
+      if (!p.rafId && !reducedMotion && p.isVisible) {
+        p.rafId = requestAnimationFrame(renderLoop);
       }
     };
 
     const stopLoop = () => {
-      if (s.rafId) {
-        cancelAnimationFrame(s.rafId);
-        s.rafId = null;
+      if (p.rafId) {
+        cancelAnimationFrame(p.rafId);
+        p.rafId = null;
       }
     };
 
-    // 1. Intersection Observer for Hero Section
+    // Pause rendering when hero is scrolled out of view
     const heroEl = document.getElementById('hero-section') || containerRef.current;
     let observer: IntersectionObserver | null = null;
 
     if (heroEl) {
       observer = new IntersectionObserver(
         ([entry]) => {
-          s.isVisible = entry.isIntersecting;
+          p.isVisible = entry.isIntersecting;
           if (entry.isIntersecting) {
             startLoop();
             if (videoRef.current && !reducedMotion) {
@@ -442,38 +337,117 @@ export const HeroFlameBackground: React.FC = () => {
       observer.observe(heroEl);
     }
 
-    // 2. Tab Visibility Change
-    const handleVisibilityChange = () => {
+    // Pause on tab visibility change
+    const handleVisibility = () => {
       if (document.hidden) {
-        s.isVisible = false;
+        p.isVisible = false;
         stopLoop();
         if (videoRef.current) videoRef.current.pause();
       } else {
-        s.isVisible = true;
+        p.isVisible = true;
         startLoop();
         if (videoRef.current && !reducedMotion) videoRef.current.play().catch(() => {});
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibility);
     startLoop();
 
     return () => {
       stopLoop();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (observer) observer.disconnect();
     };
-  }, [animate, reducedMotion]);
+  }, [reducedMotion]);
 
-  // Reduced-motion Video Autoplay handling
+  // Window Resize & Resolution Uniform Sync
   useEffect(() => {
-    if (videoRef.current) {
-      if (reducedMotion) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play().catch(() => {});
+    const handleResize = () => {
+      const container = containerRef.current;
+      const renderer = rendererRef.current;
+      const material = materialRef.current;
+      if (!container || !renderer || !material) return;
+
+      const rect = container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      renderer.setSize(width, height, false);
+      renderer.setPixelRatio(dpr);
+
+      material.uniforms.u_resolution.value.set(width, height);
+      material.uniforms.u_radius.value = Math.max(150.0, Math.min(220.0, width * 0.16));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Localized Pointer Tracking (Disabled on touch-only devices)
+  useEffect(() => {
+    if (reducedMotion) return;
+
+    // Check if device is touch-only
+    const isTouchOnly = window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(pointer: fine)').matches;
+    if (isTouchOnly) return;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const p = physicsRef.current;
+      const container = containerRef.current;
+      if (!container || !p.isVisible) return;
+
+      const rect = container.getBoundingClientRect();
+
+      // Check if cursor is roughly within hero section
+      if (e.clientY < -100 || e.clientY > rect.bottom + 100) {
+        p.targetIntensity = 0.0;
+        return;
       }
-    }
+
+      // Convert to canvas pixel space with bottom-left origin for WebGL
+      const canvasX = e.clientX - rect.left;
+      const canvasY = rect.height - (e.clientY - rect.top);
+
+      p.targetMouseX = canvasX;
+      p.targetMouseY = canvasY;
+
+      // Compute instantaneous mouse velocity
+      const now = performance.now();
+      const dt = Math.max(1, now - p.lastTime);
+      const vx = ((canvasX - p.lastClientX) / dt) * 16.6;
+      const vy = ((canvasY - p.lastClientY) / dt) * 16.6;
+
+      p.lastClientX = canvasX;
+      p.lastClientY = canvasY;
+      p.lastTime = now;
+
+      p.targetVelX = vx;
+      p.targetVelY = vy;
+
+      // Check if cursor is within interaction distance of the flame
+      const flameCenterX = rect.width * 0.5;
+      const flameCenterY = rect.height * 0.5;
+      const distToCenter = Math.hypot(canvasX - flameCenterX, canvasY - flameCenterY);
+      const maxActiveRadius = Math.max(rect.width, rect.height) * 0.55;
+
+      p.targetIntensity = distToCenter < maxActiveRadius ? 1.0 : 0.0;
+    };
+
+    const onPointerLeave = () => {
+      const p = physicsRef.current;
+      p.targetIntensity = 0.0;
+      p.targetVelX = 0.0;
+      p.targetVelY = 0.0;
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerleave', onPointerLeave);
+    };
   }, [reducedMotion]);
 
   return (
@@ -484,64 +458,49 @@ export const HeroFlameBackground: React.FC = () => {
       {/* Black backdrop layer */}
       <div className="absolute inset-0 bg-[#080808]" />
 
-      {/* Video Container centered with interactive fire dynamics */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        {/* Dynamic Atmospheric Ambient Glow behind flame */}
-        <div 
-          ref={ambientGlowRef}
-          className="absolute w-[340px] md:w-[520px] h-[340px] md:h-[520px] rounded-full bg-accent/5 blur-[120px] -translate-y-6 pointer-events-none will-change-transform" 
-          aria-hidden="true" 
-        />
+      {/* Static Subdued Ambient Glow behind flame */}
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] md:w-[520px] h-[340px] md:h-[520px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" 
+        aria-hidden="true" 
+      />
 
-        {/* Reactive Flame Video Wrapper (Anchored at flame base for natural organic bending) */}
-        <div
-          ref={flameWrapperRef}
-          className="relative flex items-center justify-center will-change-transform"
-          style={{
-            transformOrigin: '50% 92%',
-          }}
-        >
-          {/* Real Pink Looping Flame Video Asset */}
-          <video
-            ref={videoRef}
-            src="/assets/pink-flame.mp4"
-            poster="/assets/flame-poster.jpg"
-            autoPlay={!reducedMotion}
-            loop
-            muted
-            playsInline
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className={`h-[75vh] md:h-[88vh] max-w-[90vw] object-contain mix-blend-screen opacity-70 md:opacity-75 transition-opacity duration-1000 ${
-              isVideoLoaded ? 'opacity-70 md:opacity-75' : 'opacity-40'
-            }`}
-            style={{
-              filter: 'contrast(1.08) brightness(0.98)',
-            }}
-            aria-hidden="true"
-          />
-        </div>
+      {/* HTML5 Video Element used as WebGL VideoTexture Source */}
+      <video
+        ref={videoRef}
+        src="/assets/pink-flame.mp4"
+        poster="/assets/flame-poster.jpg"
+        autoPlay={!reducedMotion}
+        loop
+        muted
+        playsInline
+        crossOrigin="anonymous"
+        onLoadedData={() => setIsVideoLoaded(true)}
+        className={webglSupported ? "hidden" : `h-[75vh] md:h-[88vh] max-w-[90vw] object-contain mix-blend-screen opacity-70 md:opacity-75 transition-opacity duration-1000 ${
+          isVideoLoaded ? 'opacity-70 md:opacity-75' : 'opacity-40'
+        }`}
+        aria-hidden="true"
+      />
 
-        {/* Interactive Canvas Layer for Pink Light Diffusion & Micro-Embers */}
+      {/* WebGL Canvas: Localized UV Pixel Distortion Shader */}
+      {webglSupported && (
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 pointer-events-none"
+          className={`absolute inset-0 w-full h-full pointer-events-none mix-blend-screen transition-opacity duration-1000 ${
+            isVideoLoaded ? 'opacity-70 md:opacity-75' : 'opacity-40'
+          }`}
+          aria-hidden="true"
         />
+      )}
 
-        {/* Seamless edge blending vignettes into pure black #080808 */}
-        {/* Top fade */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/70 to-transparent pointer-events-none" />
-        
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent pointer-events-none" />
-        
-        {/* Radial vignette fade from pure black edges */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(8, 8, 8, 0.5) 60%, #080808 90%)',
-          }}
-        />
-      </div>
+      {/* Seamless edge blending vignettes into pure black #080808 */}
+      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/70 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent pointer-events-none" />
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(8, 8, 8, 0.5) 60%, #080808 90%)',
+        }}
+      />
     </div>
   );
 };

@@ -39,7 +39,6 @@ async function runAudit() {
     '/lab',
     '/about',
     '/contact',
-    '/flame-experiment',
     '/resume-kunjal-joshi.pdf',
     '/assets/pink-flame.mp4',
     '/assets/flame-poster.jpg',
@@ -96,7 +95,7 @@ async function runAudit() {
     { modelScore: 0.6, trueLabel: 0 }, // FP at 0.5
     { modelScore: 0.2, trueLabel: 0 }, // TN at 0.5
   ];
-  
+
   // At t=0.5:
   // Preds: [1, 1, 0, 1, 0]
   // TP = 2, FP = 1, FN = 1, TN = 1

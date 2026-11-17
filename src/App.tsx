@@ -10,7 +10,6 @@ import { PlaygroundPage } from './pages/PlaygroundPage';
 import { LabPage } from './pages/LabPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
-import { ParticleFlameExperimentPage } from './pages/ParticleFlameExperimentPage';
 import { CharacterCompanion } from './components/character/CharacterCompanion';
 import { projects } from './data/projects';
 
@@ -38,8 +37,6 @@ const RouteHandler: React.FC = () => {
       document.title = 'About Kunjal Joshi — Education, Skills & Experience';
     } else if (pathname === '/contact') {
       document.title = 'Contact & Collaboration — Kunjal Joshi';
-    } else if (pathname === '/flame-experiment') {
-      document.title = 'Particle Flame Experiment — Kunjal Joshi';
     } else {
       document.title = 'Kunjal Joshi — AI Engineering & Software Development';
     }
@@ -85,7 +82,6 @@ export const App: React.FC = () => {
             <Route path="/lab" element={<LabPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
-            <Route path="/flame-experiment" element={<ParticleFlameExperimentPage />} />
             {/* Catch-all redirects to home */}
             <Route path="*" element={<HomePage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
           </Routes>

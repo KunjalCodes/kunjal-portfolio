@@ -109,13 +109,13 @@ void main() {
   vec2 d = p - uMouse;
   float r = 0.22 * uRes.y;
   float fall = exp(-dot(d, d) / (r * r)) * uHover;
-  vec2 drag = -uVel * fall * 5.0;
-  vec2 swirl = vec2(-d.y, d.x) / r * fall * (8.0 + 12.0 * length(uVel) / 20.0);
+  vec2 drag = -uVel * fall * 3.0;
+  vec2 swirl = vec2(-d.y, d.x) / r * fall * (5.0 + 7.0 * length(uVel) / 20.0);
   uv += (drag + swirl) / size;
 
   // tips lean slightly toward a resting cursor
   float lean = clamp((uMouse.x - uAnchor.x) / (0.5 * uRes.x), -1.0, 1.0) * uHover;
-  uv.x -= lean * 0.06 * uv.y * uv.y;
+  uv.x -= lean * 0.04 * uv.y * uv.y;
 
   // --- heat shimmer: stronger toward the tips, when fed, and in wind ---------
   float windAmt = clamp(length(uWind) / 80.0, 0.0, 1.0);
@@ -362,6 +362,7 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       windX: 0, windY: 0, windVX: 0, windVY: 0,
       gutter: 0, flare: 0,
       emberAcc: 0,
+      trailAcc: 0,
     };
 
     // ember pool (canvas px, GL y-up)
@@ -370,13 +371,15 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       vx: new Float32Array(MAX_EMBERS), vy: new Float32Array(MAX_EMBERS),
       life: new Float32Array(MAX_EMBERS), max: new Float32Array(MAX_EMBERS),
       size: new Float32Array(MAX_EMBERS), seed: new Float32Array(MAX_EMBERS),
+      trail: new Uint8Array(MAX_EMBERS), // 1 = cursor-trail dot (pink, floaty)
     };
     let emberCursor = 0;
-    const spawn = (x: number, y: number, vx: number, vy: number, life: number, size: number) => {
+    const spawn = (x: number, y: number, vx: number, vy: number, life: number, size: number, trail = 0) => {
       const i = emberCursor;
       emberCursor = (emberCursor + 1) % MAX_EMBERS;
       E.x[i] = x; E.y[i] = y; E.vx[i] = vx; E.vy[i] = vy;
       E.life[i] = life; E.max[i] = life; E.size[i] = size; E.seed[i] = Math.random() * 100;
+      E.trail[i] = trail;
     };
 
     // --- visibility: only render when on screen and tab visible --------------
@@ -431,17 +434,22 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       const py = (rect.bottom - pointer.y) * dpr;
       const inside = pointer.seen && px >= 0 && px <= W && py >= 0 && py <= H && !reducedMotion;
 
-      if (!s.init) { s.mx = s.lastMx = px; s.my = s.lastMy = py; s.init = true; }
+      // snap (no smoothing) the first time the pointer is actually over the hero,
+      // otherwise it would sweep in from the off-screen placeholder position
+      if (inside && !s.init) { s.mx = s.lastMx = px; s.my = s.lastMy = py; s.init = true; }
+      if (!pointer.seen) s.init = false;
       if (inside) {
-        s.mx = lerp(s.mx, px, 0.3);
-        s.my = lerp(s.my, py, 0.3);
+        s.mx = lerp(s.mx, px, 0.2);
+        s.my = lerp(s.my, py, 0.2);
       }
+      const prevMx = s.lastMx;
+      const prevMy = s.lastMy;
       const rvx = (s.mx - s.lastMx) / dpr / dt;
       const rvy = (s.my - s.lastMy) / dpr / dt;
       s.lastMx = s.mx;
       s.lastMy = s.my;
-      s.vx = lerp(s.vx, clamp(rvx, -60, 60), 0.25);
-      s.vy = lerp(s.vy, clamp(rvy, -60, 60), 0.25);
+      s.vx = lerp(s.vx, clamp(rvx, -60, 60), 0.15);
+      s.vy = lerp(s.vy, clamp(rvy, -60, 60), 0.15);
       s.hover = lerp(s.hover, inside ? 1 : 0, 0.06);
       const speed = Math.hypot(s.vx, s.vy); // CSS px / frame
 
@@ -451,15 +459,15 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       const proximity = inside ? Math.exp(-(fdx * fdx + fdy * fdy)) : 0;
 
       // --- WIND: cursor motion pushes a damped spring (sways back with wobble) ---
-      const push = proximity * 0.5;
-      s.windVX += (s.vx * push - 0.035 * s.windX - 0.07 * s.windVX) * dt;
-      s.windVY += (s.vy * push * 0.5 - 0.035 * s.windY - 0.07 * s.windVY) * dt;
-      s.windX = clamp(s.windX + s.windVX * dt, -140, 140);
-      s.windY = clamp(s.windY + s.windVY * dt, -80, 80);
+      const push = proximity * 0.28;
+      s.windVX += (s.vx * push - 0.035 * s.windX - 0.09 * s.windVX) * dt;
+      s.windVY += (s.vy * push * 0.4 - 0.035 * s.windY - 0.09 * s.windVY) * dt;
+      s.windX = clamp(s.windX + s.windVX * dt, -90, 90);
+      s.windY = clamp(s.windY + s.windVY * dt, -45, 45);
 
       // --- GUTTER: a fast swipe through the core knocks it down, then it flares ---
       const prevGutter = s.gutter;
-      const gutterTarget = clamp((speed * proximity - 16) / 22, 0, 1);
+      const gutterTarget = clamp((speed * proximity - 28) / 26, 0, 1);
       s.gutter = lerp(s.gutter, gutterTarget, (gutterTarget > s.gutter ? 0.3 : 0.035) * dt);
       s.flare = clamp(s.flare * Math.pow(0.965, dt) + Math.max(0, prevGutter - s.gutter) * 2.4, 0, 1);
 
@@ -478,8 +486,8 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       // --- EMBERS -----------------------------------------------------------------
       if (!reducedMotion) {
         // swipe sparks
-        if (speed > 7 && proximity > 0.15) {
-          const n = Math.min(5, Math.floor((speed - 5) / 5) + 1);
+        if (speed > 12 && proximity > 0.25) {
+          const n = Math.min(4, Math.floor((speed - 10) / 7) + 1);
           for (let k = 0; k < n; k++) {
             spawn(
               s.mx + (Math.random() - 0.5) * 24 * dpr,
@@ -491,6 +499,33 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
             );
           }
         }
+        // pink dotted trail following the cursor through empty space
+        if (inside && proximity < 0.85) {
+          const segX = s.mx - prevMx;
+          const segY = s.my - prevMy;
+          const segLen = Math.hypot(segX, segY) / dpr; // CSS px moved this frame
+          const fadeNearFlame = 1 - clamp((proximity - 0.45) / 0.4, 0, 1);
+          s.trailAcc = Math.min(s.trailAcc + segLen * fadeNearFlame, 9 * 6);
+          let placed = 0;
+          const SPACING = 9; // CSS px between dots
+          while (s.trailAcc >= SPACING && placed < 8) {
+            s.trailAcc -= SPACING;
+            const k = segLen > 0 ? 1 - (s.trailAcc / Math.max(segLen, 1e-3)) : 1;
+            spawn(
+              prevMx + segX * clamp(k, 0, 1) + (Math.random() - 0.5) * 3 * dpr,
+              prevMy + segY * clamp(k, 0, 1) + (Math.random() - 0.5) * 3 * dpr,
+              (Math.random() - 0.5) * 0.4 * dpr,
+              (0.15 + Math.random() * 0.35) * dpr,
+              45 + Math.random() * 25,
+              (3.2 + Math.random() * 1.8) * dpr,
+              1,
+            );
+            placed++;
+          }
+        } else {
+          s.trailAcc = 0;
+        }
+
         // the bed sheds embers; a lot more when fed, a burst when flaring
         s.emberAcc += (0.12 + s.boost * 2.2 + s.flare * 2.5) * dt;
         while (s.emberAcc >= 1) {
@@ -514,8 +549,9 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
         E.life[i] -= dt;
         if (E.life[i] <= 0) continue;
         const sd = E.seed[i];
-        E.vx[i] += (Math.sin(sd + time * 3.1) * 0.06 * dpr + windForce) * dt;
-        E.vy[i] += 0.035 * dpr * dt; // buoyancy
+        const isTrail = E.trail[i] === 1;
+        E.vx[i] += (Math.sin(sd + time * 3.1) * (isTrail ? 0.015 : 0.06) * dpr + (isTrail ? 0 : windForce)) * dt;
+        E.vy[i] += (isTrail ? 0.006 : 0.035) * dpr * dt; // buoyancy
         const damp = Math.pow(0.982, dt);
         E.vx[i] *= damp;
         E.vy[i] *= damp;
@@ -526,9 +562,10 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
         const fadeIn = clamp((1 - lifeT) * 8, 0, 1);
         const twinkle = 0.75 + 0.25 * Math.sin(sd * 7 + time * 14);
         // white-hot -> pink -> deep rose
+        // embers: white-hot -> pink -> deep rose; trail dots: soft accent pink
         const r = 1;
-        const g = 0.25 + 0.65 * lifeT * lifeT;
-        const b = 0.5 + 0.4 * lifeT;
+        const g = isTrail ? 0.42 + 0.2 * lifeT : 0.25 + 0.65 * lifeT * lifeT;
+        const b = isTrail ? 0.7 + 0.1 * lifeT : 0.5 + 0.4 * lifeT;
         const o = emberCount * EMBER_STRIDE;
         emberData[o] = E.x[i];
         emberData[o + 1] = E.y[i];
@@ -536,7 +573,9 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
         emberData[o + 3] = r;
         emberData[o + 4] = g;
         emberData[o + 5] = b;
-        emberData[o + 6] = fadeIn * Math.min(1, lifeT * 2.5) * twinkle * 0.9;
+        emberData[o + 6] = isTrail
+          ? fadeIn * Math.min(1, lifeT * 1.6)
+          : fadeIn * Math.min(1, lifeT * 2.5) * twinkle * 0.9;
         emberCount++;
       }
 

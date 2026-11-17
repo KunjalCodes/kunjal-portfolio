@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 
 export const HeroFlameBackground: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const HeroFlameBackground: React.FC = () => {
         videoRef.current.pause();
       } else {
         videoRef.current.play().catch(() => {
-          // Muted autoplay policy fallback
+          // Autoplay policy fallback: muted video is allowed, handle any abort silently
         });
       }
     }
@@ -31,67 +32,49 @@ export const HeroFlameBackground: React.FC = () => {
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
-      {/* 
-        Hero Background: Pure #080808 across the entire screen
-        Ensures the underlying destination layer for screen blending is uniform black.
-      */}
+      {/* Black backdrop layer */}
       <div className="absolute inset-0 bg-[#080808]" />
 
-      {/* Centered Video Viewport */}
+      {/* Video Container centered with gentle soft baby-pink atmospheric bloom */}
       <div className="relative w-full h-full flex items-center justify-center">
-        {/* Soft, non-intrusive atmospheric baby-pink ambient glow behind the flame core */}
+        {/* Subdued ambient glow behind flame */}
         <div
-          className="absolute w-[320px] md:w-[500px] h-[320px] md:h-[500px] rounded-full bg-accent/[0.04] blur-[120px] -translate-y-6 pointer-events-none"
+          className="absolute w-[320px] md:w-[500px] h-[320px] md:h-[500px] rounded-full bg-accent/5 blur-[120px] -translate-y-6"
           aria-hidden="true"
         />
 
-        {/* 
-          Multi-Tier Soft Edge Masking Pipeline:
-          Eliminates all rectangular video boundaries, edge compression noise, and bottom cutoffs
-          by applying progressive Hermite falloff directly to the video layer.
-          No dark overlay patches or visible oval masks are cast onto the screen.
-        */}
-        {/* Tier 1: Horizontal Linear Feather (dissolves left & right vertical cuts to 0 alpha) */}
-        <div
-          className="inline-flex items-center justify-center"
+        {/* Real Pink Looping Flame Video */}
+        <video
+          ref={videoRef}
+          src="/assets/pink-flame.mp4"
+          poster="/assets/flame-poster.jpg"
+          autoPlay={!reducedMotion}
+          loop
+          muted
+          playsInline
+          onLoadedData={() => setIsVideoLoaded(true)}
+          className={`h-[75vh] md:h-[88vh] max-w-[90vw] object-contain mix-blend-screen opacity-70 md:opacity-75 transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-70 md:opacity-75' : 'opacity-40'
+            }`}
           style={{
-            WebkitMaskImage:
-              'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
-            maskImage:
-              'linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)',
+            filter: 'contrast(1.08) brightness(0.98)',
           }}
-        >
-          {/* Tier 2: Vertical Linear Feather (dissolves top edge & bottom cutoff row to 0 alpha) */}
-          <div
-            className="inline-flex items-center justify-center"
-            style={{
-              WebkitMaskImage:
-                'linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)',
-              maskImage:
-                'linear-gradient(to bottom, transparent 0%, black 10%, black 86%, transparent 100%)',
-            }}
-          >
-            {/* Tier 3: Elliptical Softness on the video (rounds rectangular corners seamlessly) */}
-            <video
-              ref={videoRef}
-              src="/assets/pink-flame.mp4"
-              poster="/assets/flame-poster.jpg"
-              autoPlay={!reducedMotion}
-              loop
-              muted
-              playsInline
-              className="h-[75vh] md:h-[88vh] max-w-[90vw] object-contain block select-none pointer-events-none"
-              style={{
-                mixBlendMode: 'screen',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 60%, rgba(0, 0, 0, 0.7) 80%, transparent 98%)',
-                maskImage:
-                  'radial-gradient(ellipse 92% 90% at 50% 50%, black 60%, rgba(0, 0, 0, 0.7) 80%, transparent 98%)',
-              }}
-              aria-hidden="true"
-            />
-          </div>
-        </div>
+          aria-hidden="true"
+        />
+
+        {/* Seamless edge blending vignettes into pure black #080808 */}
+        {/* Top fade */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/70 to-transparent" />
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent" />
+
+        {/* Radial vignette fade from pure black edges */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(8, 8, 8, 0.5) 60%, #080808 90%)',
+          }}
+        />
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ export const HeroSection: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
-          className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-primary uppercase select-none"
+          className="flame-lit font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-primary uppercase select-none"
         >
           {profile.name}
         </motion.h1>
@@ -47,7 +47,7 @@ export const HeroSection: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
           className="mt-4 md:mt-6 font-heading text-lg sm:text-xl md:text-2xl text-muted-light font-normal max-w-xl text-center tracking-tight"
         >
-          <span className="text-primary font-medium">{profile.headline}</span>
+          <span className="flame-lit text-primary font-medium">{profile.headline}</span>
           <br className="hidden sm:inline" />
           <span className="text-sm sm:text-base text-muted block mt-1">
             Bridging persistent agent memory, intelligent orchestration, and computer vision.
@@ -65,6 +65,7 @@ export const HeroSection: React.FC = () => {
             to="/work"
             variant="primary"
             size="md"
+            className="flame-lit-box"
             icon={<ArrowRight className="w-4 h-4" />}
           >
             Explore Work

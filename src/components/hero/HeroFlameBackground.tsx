@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FluidFlameCanvas } from './FluidFlameCanvas';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FluidFlameCanvas, type FlameLight } from './FluidFlameCanvas';
 
 const FLAME_SRC = '/assets/pink-flame.mp4';
 const FLAME_POSTER = '/assets/flame-poster.jpg';
@@ -27,8 +27,22 @@ export const HeroFlameBackground: React.FC = () => {
 
   const handleUnsupported = useCallback(() => setWebglFailed(true), []);
 
+  // Publish the fire's light as CSS vars on the hero section so text/buttons
+  // (see .flame-lit / .flame-lit-box) glow and flicker in sync with it.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const lastLight = useRef({ glow: -1, lean: -1 });
+  const handleLight = useCallback(({ glow, lean }: FlameLight) => {
+    const host = rootRef.current?.parentElement;
+    if (!host) return;
+    // skip imperceptible changes to avoid needless style recalcs
+    if (Math.abs(glow - lastLight.current.glow) < 0.01 && Math.abs(lean - lastLight.current.lean) < 0.02) return;
+    lastLight.current = { glow, lean };
+    host.style.setProperty('--flame-glow', glow.toFixed(3));
+    host.style.setProperty('--flame-lean', lean.toFixed(3));
+  }, []);
+
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
+    <div ref={rootRef} className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
       <div className="absolute inset-0 bg-[#080808]" />
 
       {/* Subdued ambient glow behind flame */}
@@ -44,6 +58,7 @@ export const HeroFlameBackground: React.FC = () => {
           opacity={isDesktop ? 0.82 : 0.76}
           reducedMotion={reducedMotion}
           onUnsupported={handleUnsupported}
+          onLight={handleLight}
         />
       ) : (
         // Fallback (no WebGL2): plain video with soft masking.

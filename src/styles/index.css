@@ -97,3 +97,18 @@
 .animate-companion-laptop {
   animation: companion-laptop-glow 2.5s ease-in-out infinite;
 }
+
+/* ---- Hero flame light ------------------------------------------------------
+   --flame-glow (0..1) and --flame-lean (-1..1) are written every frame by the
+   hero flame canvas, so text is lit and flickers with the fire behind it. */
+.flame-lit {
+  text-shadow:
+    0 0 calc(8px + var(--flame-glow, 0) * 30px) rgb(255 105 180 / calc(var(--flame-glow, 0) * 0.45)),
+    calc(var(--flame-lean, 0) * 3px) calc(1px + var(--flame-glow, 0) * 2px) calc(2px + var(--flame-glow, 0) * 5px)
+      rgb(255 150 205 / calc(var(--flame-glow, 0) * 0.4));
+}
+
+.flame-lit-box {
+  box-shadow: 0 calc(4px + var(--flame-glow, 0) * 10px) calc(12px + var(--flame-glow, 0) * 32px)
+    rgb(255 105 180 / calc(var(--flame-glow, 0) * 0.35));
+}

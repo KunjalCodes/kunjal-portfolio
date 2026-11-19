@@ -4,7 +4,6 @@ import { X, Terminal as TerminalIcon, CornerDownLeft, Maximize2, Minimize2, Tras
 import { useNavigate } from 'react-router-dom';
 import { profile } from '../../data/profile';
 import { projects } from '../../data/projects';
-import { labNotes } from '../../data/labNotes';
 
 interface TerminalEntry {
   id: string;
@@ -16,6 +15,10 @@ interface TerminalEntry {
 interface PortfolioTerminalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** 'inline' renders the terminal as a panel inside the page instead of an overlay */
+  variant?: 'modal' | 'inline';
+  /** Commands to run once on mount (inline demo) */
+  initialCommands?: string[];
 }
 
 const COMMAND_LIST = [
@@ -27,7 +30,6 @@ const COMMAND_LIST = [
   'eval',
   'skills',
   'experience',
-  'lab',
   'contact',
   'resume',
   'leetcode',
@@ -46,7 +48,8 @@ const COMMAND_LIST = [
   'exit'
 ];
 
-export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, onClose }) => {
+export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, onClose, variant = 'modal', initialCommands }) => {
+  const inline = variant === 'inline';
   const [inputVal, setInputVal] = useState('');
   const [history, setHistory] = useState<TerminalEntry[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -56,18 +59,19 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
 
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // Scroll to bottom on new entry
+  // Scroll the terminal body (not the page) to the latest entry
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    const body = bodyRef.current;
+    if (body) body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
   }, [history]);
 
   // Focus input when opened
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !inline) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -77,7 +81,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
   // Escape key handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && !inline) {
         onClose();
       }
     };
@@ -129,7 +133,6 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
               <div><span className="text-primary font-bold">playground</span> - Interactive AI Engineering Lab</div>
               <div><span className="text-primary font-bold">skills</span> - Categorized technical stack</div>
               <div><span className="text-primary font-bold">experience</span> - Career trajectory & roles</div>
-              <div><span className="text-primary font-bold">lab</span> - View technical journal notes</div>
               <div><span className="text-primary font-bold">contact</span> - Communication endpoints</div>
               <div><span className="text-primary font-bold">resume</span> - Download/preview CV</div>
               <div><span className="text-primary font-bold">companion</span> - Companion status & quote</div>
@@ -225,9 +228,6 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
           } else if (arg === 'eval') {
             navigate('/playground?tab=eval');
             onClose();
-          } else if (arg === 'lab') {
-            navigate('/lab');
-            onClose();
           } else if (arg === 'about') {
             navigate('/about');
             onClose();
@@ -276,21 +276,6 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
                     <li key={dIdx}>{d}</li>
                   ))}
                 </ul>
-              </div>
-            ))}
-          </div>
-        );
-        break;
-
-      case 'lab':
-        output = (
-          <div className="space-y-2 text-xs font-mono">
-            <p className="text-accent">// Technical Lab Notes ({labNotes.length}):</p>
-            {labNotes.map(note => (
-              <div key={note.id} className="border-l border-border pl-2 py-0.5">
-                <span className="text-primary font-medium">{note.title}</span>
-                <span className="text-muted-dark text-[10px] ml-2">({note.date})</span>
-                <p className="text-muted text-[11px] line-clamp-1">{note.summary}</p>
               </div>
             ))}
           </div>
@@ -437,27 +422,25 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
     }
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ duration: 0.2 }}
-            className={`w-full max-w-3xl bg-[#0B0B0B] border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${isExpanded ? 'h-[92vh] max-w-5xl' : 'h-[520px] max-h-[85vh]'
-              }`}
-          >
+  // Run demo commands once (inline variant)
+  const ranInitial = useRef(false);
+  useEffect(() => {
+    if (ranInitial.current || !initialCommands?.length) return;
+    ranInitial.current = true;
+    initialCommands.forEach(cmd => executeCommand(cmd));
+  }, [initialCommands, executeCommand]);
+
+  const windowBody = (
+    <>
             {/* Terminal Title Bar */}
             <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#111111] border-b border-border select-none">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 mr-2">
                   <button
-                    onClick={onClose}
+                    onClick={inline ? handleClear : onClose}
                     className="w-3 h-3 rounded-full bg-[#FF5F56] hover:brightness-110 flex items-center justify-center group"
-                    title="Close (Esc)"
-                    aria-label="Close terminal"
+                    title={inline ? 'Clear' : 'Close (Esc)'}
+                    aria-label={inline ? 'Clear terminal' : 'Close terminal'}
                   >
                     <X className="w-2 h-2 text-black/70 opacity-0 group-hover:opacity-100" />
                   </button>
@@ -487,7 +470,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
                   kunjal@portfolio: ~ (Type 'help' or TAB)
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-muted text-[11px] font-mono">
+              <div className={`flex items-center gap-2 text-muted text-[11px] font-mono ${inline ? 'hidden' : ''}`}>
                 <span className="hidden sm:inline text-muted-dark">ESC to close</span>
                 <button
                   onClick={onClose}
@@ -501,6 +484,7 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
 
             {/* Terminal Body */}
             <div
+              ref={bodyRef}
               className="flex-1 p-4 overflow-y-auto font-mono text-xs space-y-3 bg-[#080808] selection:bg-accent/20 selection:text-accent cursor-text"
               onClick={() => inputRef.current?.focus()}
             >
@@ -548,8 +532,8 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
                     onChange={e => setInputVal(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="w-full bg-transparent border-none outline-none text-primary font-mono text-xs focus:ring-0 p-0"
-                    placeholder={history.length === 0 ? "type 'help' and press Enter..." : ""}
-                    autoFocus
+                    placeholder={history.length === 0 ? (inline ? "try 'projects', 'skills' or 'open second-brain'" : "type 'help' and press Enter...") : ""}
+                    autoFocus={!inline}
                     spellCheck={false}
                     autoComplete="off"
                     autoCapitalize="none"
@@ -573,6 +557,30 @@ export const PortfolioTerminal: React.FC<PortfolioTerminalProps> = ({ isOpen, on
 
               <div ref={bottomRef} />
             </div>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="w-full h-[400px] bg-[#0B0B0B] border border-border rounded-lg flex flex-col overflow-hidden">
+        {windowBody}
+      </div>
+    );
+  }
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.2 }}
+            className={`w-full max-w-3xl bg-[#0B0B0B] border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${isExpanded ? 'h-[92vh] max-w-5xl' : 'h-[520px] max-h-[85vh]'
+              }`}
+          >
+            {windowBody}
           </motion.div>
         </div>
       )}

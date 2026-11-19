@@ -32,13 +32,8 @@ const CONTEXTUAL_DIALOGUES: Record<string, string[]> = {
   ],
   '/about': [
     'UTU Bhimtal graduate in June 2026.',
-    'Software engineering at Igniters Hub.',
+    'Agents, memory and retrieval.',
     '100+ LeetCode problems and counting.',
-  ],
-  '/lab': [
-    'Empirical benchmarks > assumptions.',
-    'It worked on my machine.',
-    'Testing morphological line separation.',
   ],
   '/contact': [
     'Reach out directly or launch the shell with ~.',
@@ -135,11 +130,6 @@ export function useCharacterState({ isTerminalOpen = false }: UseCharacterStateO
     } else if (path === '/about') {
       setBehavior('idle');
       setActivePose('walk');
-      setWalkX(0);
-      setFacingDirection(1);
-    } else if (path === '/lab') {
-      setBehavior('thinking');
-      setActivePose('think');
       setWalkX(0);
       setFacingDirection(1);
     } else if (path === '/contact') {

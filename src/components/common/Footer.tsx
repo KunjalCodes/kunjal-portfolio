@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
               <span className="font-heading font-bold text-lg text-primary">{profile.brandName}</span>
             </div>
             <p className="text-muted text-sm max-w-sm leading-relaxed">
-              {profile.headline} Building persistent memory systems, multi-agent architectures, and intelligent software systems.
+              {profile.headline} AI engineer working on agents, memory and retrieval.
             </p>
             <div className="pt-2 flex items-center justify-between max-w-sm">
               <div className="flex items-center gap-2">
@@ -46,16 +46,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
                 <Link to="/" className="hover:text-primary transition-colors">Home</Link>
               </li>
               <li>
-                <Link to="/work" className="hover:text-primary transition-colors">Work & Projects</Link>
+                <Link to="/work" className="hover:text-primary transition-colors">Work</Link>
               </li>
               <li>
-                <Link to="/playground" className="hover:text-primary transition-colors text-accent">AI Playground</Link>
+                <Link to="/playground" className="hover:text-primary transition-colors text-accent">Playground</Link>
               </li>
               <li>
-                <Link to="/lab" className="hover:text-primary transition-colors">Lab Notes & Research</Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-primary transition-colors">About & Experience</Link>
+                <Link to="/about" className="hover:text-primary transition-colors">About</Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
@@ -128,7 +125,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
                   className="inline-flex items-center gap-2 text-accent/80 hover:text-accent font-mono text-xs cursor-pointer"
                 >
                   <TerminalIcon className="w-3.5 h-3.5" />
-                  Launch Terminal Shell
+                  Open terminal (~)
                 </button>
               </li>
             </ul>
@@ -138,15 +135,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-muted-dark">
           <div>
-            © {new Date().getFullYear()} {profile.name}. All rights reserved.
+            © {new Date().getFullYear()} {profile.name}
           </div>
-          <div className="flex items-center gap-3">
-            <span>Dark Theme</span>
-            <span>·</span>
-            <span className="text-[#F0A5C8]">Pink Accent (#F0A5C8)</span>
-            <span>·</span>
-            <span>Space Grotesk & JetBrains Mono</span>
-          </div>
+          <div>Built with React, TypeScript and a WebGL flame</div>
         </div>
       </div>
     </footer>

@@ -1,807 +1,642 @@
 import { Project } from '../types';
 
+/**
+ * Project content is sourced from the public repositories at github.com/KunjalCodes
+ * (READMEs, dependency files and code) and the resume. Screenshots are real captures
+ * from those repositories. Nothing here should claim more than the code shows.
+ */
 export const projects: Project[] = [
   {
     id: 'second-brain',
     slug: 'second-brain',
-    title: 'AI Second Brain — Persistent AI Memory Engine',
-    subtitle: 'Deployable persistent graph & vector memory engine for AI agents with temporal reasoning, provenance tracking, and 7+ controlled tools',
-    category: 'AI / Machine Learning',
-    status: 'Active Development',
-    timeframe: 'Ongoing (2025 — Present)',
-    shortDescription: 'A production-grade persistent memory engine that allows AI agents to maintain contextual long-term knowledge across conversations and documents. Combines Neo4j temporal knowledge graphs, PostgreSQL with pgvector, and a 7-tool agent runtime.',
-    tags: ['Python', 'Neo4j', 'PostgreSQL', 'pgvector', 'FastAPI', 'Next.js 16', 'RAG', 'LLMs', 'Cytoscape.js'],
+    title: 'AI Second Brain — Persistent memory for AI agents',
+    subtitle:
+      'A memory engine that lets an agent remember people, projects and decisions across conversations, and know when a fact stopped being true',
+    category: 'Memory & Retrieval',
+    categories: ['Memory & Retrieval', 'Agents & MCP'],
+    status: 'In progress',
+    timeframe: '2025 – present',
+    shortDescription:
+      'Facts live in a temporal knowledge graph in Neo4j, embeddings in PostgreSQL with pgvector, and an agent with seven memory tools retrieves across both and must cite what it used.',
+    tags: ['Python', 'FastAPI', 'Neo4j', 'PostgreSQL', 'pgvector', 'Gemini', 'MCP', 'Next.js', 'Cytoscape.js'],
     featured: true,
-    problemStatement: 'Modern LLM agents suffer from episodic amnesia: conversation history is either truncated to fit context windows or coarsely retrieved as isolated vector chunks. When facts evolve over time (e.g. switching software frameworks, updated architectural decisions), standard RAG mixes outdated facts with active ones and fails at multi-hop associative queries.',
-    projectOverview: 'AI Second Brain introduces a dual-engine architecture: an evolving temporal knowledge graph in Neo4j coupled with dense vector retrieval in PostgreSQL (pgvector). Facts maintain explicit valid-time windows (edges are superseded, never deleted) with full provenance tracking back to source documents or conversational turns. An autonomous agent interacts via 7+ governed memory tools to execute multi-hop reasoning.',
+    problemStatement:
+      'Chat assistants forget everything between sessions, and plain vector RAG makes it worse when facts change: if you switched from EasyOCR to PaddleOCR in May, a similarity search happily returns both as if they were equally true. An agent needs memory that keeps history, knows what is current, and can show where each fact came from.',
+    projectOverview:
+      'Every fact is stored as a relationship in a Neo4j graph with its own validity window. When something changes, the old edge is closed rather than deleted, so the system can answer "what do I use now" and "what did I use in March" from the same data. Embeddings in pgvector add semantic search, and retrieval combines graph, vector and keyword results. The LLM only proposes new memories; a deterministic decision engine decides whether to store, merge or flag them. On top sits an agent with seven memory tools and a Next.js memory explorer.',
     architecture: {
-      summary: 'A decoupled client-server architecture with FastAPI powering authoritative ingestion, hybrid vector + graph retrieval, and a Next.js 16 Cytoscape.js explorer.',
-      diagramDescription: 'User Ingestion (Chat / Document) -> FastAPI Ingestion -> Entity Resolution & Temporal Validity -> Dual Storage: [PostgreSQL pgvector (Semantic) + Neo4j (Knowledge Graph)] -> Hybrid Retrieval Engine (Vector Search + Cypher Multi-Hop + Keyword) -> Reciprocal Rank Fusion -> Controlled Tool-Using Agent',
+      summary:
+        'FastAPI backend with Neo4j as the canonical memory store and PostgreSQL + pgvector for embeddings, conversations and evaluation runs. A Next.js frontend explores the graph, and an MCP adapter exposes the memory API to other agents.',
+      diagramDescription:
+        'Conversation or document -> LLM proposes memories -> deterministic decision engine -> Neo4j temporal graph + pgvector embeddings -> hybrid retrieval (graph + vector + keyword) -> agent with memory tools -> cited answer',
       layers: [
         {
-          name: '1. Ingestion & Entity Resolution',
-          technologies: ['FastAPI', 'Pydantic v2', 'Sentence Transformers'],
-          description: 'Extracts entities, relationships, and temporal anchors. Performs canonical entity deduplication and assigns provenance identifiers before database commit.'
+          name: 'Extraction',
+          technologies: ['FastAPI', 'Pydantic', 'Gemini (google-genai)'],
+          description:
+            'The LLM proposes candidate entities and relationships from a conversation turn or document. A deterministic engine resolves entities, checks for duplicates and conflicts, and records provenance before anything is written.',
         },
         {
-          name: '2. Dual Persistent Storage',
-          technologies: ['PostgreSQL (pgvector)', 'Neo4j Enterprise / Community'],
-          description: 'Vector store indexes semantic text embeddings (HNSW index); Neo4j manages directed property graphs with valid-from and valid-to temporal relationship windows.'
+          name: 'Storage',
+          technologies: ['Neo4j', 'PostgreSQL', 'pgvector', 'asyncpg', 'Alembic'],
+          description:
+            'Neo4j holds the memory graph with valid-from / valid-to windows on every edge. PostgreSQL stores embeddings, conversations, review decisions and evaluation runs. Neo4j stays the source of truth.',
         },
         {
-          name: '3. Hybrid Retrieval Engine',
-          technologies: ['Cypher Queries', 'Cosine Similarity', 'RRF (Reciprocal Rank Fusion)'],
-          description: 'Executes parallel dense semantic search and multi-hop graph traversals. Merges and re-ranks candidate memories based on semantic relevance, graph proximity, and temporal freshness.'
+          name: 'Retrieval',
+          technologies: ['Vector search', 'Cypher multi-hop', 'Keyword search'],
+          description:
+            'Semantic, graph and keyword candidates are merged and ranked. Graph traversal is bounded (2 hops by default, 3 at most) with relevance decay, and temporal state is re-checked in Neo4j at query time.',
         },
         {
-          name: '4. Controlled Agent Memory Tools',
-          technologies: ['Python AsyncIO', 'LiteLLM / Ollama', '7+ Core Memory Tools'],
-          description: 'Exposes governed tools: search_memory(), get_entity(), traverse_graph(), get_memory_history(), search_documents(), get_source(), and save_memory() with strict schema verification.'
+          name: 'Agent',
+          technologies: ['Custom tool-calling loop', '7 memory tools'],
+          description:
+            'Six read tools and one write tool that is off by default. A final answer may only cite memory ids that a tool actually returned in that turn.',
         },
         {
-          name: '5. Visual Memory Explorer',
-          technologies: ['Next.js 16 (App Router)', 'TypeScript', 'Cytoscape.js', 'Tailwind CSS'],
-          description: 'Interactive visualization allowing humans to inspect node clusters, trace source citations, view timeline diffs, and inspect entity lifecycles.'
-        }
-      ]
+          name: 'Interface',
+          technologies: ['Next.js 16', 'React 19', 'TanStack Query', 'Cytoscape.js', 'MCP'],
+          description:
+            'A memory explorer for memories, entities, a time lens, provenance and the graph itself, plus an MCP server so other agents can use the memory API.',
+        },
+      ],
     },
     technicalImplementation: [
       {
-        aspect: 'Temporal Edge Representation & Historical Validity',
-        description: 'Relationships are never overwritten or deleted. When an engineering decision updates (e.g. switching from EasyOCR to PaddleOCR), the existing relationship receives a valid_to timestamp, and a new relationship is created, preserving full audit history.',
-        language: 'cypher',
-        codeSnippet: `// Superseding a fact while preserving temporal provenance
-MATCH (p:Entity {id: 'drawing-extractor'})-[r:USES {status: 'active'}]->(t:Entity {name: 'EasyOCR'})
-SET r.valid_to = datetime('2026-05-01T00:00:00Z'),
-    r.status = 'superseded'
-WITH p
-MERGE (t2:Entity {name: 'PaddleOCR'})
-CREATE (p)-[:USES {
-    valid_from: datetime('2026-05-01T00:00:00Z'),
-    valid_to: null,
-    status: 'active',
-    source_id: 'doc-session-9842',
-    memory_id: 'mem-88192'
-}]->(t2)`
+        aspect: 'Facts expire instead of being overwritten',
+        description:
+          'Each "uses" relationship carries its own validity window. Changing a tool closes the old edge and opens a new one, so history stays queryable and "previously used" vs "currently uses" is derived at query time.',
+        codeSnippet: `Drawing Extractor
+       |
+       +── uses ──> EasyOCR     valid: January → May   (superseded)
+       |
+       +── uses ──> PaddleOCR   valid: May → now       (active)`,
+        language: 'text',
       },
       {
-        aspect: 'Governed Memory Tool Dispatcher',
-        description: 'Agent tools enforce strict input validation, prevent unbounded traversals, and return structured provenance citations for every retrieved fact.',
-        language: 'python',
-        codeSnippet: `async def traverse_graph(
-    entity_id: str, 
-    max_depth: int = 2, 
-    as_of: Optional[datetime] = None
-) -> GraphTraversalResult:
-    """Traverse temporal relationships up to max_depth."""
-    query = """
-    MATCH path = (start:Entity {id: $entity_id})-[r:RELATES_TO*1..2]-(target:Entity)
-    WHERE ($as_of IS NULL OR (r.valid_from <= $as_of AND (r.valid_to IS NULL OR r.valid_to > $as_of)))
-    RETURN path, relationships(path) as rels
-    LIMIT 50
-    """
-    async with neo4j_driver.session() as session:
-        result = await session.run(query, entity_id=entity_id, as_of=as_of)
-        return format_traversal_result(await result.data())`
-      }
+        aspect: 'The LLM proposes, the application decides',
+        description:
+          'Extraction output is treated as a suggestion. Duplicates and semantic near-matches are flagged for review, never auto-merged, and every change to the graph writes an audit record first.',
+      },
+      {
+        aspect: 'Answers must cite what was retrieved',
+        description:
+          'The agent loop validates citations structurally: an answer that references a memory id no tool returned in that turn is rejected.',
+      },
     ],
     engineeringChallenges: [
       {
-        challenge: 'Graph Traversal Latency Bottleneck on 10,000-Node Dense Benchmark',
-        solution: 'During dense multi-hop benchmarking with ~1% high-degree hub entities, traversal latency scaled up to ~39.5s. Profiling identified a missing index on the relational bridge property RELATES_TO.memory_id. Implementing targeted composite property indexes reduced latency to ~0.58s.',
-        outcome: 'Graph retrieval latency dropped from ~39.5s to 0.58s (a 68x measured improvement on a 10,000-node synthetic benchmark).'
+        challenge: 'Graph retrieval got slow at 10,000 nodes',
+        solution:
+          'Benchmarked synthetic dense graphs at 100, 1,000 and 10,000 nodes. The bottleneck turned out to be a missing Neo4j index, not graph fan-out.',
+        outcome: 'Mean hybrid search latency on the 10,000-node graph dropped from 39.5 s to 0.58 s. Every memory lookup had been scanning all 219,782 relationships.',
       },
       {
-        challenge: 'Preventing LLM Hallucinations during Memory Ingestion',
-        solution: 'Designed an entity resolution pipeline requiring dual verification: schema-constrained extraction validates candidate entity attributes before invoking Cypher graph mutations, with an explicit human-in-the-loop review queue for ambiguous merges.',
-        outcome: '100% syntactically valid graph mutations with verifiable source provenance.'
-      }
-    ],
-    demonstrations: [
-      {
-        title: 'Temporal Graph Exploration Viewport',
-        caption: 'Cytoscape.js interactive graph showing active vs superseded entity relationships over time.',
-        type: 'ui',
-        placeholderText: '[Interactive Graph Viewport: Nodes represent projects, tools, and entities; edges display temporal validity intervals]'
+        challenge: 'Concurrent facts looked like conflicts',
+        solution:
+          'Added multi-valued predicates so "uses Python" and "uses TypeScript" can both be true, plus stated-time parsing and exact-duplicate corroboration.',
+        outcome: 'The memory-quality evaluation went from 21/49 to 49/49 passing cases.',
       },
       {
-        title: 'Multi-Hop Retrieval & Source Citation Trace',
-        caption: 'Console trace demonstrating multi-hop tool traversal resolving cross-document dependencies.',
-        type: 'pipeline',
-        placeholderText: '[Agent Execution Trace: search_memory() -> traverse_graph() -> get_source() -> grounded answer]'
-      }
+        challenge: 'Structured output from the real model',
+        solution:
+          'Ran the agent against Gemini end to end instead of only scripted mocks, which surfaced three structured-output compatibility bugs that were then fixed.',
+      },
     ],
+    demonstrations: [],
     actualResults: [
-      'Documented benchmark: Dense graph multi-hop traversal optimized from ~39.5s down to ~0.58s on a 10,000-node benchmark.',
-      'Implemented 7+ functional memory tools supporting multi-hop reasoning, contextual recall, and source provenance.',
-      'Dual persistence operational with PostgreSQL pgvector (HNSW) and Neo4j temporal graph schemas.'
+      'Hybrid search on a 10,000-node graph went from 39.5 s to 0.58 s mean latency after adding one missing index',
+      'Agent driven by Gemini reached 88.9% mean recall and 100% mean precision across 9 evaluation tasks',
+      'Memory-quality evaluation improved from 21/49 to 49/49',
+      'Tests run with fake LLM and embedding clients, so the suite needs no API key and costs nothing',
     ],
     limitations: [
-      'Benchmark results were measured on synthetic dense graphs with 1% hub distribution; real-world production performance varies based on hardware and memory cache sizes.',
-      'Automatic semantic merging of ambiguous entity aliases currently requires manual confirmation in ambiguous cases.'
+      'Staging deployment is prepared but not deployed yet, and the system is not production-ready',
+      'The agent evaluation set is small (9 tasks)',
+      'Document ingestion covers TXT, Markdown and PDFs with a text layer only',
     ],
     futureImprovements: [
-      'Deploy an automated cross-encoder learned re-ranker model to fuse graph distance and cosine similarity scores.',
-      'Implement streaming Cypher edge mutations directly from background asynchronous workers.',
-      'Support decentralized graph partition sharding for enterprise deployments beyond 500,000 entities.'
+      'Deploy the staging environment',
+      'A learned reranker for hybrid retrieval',
+      'More document types (DOCX, URLs)',
     ],
     dataFlowSteps: [
       {
         stepNumber: 1,
-        title: 'Input Ingestion & Tokenization',
-        input: 'User Prompt / Uploaded Technical Document',
-        output: 'Clean Text Chunks + Metadata Context',
-        detail: 'Parses incoming content, chunks text with overlapping token windows, and extracts candidate entities.'
+        title: 'Ingest',
+        input: 'Chat turn or document',
+        output: 'Text with source ids',
+        detail: 'Conversations and TXT / Markdown / PDF documents are chunked deterministically and tagged with provenance.',
       },
       {
         stepNumber: 2,
-        title: 'Entity & Relation Extraction',
-        input: 'Text Chunks',
-        output: 'Structured Entity Triples [Subject, Predicate, Object, Timestamp]',
-        detail: 'Constrained structured LLM extraction identifies entities and temporal validity intervals.'
+        title: 'Propose',
+        input: 'Text',
+        output: 'Candidate entities and relations',
+        detail: 'Gemini returns structured candidates. Nothing is written yet.',
       },
       {
         stepNumber: 3,
-        title: 'Dual Database Ingestion',
-        input: 'Entity Triples + Text Embeddings',
-        output: 'PostgreSQL pgvector Embeddings + Neo4j Temporal Edges',
-        detail: 'Commits dense vector representations to pgvector and links graph nodes in Neo4j with valid_from/valid_to bounds.'
+        title: 'Decide',
+        input: 'Candidates',
+        output: 'Stored, merged or flagged memories',
+        detail: 'A deterministic engine resolves entities, detects duplicates and conflicts, and opens or closes validity windows.',
       },
       {
         stepNumber: 4,
-        title: 'Hybrid Multi-Channel Retrieval',
-        input: 'Agent Query or Tool Invocation',
-        output: 'Fused Candidate Memory Graph Slice',
-        detail: 'Runs vector similarity and multi-hop Cypher traversal in parallel; merges results via Reciprocal Rank Fusion (RRF).'
+        title: 'Retrieve',
+        input: 'Question',
+        output: 'Ranked memories with paths',
+        detail: 'Vector, graph and keyword results are merged; graph paths are real traversals, never generated.',
       },
       {
         stepNumber: 5,
-        title: 'Agent Reasoning & Citation Output',
-        input: 'Ranked Memory Slice + Provenance Targets',
-        output: 'Grounded Answer with Verified Source IDs',
-        detail: 'Agent uses memory tools to form answers where every assertion points directly to a verified memory ID.'
-      }
+        title: 'Answer',
+        input: 'Tool results',
+        output: 'Answer with citations',
+        detail: 'The agent answers only from tool results and cites the memory ids it used.',
+      },
     ],
     githubUrl: 'https://github.com/KunjalCodes/second-brain',
-    demoUrl: undefined,
     metrics: [
-      { label: 'Graph Optimization', value: '39.5s → 0.58s (10k nodes)' },
-      { label: 'Controlled Tools', value: '7+ Memory Tools' },
-      { label: 'Architecture', value: 'Temporal Graph + Vector RAG' }
-    ]
+      { label: 'Search at 10k nodes', value: '39.5s → 0.58s' },
+      { label: 'Agent recall / precision', value: '88.9% / 100%' },
+      { label: 'Memory tools', value: '6 read, 1 gated write' },
+    ],
   },
-  {
-    id: 'food-lens',
-    slug: 'food-lens',
-    title: 'FoodLens — AI-Powered Chrome Extension',
-    subtitle: 'Converts YouTube cooking recipe videos into instant, actionable grocery shopping carts on Swiggy Instamart using Groq & Model Context Protocol (MCP)',
-    category: 'Software Engineering',
-    status: 'Production',
-    timeframe: 'Mar 2026',
-    shortDescription: 'An applied AI Chrome extension that transforms unstructured YouTube recipe videos into automated grocery carts on Swiggy Instamart. Integrates video transcript extraction, Groq Llama-3.3-70b ingredient parsing, and MCP tool bridges.',
-    tags: ['JavaScript', 'Next.js 15', 'Chrome Extension Manifest V3', 'Groq (Llama-3.3-70b)', 'Model Context Protocol (MCP)', 'mcp-remote', 'Swiggy Instamart'],
-    featured: true,
-    problemStatement: 'Watching culinary recipes online requires tedious manual transcription of ingredients, converting vague culinary units into grocery quantities, and searching for each individual item on quick-commerce apps—causing high drop-off between viewing and purchasing.',
-    projectOverview: 'FoodLens automates the recipe-to-cart journey in a single click. When a user opens any YouTube cooking video, the Chrome extension extracts the video transcript, prompts a Groq-hosted Llama-3.3-70b model to isolate exact grocery items and quantities, and coordinates with an authenticated Swiggy Instamart MCP server via mcp-remote to discover products and populate the cart automatically.',
-    architecture: {
-      summary: 'A multi-tier client-server pipeline connecting Chrome Manifest V3, a Next.js 15 backend orchestrator, Groq LLM inference, and an authenticated Swiggy MCP server.',
-      diagramDescription: 'YouTube Video -> Chrome Extension UI (Manifest V3) -> Next.js 15 Server -> Groq LLM (Llama-3.3-70b Ingredient Extraction) -> mcp-remote OAuth Bridge -> Swiggy Instamart MCP Server -> Automated Cart Addition',
-      layers: [
-        {
-          name: '1. Extension UI Layer',
-          technologies: ['Chrome Extension Manifest V3', 'JavaScript', 'Content Scripts'],
-          description: 'Injects an interactive action pill directly into the YouTube player interface. Captures active video ID and initiates extraction.'
-        },
-        {
-          name: '2. Orchestration Server',
-          technologies: ['Next.js 15 (App Router)', 'TypeScript', 'Node.js'],
-          description: 'Manages API endpoints, transcript fetching, session tokens, and coordinates LLM prompting with MCP tool calls.'
-        },
-        {
-          name: '3. LLM Extraction Engine',
-          technologies: ['Groq Cloud', 'Llama-3.3-70b-Versatile'],
-          description: 'High-speed JSON extraction isolating ingredients, quantities, standard units (grams, ml, pieces), and discarding culinary conversational filler.'
-        },
-        {
-          name: '4. Swiggy MCP Bridge',
-          technologies: ['Model Context Protocol (MCP)', 'mcp-remote', 'Swiggy Instamart Tools'],
-          description: 'Authenticates via OAuth and calls Swiggy Instamart product search and cart mutation tools to populate real grocery baskets.'
-        }
-      ]
-    },
-    technicalImplementation: [
-      {
-        aspect: 'YouTube Transcript Extraction & LLM Structured Parsing',
-        description: 'Fetches timed text captions from YouTube, cleans timecode offsets, and streams the transcript to Groq for sub-second structured JSON ingredient extraction.',
-        language: 'javascript',
-        codeSnippet: `// Server-side Groq ingredient extraction prompt
-const prompt = \`Extract all cooking ingredients and grocery items from this recipe transcript.
-Return ONLY valid JSON matching this schema:
-{
-  "recipe_name": string,
-  "ingredients": [
-    { "name": string, "quantity": number, "unit": string, "search_query": string }
-  ]
-}
-Transcript: "\${transcriptText}"\`;
 
-const chatCompletion = await groq.chat.completions.create({
-  messages: [{ role: 'user', content: prompt }],
-  model: 'llama-3.3-70b-versatile',
-  response_format: { type: 'json_object' }
-});`
-      },
-      {
-        aspect: 'MCP-Remote Tool Protocol Execution',
-        description: 'Connects to Swiggy Instamart through the Model Context Protocol to execute product discovery queries and add matched items directly into the user session cart.',
-        language: 'javascript',
-        codeSnippet: `// Dispatching search queries through Swiggy MCP tool interface
-for (const item of extractedIngredients) {
-  const searchResult = await mcpClient.callTool({
-    name: 'swiggy_search_products',
-    arguments: { query: item.search_query, store_id: userStoreId }
-  });
-  
-  if (searchResult.products?.length > 0) {
-    const topMatch = searchResult.products[0];
-    await mcpClient.callTool({
-      name: 'swiggy_add_to_cart',
-      arguments: { product_id: topMatch.id, quantity: 1 }
-    });
-  }
-}`
-      }
-    ],
-    engineeringChallenges: [
-      {
-        challenge: 'Ambiguous Ingredient Matching on Quick-Commerce Catalogs',
-        solution: 'Recipe transcripts often state colloquial terms (e.g. "a pinch of hing" or "two medium onions"). Designed a normalization step generating targeted e-commerce search keywords (e.g. "Asafoetida powder 50g", "Fresh Red Onion 1kg") before querying the catalog.',
-        outcome: 'Significantly higher product match rates on Swiggy Instamart with minimal zero-result searches.'
-      },
-      {
-        challenge: 'Chrome Manifest V3 Background Service Worker Lifecycles',
-        solution: 'Decoupled long-running MCP tool orchestration from the ephemeral Manifest V3 service worker into an independent Next.js backend server with SSE status streaming.',
-        outcome: 'Stable execution unaffected by background worker termination.'
-      }
-    ],
-    demonstrations: [
-      {
-        title: 'Recipe-to-Cart Extension Workflow',
-        caption: 'Extension interface showing extracted ingredient items, product matches, and one-click cart insertion on Swiggy Instamart.',
-        type: 'ui',
-        placeholderText: '[Live Extension UI: Video Overlay -> Parsed Ingredient Checklist -> Swiggy Instamart Cart Status]'
-      }
-    ],
-    actualResults: [
-      'Successfully deployed and functional with public live demo at food-lens-seven.vercel.app.',
-      'Achieves <1.5s total ingredient extraction latency using Groq Llama-3.3-70b.',
-      'End-to-end recipe-to-cart automation verified across real Indian culinary recipe videos.'
-    ],
-    limitations: [
-      'Currently relies on videos having auto-generated or uploaded English or Hindi captions.',
-      'Swiggy Instamart product availability is location-dependent based on the user pincode/store.'
-    ],
-    futureImprovements: [
-      'Incorporate client-side Whisper.wasm to transcribe audio directly when YouTube captions are disabled.',
-      'Expand MCP product bridges to additional delivery platforms (Blinkit, Zepto, Amazon Fresh).'
-    ],
-    dataFlowSteps: [
-      {
-        stepNumber: 1,
-        title: 'Video Capture & Transcript Ingestion',
-        input: 'YouTube Video URL / Active Tab ID',
-        output: 'Raw Text Transcript Stream',
-        detail: 'Extracts timed text captions and cleans timestamp headers.'
-      },
-      {
-        stepNumber: 2,
-        title: 'Groq LLM Ingredient Extraction',
-        input: 'Raw Transcript',
-        output: 'Structured Ingredient List [Name, Quantity, Unit, Search Keyword]',
-        detail: 'Llama-3.3-70b parses cooking instructions into standardized grocery items.'
-      },
-      {
-        stepNumber: 3,
-        title: 'Swiggy MCP Catalog Discovery',
-        input: 'Optimized Search Queries',
-        output: 'Instamart Catalog Product Matches & Prices',
-        detail: 'Queries Swiggy MCP server via mcp-remote bridge for available in-stock items.'
-      },
-      {
-        stepNumber: 4,
-        title: 'Automated Cart Mutation',
-        input: 'Selected Product IDs & Quantities',
-        output: 'Populated Swiggy Instamart Cart Confirmation',
-        detail: 'Executes cart addition tool calls and returns checkout summary to extension.'
-      }
-    ],
-    githubUrl: 'https://github.com/KunjalCodes/FoodLens',
-    demoUrl: 'https://food-lens-seven.vercel.app',
-    metrics: [
-      { label: 'Extraction Latency', value: '< 1.5s (Groq Llama-3.3)' },
-      { label: 'Live Demo', value: 'Deployed on Vercel' },
-      { label: 'Tool Bridge', value: 'Swiggy MCP Protocol' }
-    ]
-  },
-  {
-    id: 'multi-agent-builder',
-    slug: 'multi-agent-builder',
-    title: 'Multi-Agent AI Project Builder',
-    subtitle: 'Autonomous multi-agent system that converts natural language ideas into runnable frontend and FastAPI applications',
-    category: 'AI / Machine Learning',
-    status: 'Active Development',
-    timeframe: 'Feb 2026',
-    shortDescription: 'An autonomous software generation pipeline powered by specialized AI agents executing sequential design, implementation, code enhancement, and automated runtime execution.',
-    tags: ['Python', 'FastAPI', 'Groq LLM API', 'Multi-Agent Orchestration', 'AsyncIO', 'uv'],
-    featured: true,
-    problemStatement: 'Single-prompt code generation models often collapse when asked to scaffold full applications: they omit file structures, generate broken dependency files, produce unfinished placeholders, and cannot verify or run the generated code.',
-    projectOverview: 'Multi-Agent Project Builder decomposes the software engineering lifecycle into dedicated autonomous roles: TypeClassifier determines frontend or backend requirements, Planner constructs architecture specs, Architect designs file trees, Coder writes modular implementation files, Enhancer polishes the UI/UX, FileManager commits artifacts to disk, and ProjectRunner launches the live server automatically.',
-    architecture: {
-      summary: 'A staged pipeline with sequential agent handoffs, structured JSON inter-agent communication, and runtime file execution.',
-      diagramDescription: 'User Natural Language Prompt -> TypeClassifier -> Planner -> Architect -> Coder -> Enhancer -> FileManager -> ProjectRunner (Live Server + Browser Auto-launch)',
-      layers: [
-        {
-          name: '1. Ingestion & Classification',
-          technologies: ['FastAPI', 'Groq API'],
-          description: 'TypeClassifier inspects user intent and classifies project architecture (Static Frontend, React SPA, or FastAPI Backend).'
-        },
-        {
-          name: '2. Planning & Architecture Design',
-          technologies: ['LLM Structured Generation', 'Pydantic'],
-          description: 'Planner defines feature scope and technical dependencies; Architect generates a clean directory tree and file signatures.'
-        },
-        {
-          name: '3. Implementation & Code Generation',
-          technologies: ['Python AsyncIO', 'Groq Llama-3'],
-          description: 'Coder implements each file sequentially with full logic; Enhancer adds responsive styles, dark mode, and UI polish.'
-        },
-        {
-          name: '4. File Management & Execution',
-          technologies: ['Python os/shutil', 'uv / subprocess'],
-          description: 'FileManager writes verified code to disk; ProjectRunner installs dependencies, starts the local server, and launches the browser.'
-        }
-      ]
-    },
-    technicalImplementation: [
-      {
-        aspect: 'Multi-Agent Sequential Handoff Loop',
-        description: 'Each agent runs with focused system prompts and receives the exact output schema from the preceding agent, eliminating hallucinations and ensuring architectural alignment.',
-        language: 'python',
-        codeSnippet: `async def build_project_pipeline(user_prompt: str):
-    # Step 1: Type classification
-    project_type = await type_classifier.classify(user_prompt)
-    
-    # Step 2: System plan & architecture specification
-    plan = await planner.create_plan(user_prompt, project_type)
-    file_tree = await architect.design_structure(plan)
-    
-    # Step 3: Modular code implementation
-    generated_files = {}
-    for file_spec in file_tree.files:
-        code = await coder.write_code(file_spec, plan, generated_files)
-        enhanced_code = await enhancer.polish(code, file_spec.filename)
-        generated_files[file_spec.path] = enhanced_code
-        
-    # Step 4: Write to disk and auto-run
-    project_path = await file_manager.save_project(generated_files)
-    await project_runner.execute(project_path, project_type)`
-      }
-    ],
-    engineeringChallenges: [
-      {
-        challenge: 'Inter-file Dependency Mismatches during Code Generation',
-        solution: 'Passed accumulated code dictionaries of previously generated files into subsequent agent prompts, allowing the Coder to inspect exact function signatures and import paths.',
-        outcome: 'Zero import errors across generated multi-file applications.'
-      }
-    ],
-    demonstrations: [
-      {
-        title: 'Interactive Multi-Agent Terminal Workflow',
-        caption: 'Console trace showing TypeClassifier -> Planner -> Architect -> Coder handoffs.',
-        type: 'pipeline',
-        placeholderText: 'https://github.com/user-attachments/assets/ca6fdd54-0cf4-4307-9a39-a54dc72f253b'
-      },
-      {
-        title: 'Generated Project File Tree & Server Execution',
-        caption: 'Generated directory structure and automatic local server execution in browser.',
-        type: 'ui',
-        placeholderText: 'https://github.com/user-attachments/assets/5aa1d84d-98d0-4c7c-aaf1-0b9388e357f0'
-      }
-    ],
-    actualResults: [
-      'Documented working autonomous pipeline generating runnable FastAPI backends and responsive frontend applications from natural language prompts.',
-      'Automated dependency resolution and live browser auto-launch upon project completion.'
-    ],
-    limitations: [
-      'Currently optimized for single-service applications; multi-container Docker compose scaffolding is experimental.',
-      'Iterative bug fixing loop is triggered post-execution rather than through continuous static type analysis.'
-    ],
-    futureImprovements: [
-      'Integrate static analysis (Ruff / Pyright) into a self-healing retry loop before saving files to disk.',
-      'Add support for full-stack Next.js + PostgreSQL database generation.'
-    ],
-    dataFlowSteps: [
-      {
-        stepNumber: 1,
-        title: 'Type Classification',
-        input: 'Natural Language Idea Prompt',
-        output: 'Classified Project Stack (Frontend / FastAPI)',
-        detail: 'Analyzes intent to select appropriate architectural templates.'
-      },
-      {
-        stepNumber: 2,
-        title: 'Planning & Architecture',
-        input: 'Project Stack + Requirements',
-        output: 'System Plan & File Tree Manifest',
-        detail: 'Designs directory structure, components, and module interfaces.'
-      },
-      {
-        stepNumber: 3,
-        title: 'Code Generation & Polish',
-        input: 'File Tree + Architectural Context',
-        output: 'Complete Production-Ready Source Code',
-        detail: 'Generates modular files and passes code through UI enhancement layer.'
-      },
-      {
-        stepNumber: 4,
-        title: 'Disk Write & Auto Execution',
-        input: 'Generated File Dictionary',
-        output: 'Running Server & Browser Window',
-        detail: 'Writes files, resolves dependencies, and boots the live server.'
-      }
-    ],
-    githubUrl: 'https://github.com/KunjalCodes/multi-agent-builder',
-    metrics: [
-      { label: 'Pipeline Agents', value: '7 Specialized Roles' },
-      { label: 'Runtime Target', value: 'Frontend & FastAPI' },
-      { label: 'Execution', value: 'Auto-launch in browser' }
-    ]
-  },
-  {
-    id: 'mcp-ai-copilot',
-    slug: 'mcp-ai-copilot',
-    title: 'AI Research Copilot (MCP + Ollama)',
-    subtitle: 'Tool-using research agent leveraging the Model Context Protocol and local LLMs for private multi-step information retrieval',
-    category: 'Experiments',
-    status: 'Active Development',
-    timeframe: 'Feb 2026',
-    shortDescription: 'An autonomous research assistant built on the Model Context Protocol (MCP) and local Ollama inference. Features a custom MCP server exposing search, weather, calculation, and persistent notes memory.',
-    tags: ['Python', 'Model Context Protocol (MCP)', 'Ollama (Llama 3)', 'Wikipedia API', 'Open-Meteo', 'Local Storage'],
-    featured: true,
-    problemStatement: 'Researchers requiring AI-assisted synthesis frequently encounter two issues: cloud APIs leak sensitive personal notes, and generic chat models hallucinate factual data without verified access to deterministic tools.',
-    projectOverview: 'AI Research Copilot demonstrates private, low-latency agentic problem solving using local Ollama (Llama 3) runtime and a custom Python Model Context Protocol (MCP) server. The agent autonomously selects, parameterizes, and invokes tools—including Wikipedia retrieval, meteorological data, calculations, and persistent notes memory—in a multi-step reasoning loop.',
-    architecture: {
-      summary: 'Local client-server architecture linking an Ollama agent loop to a custom MCP server via standard JSON-RPC protocol.',
-      diagramDescription: 'User Research Query -> Local Ollama Agent (Llama 3) -> Tool Selection via MCP Protocol -> Custom MCP Server [Wikipedia API, Open-Meteo, Math Engine, Persistent Notes Memory] -> Multi-step Synthesis -> Grounded Research Brief',
-      layers: [
-        {
-          name: '1. Local Inference Core',
-          technologies: ['Ollama', 'Llama 3 8B', 'Python AsyncIO'],
-          description: 'Runs private on-device reasoning and tool selection without exposing prompts to third-party cloud APIs.'
-        },
-        {
-          name: '2. Custom MCP Server',
-          technologies: ['Model Context Protocol (MCP)', 'JSON-RPC over stdio'],
-          description: 'Exposes typed tools: wikipedia_search(), get_live_weather(), calculate_expression(), and save_note().'
-        },
-        {
-          name: '3. Persistent Memory Layer',
-          technologies: ['JSON Local Store', 'File System'],
-          description: 'Stores categorized research notes and allows the agent to recall prior findings in subsequent multi-turn queries.'
-        }
-      ]
-    },
-    technicalImplementation: [
-      {
-        aspect: 'MCP Server Tool Registration',
-        description: 'Implements typed tool definitions following the official Model Context Protocol specification for tool-calling agents.',
-        language: 'python',
-        codeSnippet: `@mcp.tool()
-def wikipedia_search(query: str, max_results: int = 3) -> str:
-    """Search Wikipedia for factual background on technical concepts."""
-    results = wikipedia.search(query, results=max_results)
-    if not results:
-        return "No Wikipedia articles found for query."
-    summary = wikipedia.summary(results[0], sentences=4)
-    return f"Title: {results[0]}\\nSummary: {summary}"`
-      }
-    ],
-    engineeringChallenges: [
-      {
-        challenge: 'Multi-Step Tool Chaining with Small Local Language Models',
-        solution: 'Implemented structured tool validation to prevent 8B parameter models from generating malformed tool parameters when chaining calculations after search queries.',
-        outcome: 'Reliable multi-step tool execution across research workflows.'
-      }
-    ],
-    demonstrations: [
-      {
-        title: 'Multi-Step Research Execution Trace',
-        caption: 'Console trace showing Ollama agent invoking Wikipedia and Weather tools sequentially.',
-        type: 'ui',
-        placeholderText: 'https://github.com/user-attachments/assets/1bb96193-34ef-4829-9acd-8d814a676da5'
-      },
-      {
-        title: 'Persistent Memory Notes Recall',
-        caption: 'Agent recalling previously saved research notes during conversation turn.',
-        type: 'demo',
-        placeholderText: 'https://github.com/user-attachments/assets/0acc485b-1213-4c08-90f1-5063798e9412'
-      }
-    ],
-    actualResults: [
-      'Documented working MCP tool-calling agent running entirely locally on Ollama.',
-      'Functional tool integration across Wikipedia, Open-Meteo, mathematical computation, and persistent notes memory.'
-    ],
-    limitations: [
-      'Search results depend on public Wikipedia endpoints and require internet access for API queries.',
-      'Local model reasoning depth is bounded by Llama 3 8B parameter capacity.'
-    ],
-    futureImprovements: [
-      'Add ArXiv academic paper search and PDF text extraction tools to the MCP server.',
-      'Implement local vector store indexing over downloaded research documents.'
-    ],
-    dataFlowSteps: [
-      {
-        stepNumber: 1,
-        title: 'Query Ingestion & Intent Analysis',
-        input: 'User Research Question',
-        output: 'Tool Call Decision Proposal',
-        detail: 'Local Llama 3 determines if external factual knowledge or calculation is required.'
-      },
-      {
-        stepNumber: 2,
-        title: 'MCP Protocol Tool Dispatch',
-        input: 'Structured Tool Arguments (JSON)',
-        output: 'Tool Execution Results',
-        detail: 'Dispatches JSON-RPC request to custom MCP server to query Wikipedia, Open-Meteo, or memory.'
-      },
-      {
-        stepNumber: 3,
-        title: 'Multi-Turn Synthesis',
-        input: 'Tool Outputs + User Context',
-        output: 'Verified Fact-Grounded Response',
-        detail: 'Synthesizes information and optionally commits key insights into persistent notes memory.'
-      }
-    ],
-    githubUrl: 'https://github.com/KunjalCodes/mcp-ai-copilot',
-    metrics: [
-      { label: 'Protocol', value: 'Model Context Protocol (MCP)' },
-      { label: 'Inference', value: '100% Local (Ollama / Llama 3)' },
-      { label: 'Memory', value: 'Persistent Local Notes' }
-    ]
-  },
-  {
-    id: 'rag-ml-textbook-chatbot',
-    slug: 'rag-ml-textbook-chatbot',
-    title: 'RAG ML Textbook Chatbot',
-    subtitle: 'Grounded document-level retrieval system answering machine learning queries from textbook sources without hallucinations',
-    category: 'AI / Machine Learning',
-    status: 'Production',
-    timeframe: 'Jan 2026',
-    shortDescription: 'A focused Retrieval-Augmented Generation (RAG) implementation that ingests academic machine learning textbooks into ChromaDB, queries semantic vector embeddings, and generates verified answers via local Llama 3.',
-    tags: ['Python', 'LangChain', 'ChromaDB', 'Sentence Transformers', 'Ollama', 'Llama 3', 'RAG'],
-    featured: false,
-    problemStatement: 'When students query language models on machine learning theory, models frequently hallucinate mathematical derivations or mix up domain-specific definitions (e.g. VC dimension vs Rademacher complexity).',
-    projectOverview: 'This project implements a clean RAG pipeline where an academic textbook serves as the sole source of truth. Text is chunked with sliding token overlap, embedded via Sentence Transformers, indexed in ChromaDB, and retrieved using semantic similarity to ground local Llama 3 inference.',
-    architecture: {
-      summary: 'Deterministic document chunking and vector retrieval pipeline orchestrated through LangChain and Ollama.',
-      diagramDescription: 'PDF Textbook -> Text Extraction -> Recursive Chunking -> Sentence Transformers -> ChromaDB Vector Store -> Semantic Search -> Retrieved Context -> Local Llama 3 -> Grounded Answer',
-      layers: [
-        {
-          name: '1. Document Chunking & Embedding',
-          technologies: ['LangChain PyPDFLoader', 'Sentence Transformers'],
-          description: 'Splits technical chapters into 500-token chunks with 50-token overlap to maintain equation context.'
-        },
-        {
-          name: '2. Vector Database',
-          technologies: ['ChromaDB', 'Cosine Distance'],
-          description: 'Indexes dense embeddings for sub-10ms nearest neighbor semantic lookup.'
-        },
-        {
-          name: '3. Grounded Synthesis',
-          technologies: ['Ollama', 'Llama 3 8B'],
-          description: 'Generates answers strictly constrained to retrieved context chunks, citing page numbers.'
-        }
-      ]
-    },
-    technicalImplementation: [
-      {
-        aspect: 'Context-Constrained RAG Prompting',
-        description: 'Enforces strict adherence to retrieved textbook excerpts, instructing the model to reject queries absent from the source material.',
-        language: 'python',
-        codeSnippet: `template = """You are an academic ML tutor. Answer the question using ONLY the provided textbook context:
-{context}
-
-Question: {question}
-
-If the context does not contain the answer, state: "Information not found in the textbook." Do not extrapolate."""`
-      }
-    ],
-    engineeringChallenges: [
-      {
-        challenge: 'Mathematical Notation Formatting Across Chunk Boundaries',
-        solution: 'Implemented recursive character text splitting respecting paragraph and LaTeX math delimiters to prevent equations from splitting in half.',
-        outcome: 'Preserved mathematical formula integrity in retrieved context blocks.'
-      }
-    ],
-    demonstrations: [
-      {
-        title: 'ChromaDB Semantic Retrieval Trace',
-        caption: 'Console log showing top-k semantic matches retrieved from machine learning textbook chapters.',
-        type: 'demo',
-        placeholderText: 'https://github.com/user-attachments/assets/5b7aca1a-55d7-49a2-b490-93555dffd34d'
-      }
-    ],
-    actualResults: [
-      'Documented functional RAG chatbot accurately answering technical machine learning questions strictly from textbook pages.',
-      'Demonstrated zero hallucination on out-of-domain queries by enforcing explicit negative constraints.'
-    ],
-    limitations: [
-      'Currently limited to single-document textbook ingestion; multi-textbook cross-referencing is planned.',
-      'Visual diagram and chart figures inside PDFs are omitted during text-only extraction.'
-    ],
-    futureImprovements: [
-      'Implement ColBERT late interaction multi-vector retrieval for enhanced mathematical formula matching.',
-      'Add multimodal PDF extraction to incorporate textbook charts into the retrieval store.'
-    ],
-    dataFlowSteps: [
-      {
-        stepNumber: 1,
-        title: 'Textbook Parsing & Chunking',
-        input: 'Machine Learning Textbook PDF',
-        output: 'Token Chunks with Chapter Metadata',
-        detail: 'Extracts clean text and chunks with 500-token boundaries and overlap.'
-      },
-      {
-        stepNumber: 2,
-        title: 'Dense Vector Indexing',
-        input: 'Text Chunks',
-        output: 'ChromaDB Vector Embeddings',
-        detail: 'Generates 384-dimensional embeddings via Sentence Transformers.'
-      },
-      {
-        stepNumber: 3,
-        title: 'Semantic Query & Retrieval',
-        input: 'User Question',
-        output: 'Top-k Relevant Context Passages',
-        detail: 'Computes cosine similarity in ChromaDB to retrieve most pertinent textbook sections.'
-      },
-      {
-        stepNumber: 4,
-        title: 'Grounded Answer Generation',
-        input: 'Retrieved Passages + User Question',
-        output: 'Hallucination-free ML Answer',
-        detail: 'Llama 3 synthesizes an answer referencing source material.'
-      }
-    ],
-    githubUrl: 'https://github.com/KunjalCodes/rag-ml-textbook-chatbot',
-    metrics: [
-      { label: 'Vector Store', value: 'ChromaDB' },
-      { label: 'Embeddings', value: 'Sentence Transformers' },
-      { label: 'Inference', value: 'Local Llama 3 via Ollama' }
-    ]
-  },
   {
     id: 'furniture-drawing-extractor',
     slug: 'furniture-drawing-extractor',
-    title: 'AI Furniture Drawing Extraction System',
-    subtitle: 'Automated engineering drawing extraction engine for furniture manufacturing utilizing OCR, computer vision, and LLM-based interpretation',
-    category: 'Computer Vision',
-    status: 'Active Development',
-    timeframe: 'Sep 2026 — Present (Igniters Hub)',
-    shortDescription: 'Enterprise computer vision and OCR system engineered at Igniters Hub to automate dimension, joinery, and component schedule extraction from complex furniture technical drawings. (Proprietary company code & confidential datasets withheld).',
-    tags: ['Python', 'OpenCV', 'EasyOCR', 'LLMs', 'Computer Vision', 'FastAPI', 'CAD Schematics'],
+    title: 'Drawing to Cut List — AI for furniture manufacturing',
+    subtitle:
+      'Upload a furniture drawing and get a cut list: OCR, computer vision and an LLM read the dimensions and parts, and the cut list goes on to the cutting optimizer',
+    category: 'Applied AI',
+    categories: ['Applied AI'],
+    status: 'In progress',
+    timeframe: 'Sep 2026 – present',
+    organization: 'Igniters Hub',
+    shortDescription:
+      'Company project at Igniters Hub. Turns engineering drawings into structured parts and dimensions, generates the cut list and hands it to the optimizer, replacing manual takeoff.',
+    tags: ['Python', 'OCR', 'Computer vision', 'OpenCV', 'LLMs', 'FastAPI', 'React', 'TypeScript'],
     featured: true,
-    problemStatement: 'Furniture manufacturing relies heavily on 2D technical drawings (PDF/TIFF) containing cut lists, panel dimensions, hardware callouts, and joinery details. Manual takeoff by estimators is labor-intensive and prone to calculation errors that lead to wasted lumber and fabrication delays.',
-    projectOverview: 'As a Software Developer at Igniters Hub, I am building an automated drawing extraction pipeline that parses technical furniture schematics. The system combines classical computer vision (morphological kernels, line removal, caliper isolation) with deep OCR and multimodal LLM interpretation to extract structured bills of materials (BOM), panel dimensions, and hardware schedules for downstream manufacturing.',
+    problemStatement:
+      'Before a piece of furniture can be cut, someone reads its engineering drawing and types every panel, dimension and quantity into a cut list by hand. It is slow, and a single misread number means wasted material or a part that does not fit.',
+    projectOverview:
+      'I am building this at Igniters Hub. A user uploads a furniture drawing; the system reads the dimensions and annotations with OCR, uses computer vision to understand the layout, and uses an LLM to work out which dimensions belong to which component. From that it generates a cut list, which is sent to the optimizer that plans how the parts are cut from sheets.',
     architecture: {
-      summary: 'Staged computer vision and OCR pipeline engineered for high-accuracy furniture drawing takeoff. (High-level architecture displayed to respect company confidentiality).',
-      diagramDescription: 'Furniture Technical Drawing -> Morphological Line & Text Separation -> OCR Bounding Box Proposals -> LLM Semantic Interpretation -> Dimensional Validation & Unit Normalization -> Manufacturing Bill of Materials (BOM) JSON',
+      summary:
+        'An upload-to-optimizer pipeline: drawing in, structured components and dimensions out, cut list generated and passed downstream. Shown at a high level because the code and drawings belong to the company.',
+      diagramDescription:
+        'Upload drawing -> OCR reads dimensions and labels -> computer vision reads the layout -> LLM maps dimensions to components -> cut list -> optimizer',
       layers: [
         {
-          name: '1. Drawing Ingestion & Preprocessing',
-          technologies: ['OpenCV (C++ / Python)', 'Bilateral Filter', 'Adaptive Thresholding'],
-          description: 'Ingests high-DPI furniture assembly drawings, cleans scanner grain, and isolates boundary edges.'
+          name: 'Upload and preprocessing',
+          technologies: ['Python', 'OpenCV'],
+          description: 'Takes the uploaded drawing and prepares it for reading.',
         },
         {
-          name: '2. Geometric & Text Separation',
-          technologies: ['Morphological Kernels (OpenCV)'],
-          description: 'Separates continuous panel vector boundaries from dimensional extension lines and text annotations.'
+          name: 'Reading the drawing',
+          technologies: ['OCR', 'Computer vision'],
+          description: 'Extracts dimension values, part labels and annotations, and where they sit on the drawing.',
         },
         {
-          name: '3. OCR & Dimension Caliper Reading',
-          technologies: ['OCR Models (EasyOCR / Tesseract)', 'Directional NMS'],
-          description: 'Extracts alphanumeric dimension measurements, tolerance callouts, and panel identifiers.'
+          name: 'Understanding the parts',
+          technologies: ['LLMs', 'Structured output'],
+          description: 'Associates each dimension with the component it describes and produces structured component data.',
         },
         {
-          name: '4. Component & Joinery Interpretation',
-          technologies: ['LLM Processing', 'Pydantic v2'],
-          description: 'Associates dimensions with physical furniture components (e.g. tabletop, drawer sides, modesty panel) and classifies joinery types.'
+          name: 'Cut list and handoff',
+          technologies: ['FastAPI', 'React', 'TypeScript'],
+          description: 'Generates the cut list from the extracted dimensions and sends it to the optimizer.',
         },
-        {
-          name: '5. Manufacturing Output Generation',
-          technologies: ['FastAPI', 'Structured JSON Schema'],
-          description: 'Formats verified panel lists into machine-readable JSON for downstream CNC and ERP cutting software.'
-        }
-      ]
+      ],
     },
     technicalImplementation: [
       {
-        aspect: 'High-Level Pipeline Architecture (Confidentiality Protected)',
-        description: 'To protect proprietary enterprise intellectual property, internal company algorithms and confidential production datasets are omitted. The pipeline operates on classical morphological filtering coupled with structured language model validation.',
-        language: 'text',
-        codeSnippet: `// High-Level Extraction Architecture Overview
-Drawing Scan (PDF / TIFF)
-  │
-  ├── 1. Grayscale & Bilateral Filtering (Denoise while preserving edge acuity)
-  ├── 2. Morphological Kernel Decomposition (Strip text from intersecting panel lines)
-  ├── 3. OCR Text & Dimension Proposal Generation
-  ├── 4. LLM Semantic Parsing & Component Grouping
-  └── 5. Structured Manufacturing JSON Schema Export`
-      }
+        aspect: 'Why OCR alone is not enough',
+        description:
+          'OCR gives you numbers, not meaning. A drawing has dozens of dimensions, and the hard part is knowing that a given number is the depth of a drawer side and not the width of the top. That is where layout from computer vision and reasoning from the LLM come in.',
+      },
+      {
+        aspect: 'Structured output end to end',
+        description:
+          'Each stage produces structured data rather than free text, so the cut list can be generated deterministically and checked before it reaches the optimizer.',
+      },
     ],
     engineeringChallenges: [
       {
-        challenge: 'Dense Furniture Dimension Calipers Overlapping Wood Grain Hatching',
-        solution: 'Developed multi-stage morphological filtering that suppresses repetitive diagonal hatching patterns before running character segmentation.',
-        outcome: 'Substantial improvement in dimension number recognition accuracy on technical furniture drawings.'
-      }
+        challenge: 'Matching dimensions to the right part',
+        solution: 'Combine the position of each value on the drawing with LLM reasoning about the furniture’s components, instead of relying on the text alone.',
+      },
+      {
+        challenge: 'A wrong number is expensive',
+        solution: 'Keep the output structured and reviewable so mistakes are caught before cutting, not after.',
+      },
+    ],
+    demonstrations: [],
+    actualResults: [
+      'Drawing upload through to a generated cut list',
+      'Cut list handed off to the optimizer for downstream manufacturing',
+    ],
+    limitations: [
+      'Company project: the code and client drawings are confidential, so only the approach is described here',
+      'Under active development',
+    ],
+    dataFlowSteps: [
+      { stepNumber: 1, title: 'Upload', input: 'Furniture drawing', output: 'Prepared image', detail: 'The drawing is uploaded and preprocessed.' },
+      { stepNumber: 2, title: 'Read', input: 'Drawing', output: 'Dimensions and labels', detail: 'OCR and computer vision extract values and where they are.' },
+      { stepNumber: 3, title: 'Interpret', input: 'Dimensions and layout', output: 'Components with sizes', detail: 'The LLM maps each dimension to its part.' },
+      { stepNumber: 4, title: 'Cut list', input: 'Components', output: 'Cut list', detail: 'Parts, sizes and quantities, generated from the extracted data.' },
+      { stepNumber: 5, title: 'Optimize', input: 'Cut list', output: 'Cutting plan', detail: 'Sent to the optimizer that plans the cuts.' },
+    ],
+    metrics: [
+      { label: 'Input', value: 'Furniture drawing' },
+      { label: 'Output', value: 'Cut list for the optimizer' },
+      { label: 'Built at', value: 'Igniters Hub' },
+    ],
+  },
+
+  {
+    id: 'food-lens',
+    slug: 'food-lens',
+    title: 'FoodLens — From a recipe video to a grocery cart',
+    subtitle:
+      'A Chrome extension that reads a YouTube recipe transcript, extracts the ingredients and adds matching products to a Swiggy Instamart cart',
+    category: 'Agents & MCP',
+    categories: ['Agents & MCP', 'Applied AI'],
+    status: 'Prototype',
+    timeframe: 'Mar 2026',
+    shortDescription:
+      'Groq’s Llama 3.3 70B turns a transcript into an ingredient list, and Swiggy’s MCP server handles product search and the cart.',
+    tags: ['JavaScript', 'Chrome Extension (MV3)', 'Next.js 15', 'Groq', 'Llama 3.3 70B', 'MCP', 'mcp-remote'],
+    featured: true,
+    problemStatement:
+      'Cooking from a video means pausing, writing down every ingredient and then searching for each one in a grocery app. The information is already in the video; the work in between is pure friction.',
+    projectOverview:
+      'A content script adds a FoodLens button to YouTube watch pages. It sends the transcript to a small Next.js API, which asks Groq (llama-3.3-70b-versatile) for a structured ingredient list. The same server talks to Swiggy Instamart through its MCP server, via mcp-remote for the OAuth login, to find products and add them to the cart.',
+    architecture: {
+      summary:
+        'Manifest V3 extension for the UI, a Next.js API server for the AI and MCP calls, and Swiggy’s MCP server for product search and cart actions.',
+      diagramDescription:
+        'YouTube page -> Chrome extension -> Next.js API -> Groq (ingredient extraction) + mcp-remote -> Swiggy MCP (search, cart)',
+      layers: [
+        {
+          name: 'Extension',
+          technologies: ['Manifest V3', 'Content script', 'Service worker', 'Popup'],
+          description:
+            'Injects the FoodLens button on YouTube watch pages, reads the transcript and shows the extracted ingredients and matched products.',
+        },
+        {
+          name: 'API server',
+          technologies: ['Next.js 15', 'Route handlers'],
+          description:
+            'Keeps the Groq key off the client, extracts ingredients from up to 4,000 characters of transcript and proxies the MCP calls.',
+        },
+        {
+          name: 'Model',
+          technologies: ['Groq', 'llama-3.3-70b-versatile'],
+          description: 'Turns a free-form transcript into ingredients with quantities.',
+        },
+        {
+          name: 'Commerce',
+          technologies: ['Swiggy Instamart MCP', 'mcp-remote'],
+          description: 'Product search and cart mutation through the MCP protocol, with mcp-remote handling the one-time OAuth login.',
+        },
+      ],
+    },
+    technicalImplementation: [
+      {
+        aspect: 'MCP instead of scraping',
+        description:
+          'Product search and cart updates go through Swiggy’s MCP server, so the extension calls documented tools instead of automating the Swiggy website.',
+      },
+      {
+        aspect: 'One click across three systems',
+        description:
+          'The extension, the Next.js server and the MCP server each do one job; the user only sees extract, find and add.',
+      },
+    ],
+    engineeringChallenges: [
+      {
+        challenge: 'Authentication with a third-party MCP server',
+        solution: 'Used mcp-remote as an OAuth and protocol bridge, so the login happens once in the browser and the server reuses the session.',
+      },
+      {
+        challenge: 'Long, messy transcripts',
+        solution: 'Trimmed the transcript to the first 4,000 characters and asked the model for a strict ingredient format, which keeps latency and cost predictable.',
+      },
     ],
     demonstrations: [
       {
-        title: 'Furniture Drawing Extraction Architecture',
-        caption: 'Conceptual decomposition showing panel line isolation and component schedule extraction.',
-        type: 'pipeline',
-        placeholderText: '[Enterprise Showcase: Furniture Technical Schematic -> Dimension Extraction -> Structured BOM Output]'
-      }
+        title: 'Extension popup',
+        caption: 'Shows whether Groq and the Swiggy MCP connection are ready, and how to use it on a recipe video',
+        image: '/assets/projects/food-lens/popup.jpg',
+        narrow: true,
+      },
     ],
     actualResults: [
-      'Active enterprise development at Igniters Hub automating manual drawing takeoff for furniture manufacturing.',
-      'Automated extraction of panel dimensions, joinery callouts, and component schedules into structured JSON schemas.'
+      'Recipe video to filled cart in one flow: extract, find on Swiggy, add to cart',
+      'Ingredient extraction runs on Groq’s Llama 3.3 70B',
+      'Cart actions go through Swiggy’s official MCP server',
     ],
     limitations: [
-      'Proprietary enterprise project: internal source code, production API keys, and client drawing datasets are strictly confidential and withheld.',
-      'Hand-annotated shop revisions currently require manual verification before CNC cutting export.'
+      'Needs the local Next.js server running and a one-time Swiggy login through mcp-remote',
+      'Only supports Swiggy Instamart',
+      'Depends on the video having a transcript or a description with the recipe',
     ],
-    futureImprovements: [
-      'Direct integration with automated CNC panel optimization software (nesting algorithms).',
-      '3D parametric assembly preview generated directly from extracted 2D drawing panels.'
+    futureImprovements: ['Let users review and swap products before adding them', 'Support more grocery providers'],
+    dataFlowSteps: [
+      { stepNumber: 1, title: 'Capture', input: 'YouTube watch page', output: 'Transcript', detail: 'The content script reads the transcript of the open video.' },
+      { stepNumber: 2, title: 'Extract', input: 'Transcript', output: 'Ingredient list', detail: 'Groq’s Llama 3.3 70B returns ingredients with quantities.' },
+      { stepNumber: 3, title: 'Match', input: 'Ingredients', output: 'Products', detail: 'Swiggy MCP searches Instamart for each ingredient.' },
+      { stepNumber: 4, title: 'Add to cart', input: 'Chosen products', output: 'Updated cart', detail: 'Cart mutation through the same MCP connection.' },
+    ],
+    githubUrl: 'https://github.com/KunjalCodes/FoodLens',
+    metrics: [
+      { label: 'Model', value: 'Llama 3.3 70B on Groq' },
+      { label: 'Commerce', value: 'Swiggy Instamart MCP' },
+      { label: 'Surface', value: 'Chrome, Manifest V3' },
+    ],
+  },
+
+  {
+    id: 'mcp-ai-copilot',
+    slug: 'mcp-ai-copilot',
+    title: 'AI Research Copilot — A local agent that uses tools over MCP',
+    subtitle:
+      'A command-line copilot on Llama 3 via Ollama that decides when to call Wikipedia, weather, a calculator or its own notes through an MCP server',
+    category: 'Agents & MCP',
+    categories: ['Agents & MCP'],
+    status: 'Complete',
+    timeframe: 'Feb 2026',
+    shortDescription:
+      'Six tools on a FastMCP server, a local Llama 3 model and a small loop that lets the model chain up to three tool calls before answering.',
+    tags: ['Python', 'MCP', 'FastMCP', 'Ollama', 'Llama 3', 'Wikipedia API', 'Open-Meteo'],
+    featured: true,
+    problemStatement:
+      'I wanted to understand tool use from the bottom up: how a model discovers tools, how it asks for one, and how results flow back, all running locally without sending data to a hosted API.',
+    projectOverview:
+      'server.py is a FastMCP server with six tools. copilot.py starts it over stdio, lists the tools, and puts them in the system prompt. The model replies with JSON when it wants a tool; the client calls it through the MCP session and feeds the result back. Anything that is not valid JSON is treated as the final answer.',
+    architecture: {
+      summary: 'An MCP server exposing tools over stdio, and a client that runs a tool-calling loop against a local Llama 3 model.',
+      diagramDescription: 'User question -> Llama 3 (Ollama) -> JSON tool request -> MCP client session -> FastMCP server tool -> result -> Llama 3 -> answer',
+      layers: [
+        {
+          name: 'MCP server',
+          technologies: ['FastMCP', 'requests'],
+          description: 'hello, calculate, wiki_search, get_weather, save_note and get_notes. Notes persist in notes.json.',
+        },
+        {
+          name: 'Client loop',
+          technologies: ['mcp ClientSession', 'stdio transport', 'asyncio'],
+          description: 'Lists tools, sends them to the model, executes requested tools and appends the results to the conversation, up to three rounds.',
+        },
+        {
+          name: 'Model',
+          technologies: ['Ollama', 'Llama 3'],
+          description: 'Runs locally, so questions and notes never leave the machine.',
+        },
+      ],
+    },
+    technicalImplementation: [
+      {
+        aspect: 'A tool is just a typed function',
+        description: 'Weather geocodes the city with Open-Meteo, then fetches current conditions. FastMCP turns the signature and docstring into the tool schema.',
+        codeSnippet: `@mcp.tool()
+def get_weather(location: str) -> str:
+    """Get current weather using location name"""
+    geo_res = requests.get(
+        "https://geocoding-api.open-meteo.com/v1/search"
+        f"?name={location}&count=1").json()
+    lat = geo_res["results"][0]["latitude"]
+    lon = geo_res["results"][0]["longitude"]
+    ...
+    return f"{location}: {temp}°C, Wind {wind} km/h"`,
+        language: 'python',
+      },
+      {
+        aspect: 'The tool-calling loop',
+        description: 'If the reply parses as JSON, it is a tool call; otherwise it is the answer.',
+        codeSnippet: `for _ in range(3):
+    response = ollama.chat(model="llama3", messages=messages)
+    msg = response["message"]["content"]
+    try:
+        data = json.loads(msg)
+        result = await session.call_tool(data["tool"], arguments=data["arguments"])
+        messages.append({"role": "assistant", "content": msg})
+        messages.append({"role": "tool", "content": str(result.content)})
+    except:
+        final_answer = msg
+        break`,
+        language: 'python',
+      },
+    ],
+    engineeringChallenges: [
+      {
+        challenge: 'Getting a small local model to call tools reliably',
+        solution: 'Asked for a strict JSON shape in the system prompt and treated anything else as a final answer, which keeps the loop simple and predictable.',
+      },
+      {
+        challenge: 'Runaway tool loops',
+        solution: 'Capped the loop at three tool rounds per question.',
+      },
+    ],
+    demonstrations: [
+      {
+        title: 'Tool calls in a session',
+        caption: 'Weather lookup, a calculation and saving and reading notes, each routed through the MCP server',
+        image: '/assets/projects/mcp-ai-copilot/tool-calls.jpg',
+      },
+      {
+        title: 'MCP Inspector',
+        caption: 'The six tools the server exposes, inspected over stdio',
+        image: '/assets/projects/mcp-ai-copilot/mcp-inspector.jpg',
+      },
+    ],
+    actualResults: [
+      'Six working tools discoverable by any MCP client, verified in MCP Inspector',
+      'Multi-step answers that combine tools, fully local on Llama 3',
+      'Notes persist between sessions',
+    ],
+    limitations: [
+      'Command-line only',
+      'JSON-in-text tool calling is less robust than native function calling',
+      'Notes are a flat JSON file, with no search',
     ],
     dataFlowSteps: [
-      {
-        stepNumber: 1,
-        title: 'Drawing Preprocessing',
-        input: 'Furniture Technical PDF / Scan',
-        output: 'Cleaned Binary Pixel Mask',
-        detail: 'Removes paper grain and enhances dimensional line edges.'
-      },
-      {
-        stepNumber: 2,
-        title: 'Line & Text Separation',
-        input: 'Binary Pixel Mask',
-        output: 'Isolated Panel Vectors & Text Candidate Patches',
-        detail: 'Directional morphological kernels separate continuous cut lines from alphanumeric dimensions.'
-      },
-      {
-        stepNumber: 3,
-        title: 'OCR & Caliper Reading',
-        input: 'Text Patches',
-        output: 'Dimension Proposals [mm / inches]',
-        detail: 'Transcribes panel measurements, tolerances, and hardware codes.'
-      },
-      {
-        stepNumber: 4,
-        title: 'Component Association',
-        input: 'Dimensions + Drawing Layout Context',
-        output: 'Structured Bill of Materials (BOM)',
-        detail: 'Maps dimensions to specific furniture parts (e.g. table legs, drawer runners) with Pydantic verification.'
-      }
+      { stepNumber: 1, title: 'Discover', input: 'MCP session', output: 'Tool list', detail: 'The client lists tools from the server and adds them to the system prompt.' },
+      { stepNumber: 2, title: 'Decide', input: 'Question', output: 'JSON tool request or answer', detail: 'Llama 3 either asks for a tool or answers.' },
+      { stepNumber: 3, title: 'Call', input: 'Tool request', output: 'Tool result', detail: 'The client calls the tool through the MCP session.' },
+      { stepNumber: 4, title: 'Answer', input: 'Tool results', output: 'Final answer', detail: 'Results go back to the model, for up to three rounds.' },
     ],
-    githubUrl: undefined,
-    demoUrl: undefined,
+    githubUrl: 'https://github.com/KunjalCodes/mcp-ai-copilot',
     metrics: [
-      { label: 'Role & Org', value: 'Software Developer @ Igniters Hub' },
-      { label: 'Domain', value: 'Furniture Engineering Takeoff' },
-      { label: 'Status', value: 'Enterprise Active R&D' }
-    ]
-  }
+      { label: 'Tools', value: '6 over MCP' },
+      { label: 'Model', value: 'Llama 3, local' },
+      { label: 'Max tool rounds', value: '3 per question' },
+    ],
+  },
+
+  {
+    id: 'multi-agent-builder',
+    slug: 'multi-agent-builder',
+    title: 'Multi-Agent Builder — From an idea to a running app',
+    subtitle:
+      'Five LLM agents turn a one-line idea into a frontend or FastAPI project, write it to disk and start it',
+    category: 'Agents & MCP',
+    categories: ['Agents & MCP', 'Applied AI'],
+    status: 'Complete',
+    timeframe: 'Feb 2026',
+    shortDescription:
+      'A classifier, planner, architect, coder and enhancer run in sequence on Groq, then a runner serves the generated project and opens the browser.',
+    tags: ['Python', 'Groq', 'Llama 3.1 8B', 'FastAPI', 'uvicorn', 'uv'],
+    featured: false,
+    problemStatement:
+      'Single-prompt code generation mixes planning, structure and implementation in one shot and tends to fall apart beyond toy examples. Splitting the job into roles makes each step smaller and easier to check.',
+    projectOverview:
+      'main.py runs a fixed pipeline. A type classifier decides between a frontend and a FastAPI backend, the planner writes a plan, the architect turns it into a file structure, the coder writes the files and the enhancer improves the result. A file manager writes everything under generated_projects/, and a project runner starts a static server or uvicorn and opens the browser.',
+    architecture: {
+      summary: 'A sequential pipeline of role-specific agents sharing one Groq client, followed by deterministic file writing and execution.',
+      diagramDescription: 'Idea -> TypeClassifier -> Planner -> Architect -> Coder -> Enhancer -> FileManager -> ProjectRunner -> browser',
+      layers: [
+        {
+          name: 'Agents',
+          technologies: ['TypeClassifier', 'Planner', 'Architect', 'Coder', 'Enhancer'],
+          description: 'Each agent has its own system prompt and passes plain text to the next one.',
+        },
+        {
+          name: 'Model',
+          technologies: ['Groq', 'llama-3.1-8b-instant', 'temperature 0.2'],
+          description: 'A fast, low-temperature model keeps runs quick and outputs consistent.',
+        },
+        {
+          name: 'Runtime',
+          technologies: ['FileManager', 'ProjectRunner', 'uvicorn'],
+          description: 'Parses files out of the response, writes them to disk, then serves a frontend or starts a FastAPI app.',
+        },
+      ],
+    },
+    technicalImplementation: [
+      {
+        aspect: 'The pipeline',
+        description: 'Each stage gets the previous stage’s output plus the detected project type.',
+        codeSnippet: `plan = PlannerAgent().run(f"PROJECT_TYPE: {project_type}\\n\\nUSER IDEA:\\n{user_input}")
+architecture = ArchitectAgent().run(f"PROJECT_TYPE: {project_type}\\n\\nPLAN:\\n{plan}")
+base_code = CoderAgent().run(f"PROJECT_TYPE: {project_type}\\n\\nARCHITECTURE:\\n{architecture}")
+code_output = EnhancerAgent().run(base_code)`,
+        language: 'python',
+      },
+    ],
+    engineeringChallenges: [
+      {
+        challenge: 'Getting files out of model output',
+        solution: 'The coder writes files in a fixed delimited format that the file manager parses, so a run produces a real project folder instead of a chat reply.',
+      },
+      {
+        challenge: 'Choosing how to run the result',
+        solution: 'A classifier step decides between frontend and FastAPI up front, so every later agent and the runner know what they are building.',
+      },
+    ],
+    demonstrations: [
+      {
+        title: 'One run, start to finish',
+        caption: 'From the prompt through classification, planning, architecture, code and enhancement to writing files and starting the server',
+        image: '/assets/projects/multi-agent-builder/agent-run.jpg',
+      },
+      {
+        title: 'The generated app',
+        caption: 'The calculator produced by that run, served locally and opened automatically',
+        image: '/assets/projects/multi-agent-builder/generated-app.jpg',
+      },
+    ],
+    actualResults: [
+      'Produces a runnable frontend or FastAPI project from a single sentence',
+      'Writes files to disk and launches the result automatically',
+    ],
+    limitations: [
+      'Agents run strictly in sequence, with no review or retry loop between them',
+      'Generated projects are small; layout and correctness are not checked automatically',
+      'An 8B model trades quality for speed',
+    ],
+    futureImprovements: ['A reviewer agent that runs the project and feeds errors back to the coder', 'Support larger, multi-page projects'],
+    dataFlowSteps: [
+      { stepNumber: 1, title: 'Classify', input: 'Idea', output: 'frontend or backend', detail: 'Decides what kind of project to build.' },
+      { stepNumber: 2, title: 'Plan', input: 'Idea + type', output: 'Plan', detail: 'Features and steps.' },
+      { stepNumber: 3, title: 'Design', input: 'Plan', output: 'File structure', detail: 'The architect lays out the files.' },
+      { stepNumber: 4, title: 'Build', input: 'Structure', output: 'Code', detail: 'Coder writes it, enhancer improves it.' },
+      { stepNumber: 5, title: 'Run', input: 'Files', output: 'Running app', detail: 'Written to disk, served and opened in the browser.' },
+    ],
+    githubUrl: 'https://github.com/KunjalCodes/multi-agent-builder',
+    metrics: [
+      { label: 'Agents', value: '5 in sequence' },
+      { label: 'Model', value: 'Llama 3.1 8B on Groq' },
+      { label: 'Output', value: 'Frontend or FastAPI app' },
+    ],
+  },
+
+  {
+    id: 'rag-ml-textbook-chatbot',
+    slug: 'rag-ml-textbook-chatbot',
+    title: 'ML Textbook Chatbot — RAG over one book',
+    subtitle: 'A local chatbot that answers machine learning questions only from a textbook, and says it doesn’t know otherwise',
+    category: 'Memory & Retrieval',
+    categories: ['Memory & Retrieval', 'Applied AI'],
+    status: 'Complete',
+    timeframe: 'Jan 2026',
+    shortDescription:
+      'The book is chunked, embedded with all-MiniLM-L6-v2 into ChromaDB, and the top three passages ground Llama 3’s answer.',
+    tags: ['Python', 'LangChain', 'ChromaDB', 'Sentence Transformers', 'Ollama', 'Llama 3'],
+    featured: false,
+    problemStatement:
+      'Ask a general model a textbook question and it will answer confidently whether or not it is right. For studying, an answer that sticks to the book, or admits it can’t, is more useful.',
+    projectOverview:
+      'A one-time pipeline extracts the PDF’s text, splits it into 500-character chunks with 50 characters of overlap, embeds them with all-MiniLM-L6-v2 and stores them in ChromaDB. At question time the three closest chunks become the only context Llama 3 is allowed to use.',
+    architecture: {
+      summary: 'Offline indexing into a persistent Chroma store, and an online loop that retrieves three chunks and prompts a local model.',
+      diagramDescription: 'PDF -> text -> 500-char chunks -> embeddings -> ChromaDB; question -> embedding -> top 3 chunks -> Llama 3 -> answer',
+      layers: [
+        { name: 'Indexing', technologies: ['pypdf', 'Sentence Transformers', 'ChromaDB'], description: 'load_pdf, chunk_text, create_embeddings and build_vectorstore run once.' },
+        { name: 'Retrieval', technologies: ['LangChain', 'Chroma retriever'], description: 'k = 3 nearest chunks by embedding similarity.' },
+        { name: 'Generation', technologies: ['Ollama', 'Llama 3'], description: 'Prompted to answer only from the context, or say "I don’t know".' },
+      ],
+    },
+    technicalImplementation: [
+      {
+        aspect: 'Chunking with overlap',
+        description: 'Overlap keeps sentences that cross a boundary retrievable from either side.',
+        codeSnippet: `def chunk_text(text, chunk_size=500, overlap=50):
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start = end - overlap
+    return chunks`,
+        language: 'python',
+      },
+    ],
+    engineeringChallenges: [
+      {
+        challenge: 'Keeping answers on the book',
+        solution: 'The prompt allows only the retrieved context and gives the model an explicit way out: "I don’t know".',
+      },
+    ],
+    demonstrations: [
+      {
+        title: 'A grounded answer',
+        caption: 'Asking about overfitting returns an answer drawn from the textbook passage',
+        image: '/assets/projects/rag-ml-textbook-chatbot/chat-session.jpg',
+      },
+    ],
+    actualResults: ['Answers grounded in the textbook, fully local', 'Admits when the book does not cover a question'],
+    limitations: ['Fixed-size character chunks can split formulas and tables', 'No source page numbers in answers yet', 'Command-line only'],
+    githubUrl: 'https://github.com/KunjalCodes/rag-ml-textbook-chatbot',
+    metrics: [
+      { label: 'Chunks', value: '500 chars, 50 overlap' },
+      { label: 'Embeddings', value: 'all-MiniLM-L6-v2' },
+      { label: 'Retrieval', value: 'Top 3 from ChromaDB' },
+    ],
+  },
 ];

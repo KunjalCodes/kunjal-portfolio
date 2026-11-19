@@ -7,7 +7,6 @@ import { HomePage } from './pages/HomePage';
 import { WorkPage } from './pages/WorkPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { PlaygroundPage } from './pages/PlaygroundPage';
-import { LabPage } from './pages/LabPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { CharacterCompanion } from './components/character/CharacterCompanion';
@@ -22,23 +21,21 @@ const RouteHandler: React.FC = () => {
 
     // Dynamic SEO title
     if (pathname === '/') {
-      document.title = 'Kunjal Joshi — AI Engineering & Software Development';
+      document.title = 'Kunjal Joshi — AI Engineer';
     } else if (pathname === '/work') {
-      document.title = 'Engineering Work & Case Studies — Kunjal Joshi';
+      document.title = 'Projects — Kunjal Joshi';
     } else if (pathname.startsWith('/work/')) {
       const slug = pathname.replace('/work/', '');
       const proj = projects.find(p => p.slug === slug);
-      document.title = proj ? `${proj.title} — Case Study | Kunjal Joshi` : 'Project Case Study — Kunjal Joshi';
+      document.title = proj ? `${proj.title.split(' — ')[0]} — Kunjal Joshi` : 'Project Case Study — Kunjal Joshi';
     } else if (pathname === '/playground') {
-      document.title = 'AI Engineering Playground — Kunjal Joshi';
-    } else if (pathname === '/lab') {
-      document.title = 'Technical Lab Notes & Research — Kunjal Joshi';
+      document.title = 'Playground — Kunjal Joshi';
     } else if (pathname === '/about') {
-      document.title = 'About Kunjal Joshi — Education, Skills & Experience';
+      document.title = 'About — Kunjal Joshi';
     } else if (pathname === '/contact') {
-      document.title = 'Contact & Collaboration — Kunjal Joshi';
+      document.title = 'Contact — Kunjal Joshi';
     } else {
-      document.title = 'Kunjal Joshi — AI Engineering & Software Development';
+      document.title = 'Kunjal Joshi — AI Engineer';
     }
   }, [pathname]);
 
@@ -79,7 +76,6 @@ export const App: React.FC = () => {
             <Route path="/work" element={<WorkPage />} />
             <Route path="/work/:slug" element={<ProjectDetailPage />} />
             <Route path="/playground" element={<PlaygroundPage />} />
-            <Route path="/lab" element={<LabPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
             {/* Catch-all redirects to home */}

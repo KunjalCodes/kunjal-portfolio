@@ -36,7 +36,6 @@ async function runAudit() {
     '/playground?tab=eval',
     '/playground?tab=prompt',
     '/playground?tab=architecture',
-    '/lab',
     '/about',
     '/contact',
     '/resume-kunjal-joshi.pdf',

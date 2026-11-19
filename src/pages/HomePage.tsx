@@ -1,74 +1,117 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Eye, Code2, Cpu, Terminal, FileText, Sliders, BarChart3, Network, Layers } from 'lucide-react';
+import { ArrowRight, Terminal, FileText, BarChart3, Network, Layers, Bot, Database, ScanText } from 'lucide-react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
+import { PortfolioTerminal } from '../components/terminal/PortfolioTerminal';
 import { projects } from '../data/projects';
-import { labNotes } from '../data/labNotes';
 import { profile } from '../data/profile';
 
 interface HomePageProps {
   onOpenTerminal: () => void;
 }
 
+const playgroundTools = [
+  {
+    to: '/playground?tab=pipeline',
+    icon: Layers,
+    title: 'Drawing pipeline',
+    body: 'Step through how a technical drawing becomes structured data: image cleanup, OCR, LLM interpretation, validation and JSON.',
+    cta: 'Step through it',
+  },
+  {
+    to: '/playground?tab=eval',
+    icon: BarChart3,
+    title: 'Model evaluation',
+    body: 'Drag a classification threshold and watch precision, recall, F1 and the confusion matrix change.',
+    cta: 'Move the threshold',
+  },
+  {
+    to: '/playground?tab=prompt',
+    icon: Terminal,
+    title: 'Prompt lab',
+    body: 'Compare a loose prompt with a schema-constrained one on the same input and see why structure matters.',
+    cta: 'Compare prompts',
+  },
+  {
+    to: '/playground?tab=architecture',
+    icon: Network,
+    title: 'Architecture',
+    body: 'Click through each layer of an AI system to see its inputs, outputs, trade-offs and failure fallbacks.',
+    cta: 'Explore layers',
+  },
+];
+
+const focusAreas = [
+  {
+    icon: Bot,
+    title: 'Agents and tool use',
+    body: 'Tool-calling loops, MCP servers and clients, and multi-agent pipelines. I care about what an agent is allowed to do, and about being able to see what it did.',
+  },
+  {
+    icon: Database,
+    title: 'Memory and retrieval',
+    body: 'RAG, hybrid graph and vector retrieval, and temporal knowledge graphs, so answers come from the right facts, the current ones, with a source.',
+  },
+  {
+    icon: ScanText,
+    title: 'Applied AI in production',
+    body: 'OCR, computer vision and LLMs working together on real documents, like turning furniture drawings into cut lists at Igniters Hub.',
+  },
+];
+
 export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
   const featuredProjects = projects.filter(p => p.featured);
-  const recentNotes = labNotes.slice(0, 2);
 
   return (
     <div className="w-full bg-background min-h-screen">
-      {/* 1. Full-screen Hero Section with Pink Flame */}
       <HeroSection />
 
-      {/* Main Container */}
       <div className="max-w-7xl mx-auto px-6 py-20 space-y-32">
-        {/* 2. Short Introduction & Engineering Philosophy */}
+        {/* Intro */}
         <section id="intro" className="scroll-mt-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-accent mb-3 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                Engineering Philosophy
+                About
               </div>
               <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-primary leading-tight">
-                Deterministic rigor meets adaptive AI.
+                The model is the easy part
               </h2>
+              <p className="mt-4 text-sm text-muted-light leading-relaxed max-w-sm">{profile.oneLiner}</p>
             </div>
             <div className="lg:col-span-7 space-y-4 text-muted text-base leading-relaxed">
-              <p>
-                {profile.bio[0]}
-              </p>
-              <p>
-                {profile.bio[1]}
-              </p>
+              <p>{profile.bio[0]}</p>
+              <p>{profile.bio[1]}</p>
               <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Button to="/about" variant="outline" size="sm">
-                  Full Background & Skills
+                  More about me
                 </Button>
                 <button
                   onClick={onOpenTerminal}
                   className="font-mono text-xs text-muted hover:text-accent flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Terminal className="w-3.5 h-3.5 text-accent" />
-                  Type <span className="text-primary font-bold">about</span> in terminal
+                  or press <span className="text-primary font-bold">~</span> anywhere
                 </button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 3. Featured Projects Showcase */}
+        {/* Featured work */}
         <section id="featured" className="scroll-mt-24">
           <SectionHeading
-            label="Selected Works"
-            title="Featured Engineering Systems"
-            description="Architectural case studies across persistent memory engines, agent orchestration, Chrome extensions, and computer vision systems."
+            label="Selected work"
+            title="Things I have built"
+            description="Agent memory, tool use over MCP, and AI that reads engineering drawings."
             action={
               <Button to="/work" variant="outline" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
-                View All Projects
+                All projects
               </Button>
             }
           />
@@ -77,73 +120,68 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             {featuredProjects.map((project, idx) => (
               <motion.article
                 key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.06 }}
                 className="group relative bg-[#0E0E0E] hover:bg-[#121212] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-[border-color,background-color] duration-200"
               >
                 <div>
-                  {/* Card Header */}
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <span className="font-mono text-xs text-accent">
                       {project.category}
+                      {project.organization && <span className="text-muted"> · {project.organization}</span>}
                     </span>
-                    <Badge variant={project.status === 'Active Development' ? 'accent' : 'status'}>
-                      {project.status}
-                    </Badge>
+                    <Badge variant={project.status === 'In progress' ? 'accent' : 'status'}>{project.status}</Badge>
                   </div>
 
-                  {/* Title */}
                   <h3 className="font-heading text-xl sm:text-2xl font-semibold text-primary group-hover:text-accent transition-colors">
-                    <Link to={`/work/${project.slug}`}>
+                    <Link to={`/work/${project.slug}`} className="after:absolute after:inset-0 after:content-['']">
                       {project.title}
                     </Link>
                   </h3>
 
-                  {/* Subtitle */}
-                  <p className="mt-2 text-sm text-muted-light line-clamp-2">
-                    {project.subtitle}
-                  </p>
+                  <p className="mt-3 text-sm text-muted-light leading-relaxed">{project.subtitle}</p>
 
-                  {/* Short Description */}
-                  <p className="mt-4 text-xs sm:text-sm text-muted leading-relaxed line-clamp-3">
-                    {project.shortDescription}
-                  </p>
+                  {project.metrics && (
+                    <div className="mt-6 grid grid-cols-3 gap-3 border-t border-border/80 pt-5">
+                      {project.metrics.map(m => (
+                        <div key={m.label} className="min-w-0">
+                          <div className="text-[11px] font-mono text-muted truncate">{m.label}</div>
+                          <div className="text-sm text-primary mt-1 leading-snug">{m.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-border/80">
-                  {/* Tech Tags */}
                   <div className="flex flex-wrap gap-1.5 mb-6">
-                    {project.tags.map(tag => (
+                    {project.tags.slice(0, 6).map(tag => (
                       <span
                         key={tag}
-                        className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/[0.03] text-muted border border-border group-hover:border-accent/20 transition-colors"
+                        className="font-mono text-[11px] px-2 py-0.5 rounded bg-white/[0.03] text-muted border border-border"
                       >
                         {tag}
                       </span>
                     ))}
                   </div>
 
-                  {/* Action Link */}
                   <div className="flex items-center justify-between">
-                    <Link
-                      to={`/work/${project.slug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary group-hover:text-accent transition-colors"
-                    >
-                      Read Case Study
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                    </Link>
-
-                    {project.githubUrl && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary group-hover:text-accent transition-colors">
+                      Read case study
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                    {project.githubUrl ? (
                       <a
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-mono text-muted hover:text-primary transition-colors"
+                        className="relative z-10 text-xs font-mono text-muted hover:text-primary transition-colors"
                       >
                         GitHub ↗
                       </a>
+                    ) : (
+                      <span className="text-[11px] font-mono text-muted-dark">Company project</span>
                     )}
                   </div>
                 </div>
@@ -152,226 +190,101 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           </div>
         </section>
 
-        {/* 4. AI Engineering Playground Feature Preview */}
+        {/* Playground */}
         <section className="scroll-mt-24">
           <SectionHeading
-            label="Interactive Lab"
-            title="AI Engineering Playground"
-            description="Hands-on explorations of multimodal blueprint parsing, live classification threshold recalculations, prompt engineering, and system topologies."
+            label="Playground"
+            title="Interactive AI engineering demos"
+            description="Small hands-on tools for the ideas I work with every day: document pipelines, evaluation, prompting and system design. They run in your browser on prepared data, with no live model calls."
             action={
               <Button to="/playground" variant="primary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
-                Launch Playground
+                Open playground
               </Button>
             }
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Tool 1 */}
-            <Link
-              to="/playground?tab=pipeline"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                  <Layers className="w-5 h-5" />
-                </div>
-                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
-                  Pipeline Explorer
-                </h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  Interactive 6-stage walkthrough from high-DPI raster ingestion to OpenCV morphology, OCR boxes, and structured JSON.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
-                <span>Explore Pipeline</span>
-                <span>→</span>
-              </div>
-            </Link>
-
-            {/* Tool 2 */}
-            <Link
-              to="/playground?tab=eval"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                  <BarChart3 className="w-5 h-5" />
-                </div>
-                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
-                  Model Evaluation
-                </h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  Adjustable classification threshold slider dynamically recalculating Confusion Matrix, Precision, Recall, and F1 curve.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
-                <span>Evaluate Metrics</span>
-                <span>→</span>
-              </div>
-            </Link>
-
-            {/* Tool 3 */}
-            <Link
-              to="/playground?tab=prompt"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                  <Terminal className="w-5 h-5" />
-                </div>
-                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
-                  Prompt Lab
-                </h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  Side-by-side comparison of naive natural language prompts vs. schema-constrained, deterministic few-shot instructions.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
-                <span>Test Prompts</span>
-                <span>→</span>
-              </div>
-            </Link>
-
-            {/* Tool 4 */}
-            <Link
-              to="/playground?tab=architecture"
-              className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                  <Network className="w-5 h-5" />
-                </div>
-                <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
-                  Architecture Explorer
-                </h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  Interactive node graph breaking down contracts, engineering trade-offs, and failure fallbacks across every system tier.
-                </p>
-              </div>
-              <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
-                <span>Inspect System</span>
-                <span>→</span>
-              </div>
-            </Link>
-          </div>
-        </section>
-
-        {/* 5. Expertise & Technical Disciplines Overview */}
-        <section>
-          <SectionHeading
-            label="Capabilities"
-            title="Core Technical Focus"
-            description="Specialized competencies developed across research prototypes and production-grade software."
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
-              <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                <Network className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-semibold text-lg text-primary">
-                Persistent Memory & Graph RAG
-              </h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Neo4j temporal knowledge graphs with explicit validity windows, dense vector retrieval via pgvector, and hybrid semantic + graph traversals with conflict-aware memory updates.
-              </p>
-            </div>
-
-            <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
-              <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                <Cpu className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-semibold text-lg text-primary">
-                Agent Orchestration & MCP
-              </h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Autonomous multi-agent role decomposition (Planner, Architect, Coder), Model Context Protocol (MCP) tool integration, and browser extensions automating real-world consumer actions.
-              </p>
-            </div>
-
-            <div className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
-              <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                <Eye className="w-5 h-5" />
-              </div>
-              <h3 className="font-heading font-semibold text-lg text-primary">
-                Computer Vision & Systems
-              </h3>
-              <p className="text-xs text-muted leading-relaxed">
-                Classical morphological filtering and line extraction via OpenCV, deep OCR (EasyOCR) on technical schematics at Igniters Hub, and low-latency asynchronous Python/FastAPI backends.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 5. Recent Lab Notes Preview */}
-        <section>
-          <SectionHeading
-            label="Research Log"
-            title="Technical Lab Notes"
-            description="Empirical observations, benchmarks, and architectural notes from active experiments."
-            action={
-              <Button to="/lab" variant="outline" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
-                View All Notes
-              </Button>
-            }
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {recentNotes.map(note => (
-              <div
-                key={note.id}
-                className="bg-[#0B0B0B] border border-border rounded-lg p-6 flex flex-col justify-between hover:border-accent/30 transition-colors"
+            {playgroundTools.map(t => (
+              <Link
+                key={t.to}
+                to={t.to}
+                className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
               >
-                <div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-muted mb-3">
-                    <span className="text-accent">{note.category}</span>
-                    <span>{note.date} · {note.readTime}</span>
+                <div className="space-y-3">
+                  <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                    <t.icon className="w-5 h-5" />
                   </div>
-                  <h4 className="font-heading font-medium text-base text-primary mb-2 hover:text-accent transition-colors">
-                    <Link to={`/lab#${note.slug}`}>
-                      {note.title}
-                    </Link>
-                  </h4>
-                  <p className="text-xs text-muted leading-relaxed line-clamp-2">
-                    {note.summary}
-                  </p>
+                  <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
+                    {t.title}
+                  </h3>
+                  <p className="text-xs text-muted leading-relaxed">{t.body}</p>
                 </div>
-                <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    {note.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="font-mono text-[10px] text-muted-dark">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  <Link
-                    to={`/lab#${note.slug}`}
-                    className="text-xs font-mono text-accent hover:underline"
-                  >
-                    Read note →
-                  </Link>
+                <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
+                  <span>{t.cta}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Focus areas */}
+        <section>
+          <SectionHeading label="Focus" title="What I work on" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {focusAreas.map(f => (
+              <div key={f.title} className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                  <f.icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg text-primary">{f.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{f.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* 6. Contact Invitation Banner */}
+        {/* Terminal */}
+        <section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-4">
+              <div className="font-mono text-xs text-accent mb-3 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                Terminal
+              </div>
+              <h2 className="font-heading text-2xl md:text-3xl font-semibold text-primary tracking-tight">
+                Prefer a command line?
+              </h2>
+              <p className="mt-3 text-sm text-muted leading-relaxed">
+                The whole site is browsable from here. Type <span className="font-mono text-primary">help</span> for
+                commands, <span className="font-mono text-primary">projects</span> to list my work or{' '}
+                <span className="font-mono text-primary">open second-brain</span> to jump to a case study. Tab completes,
+                arrow keys walk your history, and <span className="font-mono text-primary">~</span> opens it full screen
+                from any page.
+              </p>
+            </div>
+            <div className="lg:col-span-8">
+              <PortfolioTerminal isOpen variant="inline" onClose={() => {}} />
+            </div>
+          </div>
+        </section>
+
+        {/* Contact */}
         <section className="bg-gradient-to-b from-[#0E0E0E] to-[#090909] border border-border rounded-xl p-8 sm:p-12 text-center relative overflow-hidden">
           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.04] border border-border text-muted-light text-xs font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              Collaboration & Engineering Opportunities
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              {profile.status}
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-primary tracking-tight">
-              Let's build something technically exceptional.
+              Building with agents, memory or retrieval? Let’s talk
             </h2>
             <p className="text-sm sm:text-base text-muted leading-relaxed">
-              Interested in AI agent systems, persistent memory architectures, or computer vision engineering? Reach out directly or inspect contact endpoints in the terminal.
+              I am looking for AI engineering roles and interesting problems. Email is the fastest way to reach me.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               <Button to="/contact" variant="primary" size="md">
-                Get in Touch
+                Get in touch
               </Button>
               <Button
                 href={profile.socialLinks.resumeUrl}
@@ -380,7 +293,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
                 size="md"
                 icon={<FileText className="w-4 h-4 text-muted" />}
               >
-                Download Resume
+                Resume
               </Button>
             </div>
           </div>

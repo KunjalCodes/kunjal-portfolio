@@ -11,15 +11,14 @@ export const WorkPage: React.FC = () => {
 
   const categories: (ProjectCategory | 'All')[] = [
     'All',
-    'AI / Machine Learning',
-    'Computer Vision',
-    'Software Engineering',
-    'Experiments',
+    'Agents & MCP',
+    'Memory & Retrieval',
+    'Applied AI',
   ];
 
   const filteredProjects = selectedCategory === 'All'
     ? projects
-    : projects.filter(p => p.category === selectedCategory);
+    : projects.filter(p => (p.categories ?? [p.category]).includes(selectedCategory as ProjectCategory));
 
   return (
     <div className="pt-28 pb-20 max-w-7xl mx-auto px-6 min-h-screen">
@@ -27,13 +26,13 @@ export const WorkPage: React.FC = () => {
       <div className="max-w-3xl mb-12">
         <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Engineering Portfolio
+          Work
         </div>
         <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
-          Curated Systems & Research
+          Projects
         </h1>
         <p className="mt-4 text-base text-muted leading-relaxed">
-          Architectural deep-dives into computer vision engines, spatial canvas tools, and AI infrastructure. Each project includes transparent technical implementations, challenges, and limitations.
+          Agents, memory, retrieval and applied AI. Each case study covers how it works, what was hard, what it achieved and where it still falls short.
         </p>
       </div>
 
@@ -44,7 +43,7 @@ export const WorkPage: React.FC = () => {
           Filter:
         </span>
         {categories.map(cat => {
-          const count = cat === 'All' ? projects.length : projects.filter(p => p.category === cat).length;
+          const count = cat === 'All' ? projects.length : projects.filter(p => (p.categories ?? [p.category]).includes(cat as ProjectCategory)).length;
           const isActive = selectedCategory === cat;
 
           return (
@@ -73,16 +72,16 @@ export const WorkPage: React.FC = () => {
             <Filter className="w-5 h-5" />
           </div>
           <h3 className="font-heading text-lg font-semibold text-primary">
-            No projects found in category "{selectedCategory}"
+            Nothing in {selectedCategory} yet
           </h3>
           <p className="text-xs text-muted max-w-sm mx-auto">
-            Try selecting a different filter category or view all curated engineering systems.
+            Try another category.
           </p>
           <button
             onClick={() => setSelectedCategory('All')}
             className="px-4 py-2 rounded bg-accent text-black font-semibold text-xs font-mono transition-colors cursor-pointer"
           >
-            Reset to All Projects
+            Show all projects
           </button>
         </div>
       ) : (
@@ -109,8 +108,14 @@ export const WorkPage: React.FC = () => {
                       <span className="font-mono text-[11px] text-muted">
                         {project.timeframe}
                       </span>
+                      {project.organization && (
+                        <>
+                          <span className="text-muted-dark text-xs">·</span>
+                          <span className="font-mono text-[11px] text-muted-light">{project.organization}</span>
+                        </>
+                      )}
                     </div>
-                    <Badge variant={project.status === 'Active Development' ? 'accent' : 'status'}>
+                    <Badge variant={project.status === 'In progress' ? 'accent' : 'status'}>
                       {project.status}
                     </Badge>
                   </div>
@@ -165,11 +170,14 @@ export const WorkPage: React.FC = () => {
                       to={`/work/${project.slug}`}
                       className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-primary group-hover:text-accent transition-colors"
                     >
-                      Dedicated Case Study
+                      Read case study
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                     </Link>
 
                     <div className="flex items-center gap-3">
+                      {project.organization && !project.githubUrl && (
+                        <span className="text-[11px] font-mono text-muted">Company project · code private</span>
+                      )}
                       {project.githubUrl && (
                         <a
                           href={project.githubUrl}

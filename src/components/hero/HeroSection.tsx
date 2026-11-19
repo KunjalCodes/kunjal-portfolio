@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, User } from 'lucide-react';
 import { HeroFlameBackground } from './HeroFlameBackground';
-import { ScrollIndicator } from '../common/ScrollIndicator';
 import { Button } from '../common/Button';
 import { profile } from '../../data/profile';
 
@@ -50,7 +49,7 @@ export const HeroSection: React.FC = () => {
           <span className="flame-lit text-primary font-medium">{profile.headline}</span>
           <br className="hidden sm:inline" />
           <span className="text-sm sm:text-base text-muted block mt-1">
-            Bridging persistent agent memory, intelligent orchestration, and computer vision.
+            I build agents that remember, retrieve and use tools, and I measure whether they actually work.
           </span>
         </motion.p>
 
@@ -81,16 +80,6 @@ export const HeroSection: React.FC = () => {
           </Button>
         </motion.div>
       </div>
-
-      {/* Subtle Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.6 }}
-        className="relative z-10 pt-8"
-      >
-        <ScrollIndicator targetId="intro" />
-      </motion.div>
     </section>
   );
 };

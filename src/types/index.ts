@@ -1,14 +1,12 @@
-export type ProjectCategory = 
-  | 'AI / Machine Learning' 
-  | 'Computer Vision' 
-  | 'Software Engineering' 
-  | 'Experiments';
+export type ProjectCategory =
+  | 'Agents & MCP'
+  | 'Memory & Retrieval'
+  | 'Applied AI';
 
-export type ProjectStatus = 
-  | 'Production' 
-  | 'Active Development' 
-  | 'Research Prototype' 
-  | 'Exploratory';
+export type ProjectStatus =
+  | 'In progress'
+  | 'Complete'
+  | 'Prototype';
 
 export interface ArchitectureLayer {
   name: string;
@@ -25,8 +23,10 @@ export interface EngineeringChallenge {
 export interface ProjectScreenshot {
   title: string;
   caption: string;
-  type: 'ui' | 'architecture' | 'pipeline' | 'demo';
-  placeholderText?: string;
+  /** Path under /public to a real screenshot from the project */
+  image: string;
+  /** Optional: render narrower (e.g. an extension popup) */
+  narrow?: boolean;
 }
 
 export interface ProjectMetric {
@@ -41,6 +41,8 @@ export interface Project {
   title: string;
   subtitle: string;
   category: ProjectCategory;
+  /** All categories the project belongs to (for filtering); defaults to [category] */
+  categories?: ProjectCategory[];
   status: ProjectStatus;
   timeframe: string;
   shortDescription: string;
@@ -76,25 +78,8 @@ export interface Project {
   githubUrl?: string;
   demoUrl?: string;
   metrics?: ProjectMetric[];
-}
-
-export interface LabNote {
-  id: string;
-  slug: string;
-  title: string;
-  date: string;
-  category: 'Computer Vision' | 'OCR & Document AI' | 'LLM Engineering' | 'Systems & Performance';
-  readTime: string;
-  summary: string;
-  tags: string[];
-  hypothesis: string;
-  findings: string[];
-  codeSnippet?: {
-    language: string;
-    code: string;
-    caption: string;
-  };
-  status: 'Published' | 'Ongoing Research';
+  /** Set for work done for an employer; the code is not public */
+  organization?: string;
 }
 
 export interface ExperienceItem {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, BarChart3, Terminal, Cpu, Network, CheckCircle } from 'lucide-react';
 import { PipelineExplorer } from '../components/playground/PipelineExplorer';
 import { ModelEvaluationDashboard } from '../components/playground/ModelEvaluationDashboard';
@@ -28,10 +27,10 @@ export const PlaygroundPage: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'pipeline', label: 'Pipeline Explorer', icon: Layers, description: '6-Stage Blueprint Extraction' },
+    { id: 'pipeline', label: 'Drawing pipeline', icon: Layers, description: '6-Stage Blueprint Extraction' },
     { id: 'eval', label: 'Model Evaluation', icon: BarChart3, description: 'Real Dynamic ML Metrics & Trade-offs' },
     { id: 'prompt', label: 'Prompt Lab', icon: Terminal, description: 'Schema Constrained Prompting' },
-    { id: 'architecture', label: 'System Architecture', icon: Network, description: 'Interactive Topology & Fallbacks' },
+    { id: 'architecture', label: 'Architecture', icon: Network, description: 'Interactive Topology & Fallbacks' },
   ];
 
   return (
@@ -40,13 +39,15 @@ export const PlaygroundPage: React.FC = () => {
       <div className="max-w-3xl mb-12">
         <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Interactive AI Engineering
+          Playground
         </div>
         <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
-          AI Engineering Playground
+          Hands-on AI engineering
         </h1>
         <p className="mt-4 text-base text-muted leading-relaxed">
-          Interactive engineering demonstrations of real-world computer vision pipelines, mathematical ML evaluation metrics, prompt optimization, and multimodal system architecture.
+          Four small interactive tools for ideas I use every day: how a document pipeline turns a drawing into structured
+          data, how a classification threshold trades precision for recall, why structured prompts beat loose ones, and how
+          an AI system is split into layers. Everything runs in your browser on prepared data; no model is called live.
         </p>
       </div>
 
@@ -76,20 +77,13 @@ export const PlaygroundPage: React.FC = () => {
       </div>
 
       {/* Active Tab View */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.25 }}
-        >
-          {activeTab === 'pipeline' && <PipelineExplorer />}
-          {activeTab === 'eval' && <ModelEvaluationDashboard />}
-          {activeTab === 'prompt' && <PromptEngineeringLab />}
-          {activeTab === 'architecture' && <ArchitectureExplorer />}
-        </motion.div>
-      </AnimatePresence>
+      {/* Rendered directly: no enter/exit animation that could leave a tab invisible */}
+      <div key={activeTab}>
+        {activeTab === 'pipeline' && <PipelineExplorer />}
+        {activeTab === 'eval' && <ModelEvaluationDashboard />}
+        {activeTab === 'prompt' && <PromptEngineeringLab />}
+        {activeTab === 'architecture' && <ArchitectureExplorer />}
+      </div>
     </div>
   );
 };

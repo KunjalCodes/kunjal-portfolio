@@ -4,17 +4,20 @@ export const profile = {
   name: 'Kunjal Joshi',
   initials: 'KJ',
   brandName: 'KUNJAL.J',
-  title: 'AI Engineer · Software Developer',
-  shortIntro: 'AI Engineering · Intelligent Agents · Systems',
+  title: 'AI Engineer',
+  shortIntro: 'AI Engineer · Agents · Memory · Retrieval',
   headline: 'Building things that think.',
+  /** One-line positioning used in the hero and meta */
+  oneLiner:
+    'I build the parts that make language models useful in practice: memory that lasts, retrieval that can be trusted, and agents that use tools and cite their sources.',
   bio: [
-    'I am a Computer Science Engineer working across applied AI, intelligent agents, retrieval systems, LLM-powered applications, and software engineering. I focus on building complete AI systems that reason, remember, and take action—not simply connecting an API to a frontend.',
-    'My work spans persistent agent memory architectures (temporal knowledge graphs + vector search), Model Context Protocol (MCP) tool integration, autonomous multi-agent orchestration, and computer vision pipelines for engineering drawing extraction at Igniters Hub.',
-    'I bridge foundational software engineering—type safety, low-latency graph traversals, and reproducible benchmarks—with modern language model capabilities and local inference runtimes.'
+    'I am an AI engineer. Most of my work sits between a language model and the real world: giving it memory that survives a conversation, retrieval it can trust, and tools it can call safely. The model is usually the easy part; the system around it is where things break.',
+    'Right now that means AI Second Brain, a memory engine for agents built on a temporal knowledge graph and hybrid retrieval, where every answer has to cite the memory it came from. At Igniters Hub I am building a pipeline that reads furniture drawings with OCR, computer vision and an LLM, and turns them into cut lists for manufacturing.',
+    'I like measuring things. My favourite result so far is a 68× retrieval speedup that came from a missing database index rather than a clever algorithm, which is a good reminder to benchmark before optimizing.',
   ],
-  status: 'Software Developer @ Igniters Hub · Open to Applied AI & Systems Opportunities',
-  location: 'Uttarakhand / India · Remote Friendly',
-  
+  status: 'Open to AI engineering roles',
+  location: 'Uttarakhand, India · Open to remote',
+
   socialLinks: {
     github: 'https://github.com/KunjalCodes',
     linkedin: 'https://www.linkedin.com/in/kunjal-joshi',
@@ -25,76 +28,70 @@ export const profile = {
 
   skills: [
     {
-      category: 'Programming Languages',
+      category: 'Agents and tool use',
       skills: [
-        { name: 'Python', level: 'Advanced', note: 'AsyncIO, FastAPI, PyTorch, LangChain' },
-        { name: 'Java', level: 'Advanced', note: 'Algorithms, Data Structures, OOP' },
-        { name: 'JavaScript / TypeScript', level: 'Advanced', note: 'Node.js, Next.js, Manifest V3' },
-        { name: 'C++', level: 'Proficient', note: 'Competitive Programming, High-performance logic' },
-        { name: 'Swift', level: 'Proficient', note: 'Native application fundamentals' }
-      ]
+        { name: 'Model Context Protocol', note: 'MCP servers and clients (FastMCP), Swiggy MCP, an MCP adapter for Second Brain' },
+        { name: 'Tool-calling loops', note: 'Custom agent loops with citation checks and bounded tool rounds' },
+        { name: 'Multi-agent pipelines', note: 'Planner, architect, coder and enhancer roles' },
+        { name: 'LLM APIs', note: 'Gemini, Groq, local models with Ollama' },
+      ],
     },
     {
-      category: 'AI / Machine Learning',
+      category: 'Memory and retrieval',
       skills: [
-        { name: 'LLMs & Fine-Tuning', level: 'Advanced', note: 'Hugging Face Transformers, Ollama, Groq' },
-        { name: 'Retrieval-Augmented Generation (RAG)', level: 'Advanced', note: 'Chunking, HyDE, dense + sparse retrieval' },
-        { name: 'Persistent AI Memory & Graphs', level: 'Advanced', note: 'Neo4j, temporal validity windows, entity resolution' },
-        { name: 'Model Context Protocol (MCP)', level: 'Advanced', note: 'Tool servers, external API orchestration' },
-        { name: 'Embeddings & Vector Search', level: 'Advanced', note: 'Sentence Transformers, cosine similarity' },
-        { name: 'Computer Vision & OCR', level: 'Advanced', note: 'OpenCV, EasyOCR, document layout analysis' }
-      ]
+        { name: 'RAG', note: 'Chunking, embeddings, grounded prompting' },
+        { name: 'Hybrid retrieval', note: 'Graph + vector + keyword, multi-hop traversal' },
+        { name: 'Knowledge graphs', note: 'Neo4j, temporal validity windows, entity resolution' },
+        { name: 'Vector search', note: 'pgvector, ChromaDB, Sentence Transformers' },
+      ],
     },
     {
-      category: 'Frameworks & Tools',
+      category: 'Models and ML',
       skills: [
-        { name: 'LangChain', level: 'Advanced' },
-        { name: 'Hugging Face Transformers', level: 'Advanced' },
-        { name: 'Sentence Transformers', level: 'Advanced' },
-        { name: 'FastAPI / Node.js REST APIs', level: 'Advanced' },
-        { name: 'Three.js / Canvas Graphics', level: 'Proficient' },
-        { name: 'scikit-learn & TensorFlow', level: 'Proficient' },
-        { name: 'Ollama (Local LLM Inference)', level: 'Advanced' },
-        { name: 'Git & Linux Development', level: 'Advanced' }
-      ]
+        { name: 'LLMs and NLP', note: 'Summarization and sentiment models, fine-tuning' },
+        { name: 'Hugging Face Transformers' },
+        { name: 'LangChain' },
+        { name: 'scikit-learn and TensorFlow' },
+        { name: 'OCR and computer vision', note: 'OpenCV, drawing extraction at Igniters Hub' },
+      ],
     },
     {
-      category: 'Databases & Retrieval',
+      category: 'Engineering',
       skills: [
-        { name: 'PostgreSQL & pgvector', level: 'Advanced', note: 'Relational storage & embedded vector search' },
-        { name: 'Neo4j', level: 'Advanced', note: 'Cypher queries, multi-hop relationship graphs' },
-        { name: 'ChromaDB', level: 'Advanced', note: 'Embedded document vector indexing' },
-        { name: 'MySQL', level: 'Proficient', note: 'Structured schemas and relational queries' }
-      ]
-    }
+        { name: 'Python', note: 'FastAPI, asyncio, Pydantic' },
+        { name: 'TypeScript and JavaScript', note: 'React, Next.js, Node.js, Chrome extensions' },
+        { name: 'PostgreSQL, MySQL, Neo4j' },
+        { name: 'Java, C++, Swift' },
+        { name: 'Git and Linux' },
+      ],
+    },
   ] as SkillCategory[],
 
   education: [
     {
-      degree: 'Bachelor of Technology (B.Tech)',
+      degree: 'B.Tech',
       field: 'Computer Science and Engineering',
-      institution: 'Birla Institute of Applied Sciences (UTU) — Bhimtal, Uttarakhand',
-      period: 'Graduation: June 2026',
+      institution: 'Birla Institute of Applied Sciences (UTU), Bhimtal',
+      period: 'Graduated June 2026',
       details: [
-        'Academic Performance: CGPA: 7.0',
-        'Core coursework: Advanced Algorithms, Data Structures, Operating Systems, Computer Networks, Database Management Systems, Object-Oriented Programming.',
-        'Extracurricular Leadership: Secretary, College Technical Society (300+ members).'
+        'CGPA 7.0',
+        'Coursework in algorithms, data structures, operating systems, networks, databases and object-oriented programming',
       ]
     }
   ] as EducationItem[],
 
   experience: [
     {
-      period: 'Sep 2026 – Present',
+      period: 'Sep 2026 – present',
       role: 'Software Developer',
       organization: 'Igniters Hub',
       location: 'India',
       description: [
-        'Developing full-stack and AI-powered applications, working across frontend, backend, APIs, and system integration.',
-        'Building an AI-driven furniture drawing extraction system using OCR, computer vision, and LLM-based processing to extract structured information from engineering drawings.',
-        'Implementing automated dimension and component extraction workflows for downstream furniture engineering processes.'
+        'Building an AI system that reads furniture engineering drawings with OCR, computer vision and an LLM, generates the cut list and sends it to the cutting optimizer',
+        'Automating dimension and component extraction for downstream furniture engineering',
+        'Full-stack work across frontend, backend, APIs and system integration',
       ],
-      technologies: ['Python', 'FastAPI', 'OpenCV', 'OCR', 'LLMs', 'React', 'TypeScript']
+      technologies: ['Python', 'FastAPI', 'OCR', 'OpenCV', 'LLMs', 'React', 'TypeScript'],
     },
     {
       period: 'Feb 2026 – Aug 2026',
@@ -102,11 +99,11 @@ export const profile = {
       organization: 'Igniters Hub',
       location: 'India',
       description: [
-        'Developed web applications using JavaScript, Node.js, REST APIs, and modern frontend technologies.',
-        'Built interactive 2D/3D visualization workflows using Three.js and related graphics libraries.',
-        'Contributed to API integration, debugging, system design, and performance optimization.'
+        'Built web applications with JavaScript, Node.js and REST APIs',
+        'Built interactive 2D and 3D visualization workflows with Three.js',
+        'Worked on API integration, debugging, system design and performance',
       ],
-      technologies: ['JavaScript', 'Node.js', 'Three.js', 'REST APIs', 'Frontend Architecture']
+      technologies: ['JavaScript', 'Node.js', 'Three.js', 'REST APIs'],
     },
     {
       period: 'Jul 2025 – Aug 2025',
@@ -114,30 +111,30 @@ export const profile = {
       organization: 'ACTECAL Pvt. Ltd.',
       location: 'India',
       description: [
-        'Worked with LLMs, fine-tuning, and NLP using Python and Hugging Face Transformers.',
-        'Built text summarization and sentiment analysis applications using transformer-based models.'
+        'Worked with LLMs, fine-tuning and NLP using Python and Hugging Face Transformers',
+        'Built text summarization and sentiment analysis applications on transformer models',
       ],
-      technologies: ['Python', 'Hugging Face', 'Transformers', 'NLP', 'PyTorch']
-    }
+      technologies: ['Python', 'Hugging Face', 'Transformers', 'PyTorch', 'NLP'],
+    },
   ] as ExperienceItem[],
 
   achievements: [
-    'HackerRank: 5 stars in Java and Python; Rank 1.',
-    'LeetCode: 100+ problems solved across data structures, algorithms, dynamic programming, and graphs.',
-    'Secretary, College Technical Society — led technical workshops, hackathons, and coding seminars for 300+ student members.',
-    'Architected AI Second Brain, achieving graph retrieval latency reduction from ~39.5s to ~0.58s on a 10,000-node dense graph benchmark.'
+    'Cut graph retrieval from about 39.5 s to 0.58 s on a 10,000-node benchmark in AI Second Brain',
+    'HackerRank: 5 stars in Java and Python, rank 1',
+    'LeetCode: 100+ problems solved',
+    'Secretary of the college technical society (300+ members): ran workshops, hackathons and coding sessions',
   ],
 
   certifications: [
     {
       title: 'Generative AI Certification',
       issuer: 'DeepLearning.AI / Industry Certification',
-      date: 'Verified'
+      date: ''
     },
     {
       title: 'Machine Learning Specialization',
       issuer: 'Stanford Online / DeepLearning.AI',
-      date: 'Verified'
+      date: ''
     }
   ] as CertificationItem[]
 };

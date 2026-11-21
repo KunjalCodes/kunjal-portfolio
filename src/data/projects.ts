@@ -90,7 +90,7 @@ export const projects: Project[] = [
         challenge: 'Graph retrieval got slow at 10,000 nodes',
         solution:
           'Benchmarked synthetic dense graphs at 100, 1,000 and 10,000 nodes. The bottleneck turned out to be a missing Neo4j index, not graph fan-out.',
-        outcome: 'Mean hybrid search latency on the 10,000-node graph dropped from 39.5 s to 0.58 s. Every memory lookup had been scanning all 219,782 relationships.',
+        outcome: 'Mean hybrid search latency on the 10,000-node graph dropped from 39.5 s to 0.58 s, about 68× faster. Every memory lookup had been scanning all 219,782 relationships.',
       },
       {
         challenge: 'Concurrent facts looked like conflicts',

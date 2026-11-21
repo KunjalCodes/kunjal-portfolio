@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/common/PageHeader';
 import React, { useState } from 'react';
 import { Mail, Github, Linkedin, FileText, Copy, Check, Send, Terminal, Code2 } from 'lucide-react';
 import { profile } from '../data/profile';
@@ -28,19 +29,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
 
   return (
     <div className="pt-28 pb-24 max-w-4xl mx-auto px-6 min-h-screen">
-      {/* Header */}
-      <div className="mb-12">
-        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Get in touch
-        </div>
-        <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
-          Contact & Collaboration
-        </h1>
-        <p className="mt-4 text-base text-muted leading-relaxed max-w-2xl">
-          Whether discussing AI agent architectures, persistent memory graphs, computer vision pipelines, or engineering opportunities, feel free to reach out directly through any of the channels below.
-        </p>
-      </div>
+      <PageHeader
+        path="contact"
+        title="Let’s talk"
+        description="AI engineering roles, agent and retrieval systems, or something you are building. Email is the fastest way to reach me."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Left Column: Direct Endpoints */}
@@ -155,10 +148,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
           >
             <div>
               <h2 className="font-heading text-lg font-bold text-primary">
-                Send Direct Dispatch
+                Write a message
               </h2>
               <p className="text-xs text-muted mt-1">
-                Formats a message and launches your configured mail client.
+                Opens your email app with this filled in.
               </p>
             </div>
 
@@ -190,15 +183,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenTerminal }) => {
                 required
               />
             </div>
-
-            <Button
-              variant="primary"
-              size="md"
-              icon={<Send className="w-3.5 h-3.5" />}
-              className="w-full"
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-2 font-mono font-medium rounded-md px-4 py-2 text-sm bg-accent text-[#080808] hover:bg-accent-hover transition-colors cursor-pointer active:scale-[0.98]"
             >
-              Compose in Email Client
-            </Button>
+              Open in email app
+              <Send className="w-3.5 h-3.5" />
+            </button>
           </form>
         </div>
       </div>

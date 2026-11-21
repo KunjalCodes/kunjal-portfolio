@@ -9,6 +9,7 @@ import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { PlaygroundPage } from './pages/PlaygroundPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
+import { AskPalette } from './components/interactive/AskPalette';
 import { CharacterCompanion } from './components/character/CharacterCompanion';
 import { projects } from './data/projects';
 
@@ -44,6 +45,32 @@ const RouteHandler: React.FC = () => {
 
 export const App: React.FC = () => {
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [isAskOpen, setIsAskOpen] = useState(false);
+
+  // ⌘K / Ctrl+K opens the "Ask about my work" retrieval palette
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsAskOpen(o => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  // One pointer listener drives the cursor spotlight on every .spotlight card
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const el = (e.target as Element | null)?.closest?.('.spotlight') as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
 
   // Global keyboard shortcut to toggle terminal (` or ~)
   useEffect(() => {
@@ -67,7 +94,7 @@ export const App: React.FC = () => {
       <RouteHandler />
       <div className="min-h-screen bg-background text-primary selection:bg-accent/20 selection:text-accent flex flex-col justify-between relative font-sans">
         {/* Navigation Bar */}
-        <Navbar onOpenTerminal={() => setIsTerminalOpen(true)} />
+        <Navbar onOpenTerminal={() => setIsTerminalOpen(true)} onOpenAsk={() => setIsAskOpen(true)} />
 
         {/* Main Routed Content */}
         <main className="flex-1 w-full">
@@ -88,6 +115,8 @@ export const App: React.FC = () => {
 
         {/* Engineering Footer */}
         <Footer onOpenTerminal={() => setIsTerminalOpen(true)} />
+
+        <AskPalette open={isAskOpen} onClose={() => setIsAskOpen(false)} />
 
         {/* Interactive Terminal Shell Overlay */}
         <PortfolioTerminal

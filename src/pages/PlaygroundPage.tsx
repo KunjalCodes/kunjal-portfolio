@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/common/PageHeader';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layers, BarChart3, Terminal, Cpu, Network, CheckCircle } from 'lucide-react';
@@ -35,21 +36,11 @@ export const PlaygroundPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-24 max-w-7xl mx-auto px-6 min-h-screen">
-      {/* Page Header */}
-      <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Playground
-        </div>
-        <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
-          Hands-on AI engineering
-        </h1>
-        <p className="mt-4 text-base text-muted leading-relaxed">
-          Four small interactive tools for ideas I use every day: how a document pipeline turns a drawing into structured
-          data, how a classification threshold trades precision for recall, why structured prompts beat loose ones, and how
-          an AI system is split into layers. Everything runs in your browser on prepared data; no model is called live.
-        </p>
-      </div>
+      <PageHeader
+        path="playground"
+        title="Hands-on AI engineering"
+        description="Four small interactive tools for ideas I use every day: how a document pipeline turns a drawing into structured data, how a classification threshold trades precision for recall, why structured prompts beat loose ones, and how an AI system is split into layers. Everything runs in your browser on prepared data; no model is called live."
+      />
 
       {/* Tabs Navigation Bar */}
       <div className="flex flex-wrap items-center gap-2 mb-12 pb-6 border-b border-border">

@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/common/PageHeader';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, FileText, MapPin } from 'lucide-react';
@@ -39,17 +40,15 @@ export const AboutPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-24 max-w-5xl mx-auto px-6 min-h-screen">
-      {/* Header */}
-      <div className="max-w-3xl mb-12">
-        <Eyebrow>About</Eyebrow>
-        <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight text-primary">{profile.name}</h1>
-        <p className="mt-3 text-lg text-muted-light">{profile.title}</p>
-        <p className="mt-4 text-base text-muted leading-relaxed">{profile.oneLiner}</p>
-        <div className="mt-4 flex items-center gap-1.5 text-xs font-mono text-muted">
-          <MapPin className="w-3.5 h-3.5" />
-          {profile.location}
+      <PageHeader path="about" title={profile.name} description={profile.oneLiner}>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <span className="text-primary">{profile.title}</span>
+          <span className="flex items-center gap-1.5 text-xs font-mono text-muted">
+            <MapPin className="w-3.5 h-3.5" />
+            {profile.location}
+          </span>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Bio + now */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16 items-start">

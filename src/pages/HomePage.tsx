@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowRight, Terminal, FileText, BarChart3, Network, Layers, Bot, Database, ScanText } from 'lucide-react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import { PortfolioTerminal } from '../components/terminal/PortfolioTerminal';
+import { AskPortfolio } from '../components/interactive/AskPortfolio';
+import { StatsBand } from '../components/interactive/StatsBand';
 import { projects } from '../data/projects';
 import { profile } from '../data/profile';
 
@@ -73,18 +74,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
       <div className="max-w-7xl mx-auto px-6 py-20 space-y-32">
         {/* Intro */}
         <section id="intro" className="scroll-mt-24">
+          <SectionHeading index={1} label="About" title="The model is the easy part" description={profile.oneLiner} />
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            <div className="lg:col-span-5">
-              <div className="font-mono text-xs text-accent mb-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                About
-              </div>
-              <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-primary leading-tight">
-                The model is the easy part
-              </h2>
-              <p className="mt-4 text-sm text-muted-light leading-relaxed max-w-sm">{profile.oneLiner}</p>
-            </div>
-            <div className="lg:col-span-7 space-y-4 text-muted text-base leading-relaxed">
+            <div className="reveal lg:col-span-8 space-y-4 text-muted text-base md:text-lg leading-relaxed">
               <p>{profile.bio[0]}</p>
               <p>{profile.bio[1]}</p>
               <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -103,9 +95,23 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           </div>
         </section>
 
+        {/* Ask: real retrieval over this site */}
+        <section className="scroll-mt-24">
+          <SectionHeading
+            index={2}
+            label="Ask"
+            title="Ask about my work"
+            description="Type a question a recruiter might ask. A small retrieval pipeline (chunking and BM25 ranking) searches my projects and experience right in your browser and returns the evidence with links. Open it from any page with ⌘K."
+          />
+          <div className="reveal">
+            <AskPortfolio />
+          </div>
+        </section>
+
         {/* Featured work */}
         <section id="featured" className="scroll-mt-24">
           <SectionHeading
+            index={3}
             label="Selected work"
             title="Things I have built"
             description="Agent memory, tool use over MCP, and AI that reads engineering drawings."
@@ -118,12 +124,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {featuredProjects.map((project, idx) => (
-              <motion.article
+              <article
                 key={project.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: idx * 0.06 }}
-                className="group relative bg-[#0E0E0E] hover:bg-[#121212] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-[border-color,background-color] duration-200"
+                data-idx={idx}
+                className="reveal spotlight group relative bg-[#0E0E0E] hover:bg-[#121212] border border-border hover:border-accent/40 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-[border-color,background-color] duration-200"
               >
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-4">
@@ -185,7 +189,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
                     )}
                   </div>
                 </div>
-              </motion.article>
+              </article>
+            ))}
+          </div>
+
+          {/* Results from the projects above */}
+          <div className="mt-16">
+            <div className="reveal flex items-center gap-3 mb-5">
+              <span className="reveal-line block h-px w-10 bg-accent" aria-hidden="true" />
+              <span className="font-mono text-xs text-muted-light">By the numbers</span>
+            </div>
+            <StatsBand />
+          </div>
+        </section>
+
+        {/* Focus areas */}
+        <section>
+          <SectionHeading index={4} label="Focus" title="What I work on" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {focusAreas.map(f => (
+              <div key={f.title} className="reveal spotlight bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
+                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                  <f.icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-heading font-semibold text-lg text-primary">{f.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{f.body}</p>
+              </div>
             ))}
           </div>
         </section>
@@ -193,6 +222,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
         {/* Playground */}
         <section className="scroll-mt-24">
           <SectionHeading
+            index={5}
             label="Playground"
             title="Interactive AI engineering demos"
             description="Small hands-on tools for the ideas I work with every day: document pipelines, evaluation, prompting and system design. They run in your browser on prepared data, with no live model calls."
@@ -208,7 +238,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
               <Link
                 key={t.to}
                 to={t.to}
-                className="bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
+                className="reveal spotlight bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
@@ -228,31 +258,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           </div>
         </section>
 
-        {/* Focus areas */}
-        <section>
-          <SectionHeading label="Focus" title="What I work on" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {focusAreas.map(f => (
-              <div key={f.title} className="bg-[#0B0B0B] border border-border p-6 rounded-lg space-y-3 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                  <f.icon className="w-5 h-5" />
-                </div>
-                <h3 className="font-heading font-semibold text-lg text-primary">{f.title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{f.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Terminal */}
         <section>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-4">
-              <div className="font-mono text-xs text-accent mb-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                Terminal
+            <div className="reveal lg:col-span-4">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="font-mono text-xs text-accent tabular-nums">06</span>
+                <span className="reveal-line block h-px w-10 bg-accent" aria-hidden="true" />
+                <span className="font-mono text-xs text-muted-light">Terminal</span>
               </div>
-              <h2 className="font-heading text-2xl md:text-3xl font-semibold text-primary tracking-tight">
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary tracking-tight leading-[1.05]">
                 Prefer a command line?
               </h2>
               <p className="mt-3 text-sm text-muted leading-relaxed">
@@ -263,14 +278,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
                 from any page.
               </p>
             </div>
-            <div className="lg:col-span-8">
+            <div className="reveal lg:col-span-8">
               <PortfolioTerminal isOpen variant="inline" onClose={() => {}} />
             </div>
           </div>
         </section>
 
         {/* Contact */}
-        <section className="bg-gradient-to-b from-[#0E0E0E] to-[#090909] border border-border rounded-xl p-8 sm:p-12 text-center relative overflow-hidden">
+        <section className="reveal spotlight bg-gradient-to-b from-[#0E0E0E] to-[#090909] border border-border rounded-xl p-8 sm:p-12 text-center relative overflow-hidden">
           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.04] border border-border text-muted-light text-xs font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />

@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/common/PageHeader';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,19 +23,11 @@ export const WorkPage: React.FC = () => {
 
   return (
     <div className="pt-28 pb-20 max-w-7xl mx-auto px-6 min-h-screen">
-      {/* Header */}
-      <div className="max-w-3xl mb-12">
-        <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-          Work
-        </div>
-        <h1 className="font-heading text-3xl sm:text-5xl font-bold tracking-tight text-primary">
-          Projects
-        </h1>
-        <p className="mt-4 text-base text-muted leading-relaxed">
-          Agents, memory, retrieval and applied AI. Each case study covers how it works, what was hard, what it achieved and where it still falls short.
-        </p>
-      </div>
+      <PageHeader
+        path="work"
+        title="Projects"
+        description="Agents, memory, retrieval and applied AI. Each case study covers how it works, what was hard, what it achieved and where it still falls short."
+      />
 
       {/* Category Filter Pills */}
       <div className="flex flex-wrap items-center gap-2 mb-10 pb-6 border-b border-border">

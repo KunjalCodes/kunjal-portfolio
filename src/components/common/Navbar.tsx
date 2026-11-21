@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Terminal as TerminalIcon, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Terminal as TerminalIcon, Menu, X, ArrowUpRight, Search } from 'lucide-react';
 import { profile } from '../../data/profile';
 
 interface NavbarProps {
   onOpenTerminal: () => void;
+  onOpenAsk: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal, onOpenAsk }) => {
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -21,6 +23,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-[#080808]/85 backdrop-blur-md border-b border-border transition-colors">
+      {/* Reading progress (CSS scroll-driven; hidden where unsupported) */}
+      <span className="scroll-progress" aria-hidden="true" />
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
         <Link
@@ -61,6 +65,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTerminal }) => {
 
         {/* Right Action: Terminal Trigger + Resume */}
         <div className="flex items-center gap-3">
+          {/* Ask (retrieval over the site) */}
+          <button
+            onClick={onOpenAsk}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#121212] hover:bg-[#1A1A1A] border border-border hover:border-accent/40 text-muted hover:text-accent transition-colors duration-150 font-mono text-xs cursor-pointer"
+            title="Ask about my work"
+            aria-label="Ask about my work"
+          >
+            <Search className="w-3.5 h-3.5 text-accent" />
+            <span className="hidden sm:inline">Ask</span>
+            <kbd className="hidden lg:inline text-[10px] text-muted-dark bg-black/40 px-1 rounded-sm border border-border">
+              {isMac ? '⌘K' : 'Ctrl K'}
+            </kbd>
+          </button>
+
           {/* Terminal Launcher */}
           <button
             onClick={onOpenTerminal}

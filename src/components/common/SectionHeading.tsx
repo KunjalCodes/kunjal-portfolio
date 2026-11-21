@@ -6,6 +6,8 @@ interface SectionHeadingProps {
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  /** Section number shown as "01" with a large outlined numeral behind the title */
+  index?: number;
 }
 
 export const SectionHeading: React.FC<SectionHeadingProps> = ({
@@ -14,26 +16,39 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
   description,
   action,
   className = '',
+  index,
 }) => {
+  const num = index !== undefined ? String(index).padStart(2, '0') : undefined;
+
   return (
-    <div className={`flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 pb-6 border-b border-border ${className}`}>
-      <div>
-        {label && (
-          <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block" />
-            {label}
-          </div>
-        )}
-        <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold text-primary tracking-tight">
-          {title}
-        </h2>
-        {description && (
-          <p className="mt-2 text-sm md:text-base text-muted max-w-2xl leading-relaxed">
-            {description}
-          </p>
-        )}
+    <div className={`relative mb-12 ${className}`}>
+      {num && (
+        <span
+          aria-hidden="true"
+          className="reveal-numeral numeral-outline pointer-events-none select-none absolute -top-10 right-0 font-heading font-bold leading-none text-[96px] md:text-[160px] tracking-tighter"
+        >
+          {num}
+        </span>
+      )}
+
+      <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="reveal max-w-3xl">
+          {label && (
+            <div className="flex items-center gap-3 mb-5">
+              {num && <span className="font-mono text-xs text-accent tabular-nums">{num}</span>}
+              <span className="reveal-line block h-px w-10 bg-accent" aria-hidden="true" />
+              <span className="font-mono text-xs text-muted-light">{label}</span>
+            </div>
+          )}
+          <h2 className="font-heading text-4xl md:text-5xl lg:text-[56px] font-bold text-primary tracking-tight leading-[1.05]">
+            {title}
+          </h2>
+          {description && (
+            <p className="mt-5 text-base md:text-lg text-muted max-w-2xl leading-relaxed">{description}</p>
+          )}
+        </div>
+        {action && <div className="reveal shrink-0">{action}</div>}
       </div>
-      {action && <div className="self-start md:self-end shrink-0">{action}</div>}
     </div>
   );
 };

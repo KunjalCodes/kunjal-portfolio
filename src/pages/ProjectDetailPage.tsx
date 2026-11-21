@@ -169,7 +169,7 @@ export const ProjectDetailPage: React.FC = () => {
       {/* Main Content Sections */}
       <div className="space-y-16">
         {/* 1. Problem Statement */}
-        <section className="bg-[#0D0D0D] border border-border rounded-lg p-6 sm:p-8 space-y-4">
+        <section className="reveal bg-[#0D0D0D] border border-border rounded-lg p-6 sm:p-8 space-y-4">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             01. The problem
@@ -183,7 +183,7 @@ export const ProjectDetailPage: React.FC = () => {
         </section>
 
         {/* 2. Project Overview */}
-        <section className="space-y-4">
+        <section className="reveal space-y-4">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Cpu className="w-4 h-4" />
             02. What I built
@@ -210,7 +210,7 @@ export const ProjectDetailPage: React.FC = () => {
         {projectDemos[project.id] && (() => {
           const { title, body, Demo } = projectDemos[project.id];
           return (
-            <section className="space-y-6">
+            <section className="reveal space-y-6">
               <div className="font-mono text-xs text-accent flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 Try it
@@ -225,7 +225,7 @@ export const ProjectDetailPage: React.FC = () => {
         })()}
 
         {/* 3. System Architecture */}
-        <section className="space-y-6">
+        <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Layers className="w-4 h-4" />
             03. Architecture
@@ -277,7 +277,7 @@ export const ProjectDetailPage: React.FC = () => {
         </section>
 
         {/* 4. Technical Implementation */}
-        <section className="space-y-6">
+        <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Code2 className="w-4 h-4" />
             04. Implementation
@@ -317,7 +317,7 @@ export const ProjectDetailPage: React.FC = () => {
         </section>
 
         {/* 5. Engineering Challenges & Trade-offs */}
-        <section className="space-y-6">
+        <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             05. Challenges
@@ -357,7 +357,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 6. Screenshots (only real captures from the project) */}
         {project.demonstrations.length > 0 && (
-          <section className="space-y-6">
+          <section className="reveal space-y-6">
             <div className="font-mono text-xs text-accent flex items-center gap-2">
               <Layers className="w-4 h-4" />
               06. Screenshots
@@ -419,7 +419,7 @@ export const ProjectDetailPage: React.FC = () => {
         )}
 
         {/* 7. Actual Results & Real Limitations */}
-        <section className="space-y-6">
+        <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
             07. Results
@@ -465,7 +465,7 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* 08. Future Improvements & Roadmap */}
         {project.futureImprovements && project.futureImprovements.length > 0 && (
-          <section className="space-y-6">
+          <section className="reveal space-y-6">
             <div className="font-mono text-xs text-accent flex items-center gap-2">
               <Layers className="w-4 h-4" />
               08. Next

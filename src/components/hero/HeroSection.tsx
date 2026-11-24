@@ -7,15 +7,22 @@ import { profile } from '../../data/profile';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between items-center px-6 pt-24 pb-10 overflow-hidden bg-background">
+    <section className="relative w-full min-h-screen flex flex-col justify-center items-center px-6 pt-20 pb-24 overflow-hidden bg-background">
       {/* Dynamic Pink Flame Background */}
       <HeroFlameBackground />
 
-      {/* Spacing anchor */}
-      <div className="w-full" aria-hidden="true" />
-
       {/* Foreground Hero Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center">
+        {/* Soft halo: dims the flame only where the text sits, so it stays readable */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-x-24 -inset-y-20 -z-10"
+          style={{
+            background:
+              'radial-gradient(ellipse 55% 50% at 50% 55%, rgba(8,8,8,0.62) 0%, rgba(8,8,8,0.38) 45%, rgba(8,8,8,0) 75%)',
+          }}
+        />
+
         {/* Intro Subtitle Tag */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -34,7 +41,7 @@ export const HeroSection: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
-          className="flame-lit font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-primary uppercase select-none"
+          className="flame-name font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-primary uppercase select-none"
         >
           {profile.name}
         </motion.h1>
@@ -47,8 +54,7 @@ export const HeroSection: React.FC = () => {
           className="mt-4 md:mt-6 font-heading text-lg sm:text-xl md:text-2xl text-muted-light font-normal max-w-xl text-center tracking-tight"
         >
           <span className="flame-lit text-primary font-medium">{profile.headline}</span>
-          <br className="hidden sm:inline" />
-          <span className="text-sm sm:text-base text-muted block mt-1">
+          <span className="block mt-3 mx-auto max-w-[34rem] font-sans text-[15px] sm:text-[17px] leading-relaxed text-primary-muted text-balance [text-shadow:0_1px_14px_rgba(0,0,0,0.9)]">
             I build agents that remember, retrieve and use tools, and I measure whether they actually work.
           </span>
         </motion.p>

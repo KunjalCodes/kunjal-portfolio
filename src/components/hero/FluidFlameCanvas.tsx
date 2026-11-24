@@ -361,6 +361,7 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
       hover: 0, boost: 0,
       windX: 0, windY: 0, windVX: 0, windVY: 0,
       gutter: 0, flare: 0,
+      near: 0, glow: 0.15,
       emberAcc: 0,
       trailAcc: 0,
     };
@@ -617,9 +618,17 @@ export const FluidFlameCanvas: React.FC<FluidFlameCanvasProps> = ({
 
       // --- LIGHT: tell the page how bright the fire is ----------------------------
       if (onLightRef.current) {
-        const flicker = reducedMotion ? 0 : 0.07 * Math.sin(time * 11.0) * Math.sin(time * 7.3 + 1.0) + 0.03 * Math.sin(time * 23.0);
+        // how close the cursor is to the flame body (eased so the glow breathes, not jitters)
+        s.near = lerp(s.near, proximity, (proximity > s.near ? 0.12 : 0.05) * dt);
+        const intensity = 0.55 * s.near + 0.5 * s.boost + 0.35 * s.flare - 0.25 * s.gutter;
+        const flicker = reducedMotion
+          ? 0
+          : (0.05 + 0.10 * Math.min(1, intensity)) *
+            (Math.sin(time * 11.0) * Math.sin(time * 7.3 + 1.0) + 0.4 * Math.sin(time * 23.0));
+        const target = clamp(0.12 + intensity + flicker, 0, 1);
+        s.glow = lerp(s.glow, target, 0.25 * dt);
         onLightRef.current({
-          glow: clamp(0.3 + 0.6 * s.boost + 0.4 * s.flare - 0.25 * s.gutter + flicker, 0, 1),
+          glow: s.glow,
           lean: clamp(s.windX / 70, -1, 1),
         });
       }

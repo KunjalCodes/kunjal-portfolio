@@ -7,7 +7,7 @@ import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import { PortfolioTerminal } from '../components/terminal/PortfolioTerminal';
 import { AskPortfolio } from '../components/interactive/AskPortfolio';
-import { StatsBand } from '../components/interactive/StatsBand';
+import { AgentGame } from '../components/interactive/AgentGame';
 import { projects } from '../data/projects';
 import { profile } from '../data/profile';
 
@@ -163,13 +163,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
             ))}
           </div>
 
-          {/* Results from the projects above */}
+          {/* Mini game built from the projects above */}
           <div className="mt-16">
             <div className="reveal flex items-center gap-3 mb-5">
               <span className="reveal-line block h-px w-10 bg-accent" aria-hidden="true" />
-              <span className="font-mono text-xs text-muted-light">By the numbers</span>
+              <span className="font-mono text-xs text-muted-light">Mini game: be the agent</span>
             </div>
-            <StatsBand />
+            <div className="reveal">
+              <AgentGame />
+            </div>
           </div>
         </section>
 

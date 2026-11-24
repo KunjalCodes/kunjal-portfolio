@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, FileText, MapPin } from 'lucide-react';
 import { profile } from '../data/profile';
 import { projects } from '../data/projects';
 import { Button } from '../components/common/Button';
+import { SkillShooter } from '../components/interactive/SkillShooter';
 
 const Eyebrow: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="font-mono text-xs text-accent mb-2 flex items-center gap-2">
@@ -192,6 +193,15 @@ export const AboutPage: React.FC = () => {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Mini game */}
+        <div className="pt-2">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="block h-px w-10 bg-accent" aria-hidden="true" />
+            <span className="font-mono text-xs text-muted-light">Mini game: collect the stack</span>
+          </div>
+          <SkillShooter />
         </div>
       </section>
 

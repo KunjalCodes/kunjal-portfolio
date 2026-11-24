@@ -108,6 +108,17 @@
       rgb(255 150 205 / calc(var(--flame-glow, 0) * 0.4));
 }
 
+/* The name: glows with the fire's intensity (--flame-glow 0..1). Near plain at rest,
+   a hot pink-white rim, pink bloom and wide halo as the fire under the cursor burns hotter. */
+.flame-name {
+  text-shadow:
+    0 0 calc(var(--flame-glow, 0) * 6px) rgb(255 225 242 / calc(var(--flame-glow, 0) * 0.85)),
+    0 0 calc(4px + var(--flame-glow, 0) * 24px) rgb(255 125 192 / calc(var(--flame-glow, 0) * 0.75)),
+    0 0 calc(12px + var(--flame-glow, 0) * 64px) rgb(240 90 170 / calc(var(--flame-glow, 0) * 0.55)),
+    calc(var(--flame-lean, 0) * 3px) calc(1px + var(--flame-glow, 0) * 2px) calc(2px + var(--flame-glow, 0) * 5px)
+      rgb(255 150 205 / calc(var(--flame-glow, 0) * 0.35));
+}
+
 .flame-lit-box {
   box-shadow: 0 calc(4px + var(--flame-glow, 0) * 10px) calc(12px + var(--flame-glow, 0) * 32px)
     rgb(255 105 180 / calc(var(--flame-glow, 0) * 0.35));

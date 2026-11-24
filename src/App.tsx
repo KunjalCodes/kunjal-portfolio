@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { PortfolioTerminal } from './components/terminal/PortfolioTerminal';
 import { HomePage } from './pages/HomePage';
 import { WorkPage } from './pages/WorkPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
-import { PlaygroundPage } from './pages/PlaygroundPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { AskPalette } from './components/interactive/AskPalette';
@@ -29,8 +28,6 @@ const RouteHandler: React.FC = () => {
       const slug = pathname.replace('/work/', '');
       const proj = projects.find(p => p.slug === slug);
       document.title = proj ? `${proj.title.split(' — ')[0]} — Kunjal Joshi` : 'Project Case Study — Kunjal Joshi';
-    } else if (pathname === '/playground') {
-      document.title = 'Playground — Kunjal Joshi';
     } else if (pathname === '/about') {
       document.title = 'About — Kunjal Joshi';
     } else if (pathname === '/contact') {
@@ -102,11 +99,10 @@ export const App: React.FC = () => {
             <Route path="/" element={<HomePage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
             <Route path="/work" element={<WorkPage />} />
             <Route path="/work/:slug" element={<ProjectDetailPage />} />
-            <Route path="/playground" element={<PlaygroundPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
             {/* Catch-all redirects to home */}
-            <Route path="*" element={<HomePage onOpenTerminal={() => setIsTerminalOpen(true)} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 

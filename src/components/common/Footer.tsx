@@ -49,9 +49,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
                 <Link to="/work" className="hover:text-primary transition-colors">Work</Link>
               </li>
               <li>
-                <Link to="/playground" className="hover:text-primary transition-colors text-accent">Playground</Link>
-              </li>
-              <li>
                 <Link to="/about" className="hover:text-primary transition-colors">About</Link>
               </li>
               <li>

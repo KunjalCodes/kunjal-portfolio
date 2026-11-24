@@ -25,11 +25,6 @@ const CONTEXTUAL_DIALOGUES: Record<string, string[]> = {
     '10,000 nodes traversed in 0.58s.',
     'I think the architecture is getting interesting.',
   ],
-  '/playground': [
-    'I think the architecture is getting interesting.',
-    'Currently negotiating with a bug.',
-    'Adjusting decision boundaries in real time.',
-  ],
   '/about': [
     'UTU Bhimtal graduate in June 2026.',
     'Agents, memory and retrieval.',
@@ -122,11 +117,6 @@ export function useCharacterState({ isTerminalOpen = false }: UseCharacterStateO
       setActivePose('walk');
       setWalkX(0);
       setFacingDirection(-1); // Start walking inward toward content edge
-    } else if (path === '/playground') {
-      setBehavior('thinking');
-      setActivePose('think');
-      setWalkX(0);
-      setFacingDirection(1);
     } else if (path === '/about') {
       setBehavior('idle');
       setActivePose('walk');

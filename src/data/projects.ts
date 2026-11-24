@@ -21,7 +21,7 @@ export const projects: Project[] = [
     tags: ['Python', 'FastAPI', 'Neo4j', 'PostgreSQL', 'pgvector', 'Gemini', 'MCP', 'Next.js', 'Cytoscape.js'],
     featured: true,
     problemStatement:
-      'Chat assistants forget everything between sessions, and plain vector RAG makes it worse when facts change: if you switched from EasyOCR to PaddleOCR in May, a similarity search happily returns both as if they were equally true. An agent needs memory that keeps history, knows what is current, and can show where each fact came from.',
+      'Chat assistants forget everything between sessions, and plain vector RAG makes it worse when facts change: if you switched from ChromaDB to pgvector in May, a similarity search happily returns both as if they were equally true. An agent needs memory that keeps history, knows what is current, and can show where each fact came from.',
     projectOverview:
       'Every fact is stored as a relationship in a Neo4j graph with its own validity window. When something changes, the old edge is closed rather than deleted, so the system can answer "what do I use now" and "what did I use in March" from the same data. Embeddings in pgvector add semantic search, and retrieval combines graph, vector and keyword results. The LLM only proposes new memories; a deterministic decision engine decides whether to store, merge or flag them. On top sits an agent with seven memory tools and a Next.js memory explorer.',
     architecture: {
@@ -67,11 +67,11 @@ export const projects: Project[] = [
         aspect: 'Facts expire instead of being overwritten',
         description:
           'Each "uses" relationship carries its own validity window. Changing a tool closes the old edge and opens a new one, so history stays queryable and "previously used" vs "currently uses" is derived at query time.',
-        codeSnippet: `Drawing Extractor
+        codeSnippet: `Study Chatbot
        |
-       +── uses ──> EasyOCR     valid: January → May   (superseded)
+       +── uses ──> ChromaDB    valid: January → May   (superseded)
        |
-       +── uses ──> PaddleOCR   valid: May → now       (active)`,
+       +── uses ──> pgvector    valid: May → now       (active)`,
         language: 'text',
       },
       {
@@ -169,91 +169,34 @@ export const projects: Project[] = [
   {
     id: 'furniture-drawing-extractor',
     slug: 'furniture-drawing-extractor',
-    title: 'Drawing to Cut List — AI for furniture manufacturing',
+    title: 'Drawing Extraction — AI for furniture engineering',
     subtitle:
-      'Upload a furniture drawing and get a cut list: OCR, computer vision and an LLM read the dimensions and parts, and the cut list goes on to the cutting optimizer',
+      'An AI-driven system that extracts structured information from furniture engineering drawings using OCR, computer vision and LLM-based processing',
     category: 'Applied AI',
     categories: ['Applied AI'],
     status: 'In progress',
     timeframe: 'Sep 2026 – present',
     organization: 'Igniters Hub',
     shortDescription:
-      'Company project at Igniters Hub. Turns engineering drawings into structured parts and dimensions, generates the cut list and hands it to the optimizer, replacing manual takeoff.',
-    tags: ['Python', 'OCR', 'Computer vision', 'OpenCV', 'LLMs', 'FastAPI', 'React', 'TypeScript'],
+      'Company project at Igniters Hub: automated dimension and component extraction from engineering drawings for downstream furniture engineering.',
+    tags: ['Python', 'OCR', 'Computer vision', 'LLMs'],
     featured: true,
     problemStatement:
-      'Before a piece of furniture can be cut, someone reads its engineering drawing and types every panel, dimension and quantity into a cut list by hand. It is slow, and a single misread number means wasted material or a part that does not fit.',
+      'Furniture engineering starts from technical drawings, and reading the dimensions and components off them by hand is slow and error-prone.',
     projectOverview:
-      'I am building this at Igniters Hub. A user uploads a furniture drawing; the system reads the dimensions and annotations with OCR, uses computer vision to understand the layout, and uses an LLM to work out which dimensions belong to which component. From that it generates a cut list, which is sent to the optimizer that plans how the parts are cut from sheets.',
+      'At Igniters Hub I am building an AI-driven drawing extraction system that uses OCR, computer vision and LLM-based processing to extract structured information from engineering drawings, and automated dimension and component extraction workflows for downstream furniture engineering processes. This is company work, so the design, code, data and results are confidential and not described here.',
     architecture: {
-      summary:
-        'An upload-to-optimizer pipeline: drawing in, structured components and dimensions out, cut list generated and passed downstream. Shown at a high level because the code and drawings belong to the company.',
-      diagramDescription:
-        'Upload drawing -> OCR reads dimensions and labels -> computer vision reads the layout -> LLM maps dimensions to components -> cut list -> optimizer',
-      layers: [
-        {
-          name: 'Upload and preprocessing',
-          technologies: ['Python', 'OpenCV'],
-          description: 'Takes the uploaded drawing and prepares it for reading.',
-        },
-        {
-          name: 'Reading the drawing',
-          technologies: ['OCR', 'Computer vision'],
-          description: 'Extracts dimension values, part labels and annotations, and where they sit on the drawing.',
-        },
-        {
-          name: 'Understanding the parts',
-          technologies: ['LLMs', 'Structured output'],
-          description: 'Associates each dimension with the component it describes and produces structured component data.',
-        },
-        {
-          name: 'Cut list and handoff',
-          technologies: ['FastAPI', 'React', 'TypeScript'],
-          description: 'Generates the cut list from the extracted dimensions and sends it to the optimizer.',
-        },
-      ],
+      summary: '',
+      layers: [],
     },
-    technicalImplementation: [
-      {
-        aspect: 'Why OCR alone is not enough',
-        description:
-          'OCR gives you numbers, not meaning. A drawing has dozens of dimensions, and the hard part is knowing that a given number is the depth of a drawer side and not the width of the top. That is where layout from computer vision and reasoning from the LLM come in.',
-      },
-      {
-        aspect: 'Structured output end to end',
-        description:
-          'Each stage produces structured data rather than free text, so the cut list can be generated deterministically and checked before it reaches the optimizer.',
-      },
-    ],
-    engineeringChallenges: [
-      {
-        challenge: 'Matching dimensions to the right part',
-        solution: 'Combine the position of each value on the drawing with LLM reasoning about the furniture’s components, instead of relying on the text alone.',
-      },
-      {
-        challenge: 'A wrong number is expensive',
-        solution: 'Keep the output structured and reviewable so mistakes are caught before cutting, not after.',
-      },
-    ],
+    technicalImplementation: [],
+    engineeringChallenges: [],
     demonstrations: [],
-    actualResults: [
-      'Drawing upload through to a generated cut list',
-      'Cut list handed off to the optimizer for downstream manufacturing',
-    ],
-    limitations: [
-      'Company project: the code and client drawings are confidential, so only the approach is described here',
-      'Under active development',
-    ],
-    dataFlowSteps: [
-      { stepNumber: 1, title: 'Upload', input: 'Furniture drawing', output: 'Prepared image', detail: 'The drawing is uploaded and preprocessed.' },
-      { stepNumber: 2, title: 'Read', input: 'Drawing', output: 'Dimensions and labels', detail: 'OCR and computer vision extract values and where they are.' },
-      { stepNumber: 3, title: 'Interpret', input: 'Dimensions and layout', output: 'Components with sizes', detail: 'The LLM maps each dimension to its part.' },
-      { stepNumber: 4, title: 'Cut list', input: 'Components', output: 'Cut list', detail: 'Parts, sizes and quantities, generated from the extracted data.' },
-      { stepNumber: 5, title: 'Optimize', input: 'Cut list', output: 'Cutting plan', detail: 'Sent to the optimizer that plans the cuts.' },
-    ],
+    actualResults: [],
+    limitations: [],
     metrics: [
-      { label: 'Input', value: 'Furniture drawing' },
-      { label: 'Output', value: 'Cut list for the optimizer' },
+      { label: 'Domain', value: 'Engineering drawings' },
+      { label: 'Approach', value: 'OCR, CV and LLMs' },
       { label: 'Built at', value: 'Igniters Hub' },
     ],
   },

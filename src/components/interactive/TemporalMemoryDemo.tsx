@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 /**
- * The temporal-memory example from the AI Second Brain README: a fact is never
+ * How AI Second Brain treats changing facts, on a small example: a fact is never
  * overwritten, its validity window is closed. Drag through the year to see which
  * relationships are current, and what plain vector search would return instead.
  */
@@ -10,9 +10,9 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 type Edge = { target: string; from: number; to: number | null; x: number; y: number; ly: number };
 
 const edges: Edge[] = [
-  { target: 'EasyOCR', from: 0, to: 4, x: 80, y: 52, ly: 28 },
-  { target: 'PaddleOCR', from: 4, to: null, x: 80, y: 168, ly: 200 },
-  { target: 'Gemini', from: 0, to: null, x: 420, y: 110, ly: 82 },
+  { target: 'ChromaDB', from: 0, to: 4, x: 80, y: 52, ly: 28 },
+  { target: 'pgvector', from: 4, to: null, x: 80, y: 168, ly: 200 },
+  { target: 'Llama 3', from: 0, to: null, x: 420, y: 110, ly: 82 },
 ];
 
 const CENTER = { x: 250, y: 110 };
@@ -22,7 +22,7 @@ export const TemporalMemoryDemo: React.FC = () => {
 
   const state = (e: Edge) => (month < e.from ? 'future' : e.to !== null && month >= e.to ? 'superseded' : 'active');
   const validity = (e: Edge) => `${MONTHS[e.from]} → ${e.to === null ? 'now' : MONTHS[e.to]}`;
-  const ocrNow = edges.filter(e => e.target !== 'Gemini' && state(e) === 'active').map(e => e.target);
+  const ocrNow = edges.filter(e => e.target !== 'Llama 3' && state(e) === 'active').map(e => e.target);
 
   return (
     <div className="bg-[#0B0B0B] border border-border rounded-lg overflow-hidden flex flex-col">
@@ -76,7 +76,7 @@ export const TemporalMemoryDemo: React.FC = () => {
         })}
         <rect x={CENTER.x - 66} y={CENTER.y - 16} width="132" height="32" rx="7" fill="#161616" stroke="#3a3a3a" />
         <text x={CENTER.x} y={CENTER.y + 4} textAnchor="middle" fontSize="11.5" fill="#F5F5F5">
-          Drawing Extractor
+          Study Chatbot
         </text>
       </svg>
 
@@ -109,7 +109,7 @@ export const TemporalMemoryDemo: React.FC = () => {
         </div>
         <div className="bg-[#080808] border border-border rounded-md p-3">
           <div className="text-[11px] text-muted mb-1.5">plain vector search returns</div>
-          <div className="text-muted-light">EasyOCR, PaddleOCR</div>
+          <div className="text-muted-light">ChromaDB, pgvector</div>
           <div className="text-[11px] text-muted-dark mt-1">both look relevant; no idea which is current</div>
         </div>
       </div>

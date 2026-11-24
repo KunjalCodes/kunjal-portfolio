@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Terminal, FileText, BarChart3, Network, Layers, Bot, Database, ScanText } from 'lucide-react';
+import { ArrowRight, Terminal, FileText, Bot, Database, ScanText } from 'lucide-react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { SectionHeading } from '../components/common/SectionHeading';
 import { Badge } from '../components/common/Badge';
@@ -15,36 +15,6 @@ interface HomePageProps {
   onOpenTerminal: () => void;
 }
 
-const playgroundTools = [
-  {
-    to: '/playground?tab=pipeline',
-    icon: Layers,
-    title: 'Drawing pipeline',
-    body: 'Step through how a technical drawing becomes structured data: image cleanup, OCR, LLM interpretation, validation and JSON.',
-    cta: 'Step through it',
-  },
-  {
-    to: '/playground?tab=eval',
-    icon: BarChart3,
-    title: 'Model evaluation',
-    body: 'Drag a classification threshold and watch precision, recall, F1 and the confusion matrix change.',
-    cta: 'Move the threshold',
-  },
-  {
-    to: '/playground?tab=prompt',
-    icon: Terminal,
-    title: 'Prompt lab',
-    body: 'Compare a loose prompt with a schema-constrained one on the same input and see why structure matters.',
-    cta: 'Compare prompts',
-  },
-  {
-    to: '/playground?tab=architecture',
-    icon: Network,
-    title: 'Architecture',
-    body: 'Click through each layer of an AI system to see its inputs, outputs, trade-offs and failure fallbacks.',
-    cta: 'Explore layers',
-  },
-];
 
 const focusAreas = [
   {
@@ -60,7 +30,7 @@ const focusAreas = [
   {
     icon: ScanText,
     title: 'Applied AI in production',
-    body: 'OCR, computer vision and LLMs working together on real documents, like turning furniture drawings into cut lists at Igniters Hub.',
+    body: 'OCR, computer vision and LLMs working together on real documents, such as extracting structured information from engineering drawings at Igniters Hub.',
   },
 ];
 
@@ -219,51 +189,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenTerminal }) => {
           </div>
         </section>
 
-        {/* Playground */}
-        <section className="scroll-mt-24">
-          <SectionHeading
-            index={5}
-            label="Playground"
-            title="Interactive AI engineering demos"
-            description="Small hands-on tools for the ideas I work with every day: document pipelines, evaluation, prompting and system design. They run in your browser on prepared data, with no live model calls."
-            action={
-              <Button to="/playground" variant="primary" size="sm" icon={<ArrowRight className="w-3.5 h-3.5" />}>
-                Open playground
-              </Button>
-            }
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {playgroundTools.map(t => (
-              <Link
-                key={t.to}
-                to={t.to}
-                className="reveal spotlight bg-[#0B0B0B] border border-border hover:border-accent/50 p-6 rounded-lg space-y-3 transition-[border-color,background-color] duration-200 group flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="w-9 h-9 rounded bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
-                    <t.icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-heading font-semibold text-base text-primary group-hover:text-accent transition-colors">
-                    {t.title}
-                  </h3>
-                  <p className="text-xs text-muted leading-relaxed">{t.body}</p>
-                </div>
-                <div className="pt-3 border-t border-border/80 flex items-center justify-between text-xs font-mono text-accent">
-                  <span>{t.cta}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
         {/* Terminal */}
         <section>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="reveal lg:col-span-4">
               <div className="flex items-center gap-3 mb-5">
-                <span className="font-mono text-xs text-accent tabular-nums">06</span>
+                <span className="font-mono text-xs text-accent tabular-nums">05</span>
                 <span className="reveal-line block h-px w-10 bg-accent" aria-hidden="true" />
                 <span className="font-mono text-xs text-muted-light">Terminal</span>
               </div>

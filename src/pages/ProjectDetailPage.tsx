@@ -11,7 +11,7 @@ import { AgentTraceDemo } from '../components/interactive/AgentTraceDemo';
 const projectDemos: Record<string, { title: string; body: string; Demo: React.FC }> = {
   'second-brain': {
     title: 'Memory that knows what changed',
-    body: 'A fact is never overwritten; its validity window is closed. Drag through the year and compare what the temporal graph answers with what plain vector search would return. The example comes from the project README.',
+    body: 'A fact is never overwritten; its validity window is closed. Drag through the year and compare what the temporal graph answers with what plain vector search would return.',
     Demo: TemporalMemoryDemo,
   },
   'mcp-ai-copilot': {
@@ -225,6 +225,7 @@ export const ProjectDetailPage: React.FC = () => {
         })()}
 
         {/* 3. System Architecture */}
+        {project.architecture.layers.length > 0 && (
         <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Layers className="w-4 h-4" />
@@ -275,8 +276,10 @@ export const ProjectDetailPage: React.FC = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* 4. Technical Implementation */}
+        {project.technicalImplementation.length > 0 && (
         <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <Code2 className="w-4 h-4" />
@@ -315,8 +318,10 @@ export const ProjectDetailPage: React.FC = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* 5. Engineering Challenges & Trade-offs */}
+        {project.engineeringChallenges.length > 0 && (
         <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
@@ -354,6 +359,7 @@ export const ProjectDetailPage: React.FC = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* 6. Screenshots (only real captures from the project) */}
         {project.demonstrations.length > 0 && (
@@ -419,6 +425,7 @@ export const ProjectDetailPage: React.FC = () => {
         )}
 
         {/* 7. Actual Results & Real Limitations */}
+        {(project.actualResults.length > 0 || project.limitations.length > 0) && (
         <section className="reveal space-y-6">
           <div className="font-mono text-xs text-accent flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
@@ -462,6 +469,7 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* 08. Future Improvements & Roadmap */}
         {project.futureImprovements && project.futureImprovements.length > 0 && (

@@ -12,7 +12,7 @@ export const profile = {
     'I build the parts that make language models useful in practice: memory that lasts, retrieval that can be trusted, and agents that use tools and cite their sources.',
   bio: [
     'I am an AI engineer. Most of my work sits between a language model and the real world: giving it memory that survives a conversation, retrieval it can trust, and tools it can call safely. The model is usually the easy part; the system around it is where things break.',
-    'Right now that means AI Second Brain, a memory engine for agents built on a temporal knowledge graph and hybrid retrieval, where every answer has to cite the memory it came from. At Igniters Hub I am building a pipeline that reads furniture drawings with OCR, computer vision and an LLM, and turns them into cut lists for manufacturing.',
+    'Right now that means AI Second Brain, a memory engine for agents built on a temporal knowledge graph and hybrid retrieval, where every answer has to cite the memory it came from. At Igniters Hub I build AI that extracts structured information from engineering drawings using OCR, computer vision and LLMs.',
     'I like measuring things. My favourite result so far is a 68× retrieval speedup that came from a missing database index rather than a clever algorithm, which is a good reminder to benchmark before optimizing.',
   ],
   status: 'Open to AI engineering roles',
@@ -87,8 +87,8 @@ export const profile = {
       organization: 'Igniters Hub',
       location: 'India',
       description: [
-        'Building an AI system that reads furniture engineering drawings with OCR, computer vision and an LLM, generates the cut list and sends it to the cutting optimizer',
-        'Automating dimension and component extraction for downstream furniture engineering',
+        'Building an AI-driven furniture drawing extraction system using OCR, computer vision and LLM-based processing to extract structured information from engineering drawings',
+        'Implementing automated dimension and component extraction workflows for downstream furniture engineering processes',
         'Full-stack work across frontend, backend, APIs and system integration',
       ],
       technologies: ['Python', 'FastAPI', 'OCR', 'OpenCV', 'LLMs', 'React', 'TypeScript'],
